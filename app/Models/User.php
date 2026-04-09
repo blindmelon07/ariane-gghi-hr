@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -11,7 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'employee_code', 'email', 'password', 'role', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -27,12 +26,35 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'is_active'         => 'boolean',
         ];
     }
 
     /**
-     * Get the user's initials
+     * Check if the user has a given role.
+     */
+    public function hasRole(string|array $roles): bool
+    {
+        $roles = is_array($roles) ? $roles : explode(',', $roles);
+
+        return in_array($this->role, array_map('trim', $roles));
+    }
+
+    /**
+     * Get the redirect path for the user based on their role.
+     */
+    public function dashboardRoute(): string
+    {
+        return match ($this->role) {
+            'hr_admin' => '/admin/dashboard',
+            'manager'  => '/manager/dashboard',
+            default    => '/dashboard',
+        };
+    }
+
+    /**
+     * Get the user's initials.
      */
     public function initials(): string
     {
