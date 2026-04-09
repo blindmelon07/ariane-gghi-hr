@@ -26,6 +26,7 @@ new class extends Component
                 ['label' => 'Deductions',          'route' => 'admin.deductions',          'icon' => 'document-text'],
                 ['label' => 'Leave Approvals',    'route' => 'admin.leave',               'icon' => 'document-text'],
                 ['label' => 'Leave Credits',      'route' => 'admin.leave-credits',       'icon' => 'check-circle'],
+                ['label' => 'Day Offs',            'route' => 'admin.day-offs',             'icon' => 'calendar-days'],
                 ['label' => 'Attendance Report',  'route' => 'admin.reports.attendance',  'icon' => 'calendar'],
                 ['label' => 'Leave Report',       'route' => 'admin.reports.leave',       'icon' => 'chart-bar'],
                 ['label' => 'Payroll Report',     'route' => 'admin.reports.payroll',     'icon' => 'banknotes'],
