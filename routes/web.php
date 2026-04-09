@@ -53,6 +53,7 @@ Route::middleware(['auth', 'role:hr_admin'])->group(function () {
     Route::view('admin/employees', 'admin.employees')->name('admin.employees');
     Route::view('admin/deductions', 'admin.deductions')->name('admin.deductions');
     Route::view('admin/day-offs', 'admin.day-offs')->name('admin.day-offs');
+    Route::view('admin/schedules', 'admin.schedules')->name('admin.schedules');
     Route::view('admin/reports/payroll', 'admin.reports.payroll')->name('admin.reports.payroll');
 });
 

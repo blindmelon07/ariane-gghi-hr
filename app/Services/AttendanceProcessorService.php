@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AttendanceLog;
+use App\Models\DayOff;
 use App\Models\Employee;
 use Illuminate\Support\Carbon;
 
@@ -17,8 +18,12 @@ class AttendanceProcessorService
     {
         $carbon = Carbon::parse($date);
 
-        // Sunday is a day-off
-        if ($carbon->isSunday()) {
+        // Check if the employee has a day-off record for this date
+        $hasDayOff = DayOff::where('employee_id', $employee->id)
+            ->whereDate('date', $date)
+            ->exists();
+
+        if ($hasDayOff) {
             return [
                 'time_in'          => null,
                 'time_out'         => null,
@@ -49,9 +54,26 @@ class AttendanceProcessorService
         $timeIn  = $logs->first()->punch_time;
         $timeOut = $logs->count() > 1 ? $logs->last()->punch_time : null;
 
-        // Schedule constants
+        // Look up the employee's assigned schedule for this date, fallback to 8:00-17:00
         $scheduleIn  = Carbon::parse($date)->setTime(8, 0, 0);
         $scheduleOut = Carbon::parse($date)->setTime(17, 0, 0);
+
+        $assignment = \App\Models\EmployeeSchedule::where('employee_id', $employee->id)
+            ->where('effective_from', '<=', $date)
+            ->where(function ($q) use ($date) {
+                $q->whereNull('effective_to')->orWhere('effective_to', '>=', $date);
+            })
+            ->orderByDesc('effective_from')
+            ->with('schedule')
+            ->first();
+
+        if ($assignment && $assignment->schedule) {
+            $sched = $assignment->schedule;
+            $inParts  = explode(':', substr($sched->time_in, 0, 5));
+            $outParts = explode(':', substr($sched->time_out, 0, 5));
+            $scheduleIn  = Carbon::parse($date)->setTime((int)$inParts[0], (int)$inParts[1], 0);
+            $scheduleOut = Carbon::parse($date)->setTime((int)$outParts[0], (int)$outParts[1], 0);
+        }
 
         $minutesLate     = (int) max(0, $timeIn->diffInMinutes($scheduleIn, false) * -1);
         $minutesUndertime = 0;

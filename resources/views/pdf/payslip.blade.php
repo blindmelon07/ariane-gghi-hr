@@ -41,7 +41,7 @@
     <div class="container">
         {{-- Header --}}
         <div class="header">
-            <h1>{{ config('company.name', 'Company Name') }}</h1>
+            <img src="{{ public_path('images/gghi logo.png') }}" alt="GSAC General Hospital Inc." style="height: 50px; margin-bottom: 8px;">
             <p>{{ config('company.address', '') }}</p>
             @if (config('company.tin'))
                 <p>TIN: {{ config('company.tin') }}</p>
