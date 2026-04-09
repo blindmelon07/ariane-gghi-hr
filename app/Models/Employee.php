@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Employee extends Model
 {
     protected $fillable = [
+        'user_id',
         'emp_code',
         'first_name',
         'last_name',
@@ -59,5 +61,10 @@ class Employee extends Model
     public function otherDeductions(): HasMany
     {
         return $this->hasMany(OtherDeduction::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

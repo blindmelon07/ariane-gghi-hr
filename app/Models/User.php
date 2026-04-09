@@ -17,6 +17,11 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\App\Models\Employee::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

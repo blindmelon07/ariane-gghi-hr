@@ -3,6 +3,7 @@
 namespace App\Livewire\Employee;
 
 use App\Models\Employee;
+use App\Models\LeaveCredit;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Services\LeaveService;
@@ -23,6 +24,36 @@ class LeaveRequestForm extends Component
 
     #[Validate('required|string|min:10|max:1000')]
     public string $reason = '';
+
+    #[Computed]
+    public function leaveBalances(): array
+    {
+        $employee = Employee::where('emp_code', auth()->user()->employee_code)->first();
+        if (!$employee) {
+            return [];
+        }
+
+        $leaveService = app(LeaveService::class);
+        $year = now()->year;
+
+        return LeaveType::all()->map(function ($type) use ($employee, $leaveService, $year) {
+            $credit = LeaveCredit::where('employee_id', $employee->id)
+                ->where('leave_type_id', $type->id)
+                ->where('year', $year)
+                ->first();
+
+            $total = $credit?->credits ?? 0;
+            $remaining = $leaveService->getRemainingCredits($employee->id, $type->id, $year);
+
+            return [
+                'name'      => $type->name,
+                'code'      => $type->code,
+                'total'     => $total,
+                'used'      => $total - $remaining,
+                'remaining' => $remaining,
+            ];
+        })->toArray();
+    }
 
     #[Computed]
     public function totalDays(): float

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\OtherDeduction;
 use App\Services\ActivityLogService;
@@ -16,25 +17,45 @@ class DeductionManager extends Component
     public string $search = '';
     public string $filterDept = '';
     public string $filterStatus = 'active';
+    public string $filterType = '';
 
     // Add/Edit modal state
-    public bool   $showModal       = false;
-    public ?int   $editDeductionId = null;
-    public ?int   $modalEmployeeId = null;
-    public string $empSearch       = '';
-    public string $description     = '';
-    public string $amountPerCutoff = '';
-    public string $remainingBalance = '';
-    public bool   $isActive        = true;
+    public bool   $showModal          = false;
+    public ?int   $editDeductionId    = null;
+    public ?int   $modalEmployeeId    = null;
+    public string $empSearch          = '';
+    public string $deductionTypeId    = '';
+    public string $description        = '';
+    public string $amountPerCutoff    = '';
+    public string $remainingBalance   = '';
+    public bool   $isActive           = true;
+
+    // Deduction Type management
+    public bool   $showTypeModal      = false;
+    public ?int   $editTypeId         = null;
+    public string $typeCode           = '';
+    public string $typeName           = '';
+    public string $typeCategory       = 'other';
 
     public function updatedSearch(): void { $this->resetPage(); }
     public function updatedFilterDept(): void { $this->resetPage(); }
     public function updatedFilterStatus(): void { $this->resetPage(); }
+    public function updatedFilterType(): void { $this->resetPage(); }
+
+    public function updatedDeductionTypeId(): void
+    {
+        if ($this->deductionTypeId) {
+            $type = DeductionType::find($this->deductionTypeId);
+            if ($type && !$this->editDeductionId) {
+                $this->description = $type->name;
+            }
+        }
+    }
 
     #[Computed]
     public function deductions()
     {
-        return OtherDeduction::with('employee')
+        return OtherDeduction::with(['employee', 'deductionType'])
             ->when($this->search, fn ($q) => $q->where(function ($q2) {
                 $q2->whereHas('employee', fn ($e) =>
                     $e->where('first_name', 'like', "%{$this->search}%")
@@ -45,6 +66,7 @@ class DeductionManager extends Component
             ->when($this->filterDept, fn ($q) => $q->whereHas('employee', fn ($e) =>
                 $e->where('department', $this->filterDept)
             ))
+            ->when($this->filterType, fn ($q) => $q->where('deduction_type_id', $this->filterType))
             ->when($this->filterStatus === 'active', fn ($q) => $q->where('is_active', true))
             ->when($this->filterStatus === 'inactive', fn ($q) => $q->where('is_active', false))
             ->orderByDesc('created_at')
@@ -58,6 +80,18 @@ class DeductionManager extends Component
             ->distinct()
             ->orderBy('department')
             ->pluck('department');
+    }
+
+    #[Computed]
+    public function deductionTypes()
+    {
+        return DeductionType::where('is_active', true)->orderBy('category')->orderBy('name')->get();
+    }
+
+    #[Computed]
+    public function allDeductionTypes()
+    {
+        return DeductionType::orderBy('category')->orderBy('name')->get();
     }
 
     #[Computed]
@@ -86,6 +120,8 @@ class DeductionManager extends Component
         }
     }
 
+    // ── Deduction CRUD ─────────────────────────────────────
+
     public function openAdd(): void
     {
         $this->resetModal();
@@ -100,6 +136,7 @@ class DeductionManager extends Component
         $this->editDeductionId  = $deduction->id;
         $this->modalEmployeeId  = $deduction->employee_id;
         $this->empSearch        = $deduction->employee->full_name . ' (' . $deduction->employee->emp_code . ')';
+        $this->deductionTypeId  = (string) ($deduction->deduction_type_id ?? '');
         $this->description      = $deduction->description;
         $this->amountPerCutoff  = (string) $deduction->amount_per_cutoff;
         $this->remainingBalance = (string) $deduction->remaining_balance;
@@ -111,17 +148,19 @@ class DeductionManager extends Component
     {
         $this->validate([
             'modalEmployeeId'  => 'required|exists:employees,id',
+            'deductionTypeId'  => 'required|exists:deduction_types,id',
             'description'      => 'required|string|max:255',
             'amountPerCutoff'  => 'required|numeric|min:0',
             'remainingBalance' => 'required|numeric|min:0',
         ]);
 
         $data = [
-            'employee_id'      => $this->modalEmployeeId,
-            'description'      => $this->description,
+            'employee_id'       => $this->modalEmployeeId,
+            'deduction_type_id' => $this->deductionTypeId,
+            'description'       => $this->description,
             'amount_per_cutoff' => $this->amountPerCutoff,
             'remaining_balance' => $this->remainingBalance,
-            'is_active'        => $this->isActive,
+            'is_active'         => $this->isActive,
         ];
 
         if ($this->editDeductionId) {
@@ -151,10 +190,73 @@ class DeductionManager extends Component
         $this->editDeductionId  = null;
         $this->modalEmployeeId  = null;
         $this->empSearch        = '';
+        $this->deductionTypeId  = '';
         $this->description      = '';
         $this->amountPerCutoff  = '';
         $this->remainingBalance = '';
         $this->isActive         = true;
+        $this->resetValidation();
+    }
+
+    // ── Deduction Type CRUD ────────────────────────────────
+
+    public function openAddType(): void
+    {
+        $this->resetTypeModal();
+        $this->showTypeModal = true;
+    }
+
+    public function openEditType(int $id): void
+    {
+        $type = DeductionType::findOrFail($id);
+        $this->resetTypeModal();
+        $this->editTypeId   = $type->id;
+        $this->typeCode     = $type->code;
+        $this->typeName     = $type->name;
+        $this->typeCategory = $type->category;
+        $this->showTypeModal = true;
+    }
+
+    public function saveType(): void
+    {
+        $this->validate([
+            'typeCode'     => 'required|string|max:30|unique:deduction_types,code,' . ($this->editTypeId ?? 'NULL'),
+            'typeName'     => 'required|string|max:255',
+            'typeCategory' => 'required|in:government,loan,benefit,other',
+        ]);
+
+        if ($this->editTypeId) {
+            DeductionType::findOrFail($this->editTypeId)->update([
+                'code'     => strtoupper($this->typeCode),
+                'name'     => $this->typeName,
+                'category' => $this->typeCategory,
+            ]);
+        } else {
+            DeductionType::create([
+                'code'      => strtoupper($this->typeCode),
+                'name'      => $this->typeName,
+                'category'  => $this->typeCategory,
+                'is_active' => true,
+            ]);
+        }
+
+        $this->showTypeModal = false;
+        unset($this->deductionTypes, $this->allDeductionTypes);
+    }
+
+    public function toggleTypeActive(int $id): void
+    {
+        $type = DeductionType::findOrFail($id);
+        $type->update(['is_active' => !$type->is_active]);
+        unset($this->deductionTypes, $this->allDeductionTypes);
+    }
+
+    private function resetTypeModal(): void
+    {
+        $this->editTypeId   = null;
+        $this->typeCode     = '';
+        $this->typeName     = '';
+        $this->typeCategory = 'other';
         $this->resetValidation();
     }
 

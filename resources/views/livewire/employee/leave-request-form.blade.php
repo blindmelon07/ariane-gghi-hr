@@ -5,6 +5,22 @@
         </div>
     @endif
 
+    {{-- Leave Balances --}}
+    @if (count($this->leaveBalances))
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">My Leave Balances ({{ now()->year }})</h4>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            @foreach ($this->leaveBalances as $bal)
+            <div class="rounded-lg border {{ $bal['remaining'] > 0 ? 'border-gray-200 bg-gray-50' : 'border-red-200 bg-red-50' }} p-3">
+                <p class="text-xs font-medium text-gray-500 uppercase">{{ $bal['name'] }}</p>
+                <p class="text-xl font-bold {{ $bal['remaining'] > 0 ? 'text-indigo-600' : 'text-red-500' }}">{{ $bal['remaining'] }}</p>
+                <p class="text-[11px] text-gray-400">{{ $bal['used'] }} used of {{ $bal['total'] }}</p>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <div class="bg-white rounded-xl shadow-sm p-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-6">File Leave Request</h3>
 

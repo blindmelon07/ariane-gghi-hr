@@ -9,6 +9,7 @@ class OtherDeduction extends Model
 {
     protected $fillable = [
         'employee_id',
+        'deduction_type_id',
         'description',
         'amount_per_cutoff',
         'remaining_balance',
@@ -27,5 +28,10 @@ class OtherDeduction extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function deductionType(): BelongsTo
+    {
+        return $this->belongsTo(DeductionType::class);
     }
 }

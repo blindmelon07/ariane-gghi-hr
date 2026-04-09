@@ -55,8 +55,8 @@ new class extends Component
     :class="open ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'"
 >
     {{-- Logo / App Name --}}
-    <div class="flex items-center justify-between h-16 px-6 bg-gray-800 shrink-0">
-        <span class="text-xl font-bold tracking-wide text-white">HR Portal</span>
+    <div class="flex items-center justify-between px-4 py-3 bg-gray-800 shrink-0">
+        <img src="{{ asset('images/gghi logo.png') }}" alt="GSAC General Hospital Inc." class="h-10 w-auto brightness-0 invert" />
     </div>
 
     {{-- Role Badge --}}

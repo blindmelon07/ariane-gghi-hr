@@ -18,7 +18,9 @@
     </style>
 </head>
 <body>
-    <h2>{{ config('company.name', 'Company') }}</h2>
+    <div style="text-align:center; margin-bottom:4px;">
+        <img src="{{ public_path('images/gghi logo.png') }}" alt="GSAC General Hospital Inc." style="height:50px; width:auto;" />
+    </div>
     <p class="sub">
         Payroll Report: {{ $period->start_date->format('M d') }} &ndash; {{ $period->end_date->format('M d, Y') }}
         | Status: {{ ucfirst($period->status) }}
@@ -45,7 +47,7 @@
         <tbody>
             @foreach ($payslips as $slip)
             <tr>
-                <td>{{ $slip->employee->employee_code ?? '' }}</td>
+                <td>{{ $slip->employee->emp_code ?? '' }}</td>
                 <td>{{ $slip->employee->full_name ?? '' }}</td>
                 <td class="r">{{ number_format($slip->days_present, 1) }}</td>
                 <td class="r">{{ number_format($slip->basic_pay, 2) }}</td>
