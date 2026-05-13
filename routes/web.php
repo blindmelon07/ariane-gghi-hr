@@ -37,6 +37,10 @@ Route::get('payslips/{payslip}/download', [PayslipController::class, 'download']
     ->middleware(['auth'])
     ->name('payslips.download');
 
+Route::view('admin/biometrics', 'admin.biometrics')
+    ->middleware(['auth', 'role:hr_admin'])
+    ->name('admin.biometrics');
+
 // Admin/Manager Leave Routes
 Route::view('admin/leave', 'admin.leave')
     ->middleware(['auth', 'role:hr_admin,manager'])

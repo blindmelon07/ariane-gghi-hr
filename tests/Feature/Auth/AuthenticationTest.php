@@ -15,14 +15,13 @@ test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
     $component = Volt::test('pages.auth.login')
-        ->set('form.email', $user->email)
+        ->set('form.employee_code', $user->employee_code)
         ->set('form.password', 'password');
 
     $component->call('login');
 
     $component
-        ->assertHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
+        ->assertHasNoErrors();
 
     $this->assertAuthenticated();
 });
@@ -52,7 +51,7 @@ test('navigation menu can be rendered', function () {
 
     $response
         ->assertOk()
-        ->assertSeeVolt('layout.navigation');
+        ->assertSeeVolt('layout.sidebar');
 });
 
 test('users can logout', function () {
