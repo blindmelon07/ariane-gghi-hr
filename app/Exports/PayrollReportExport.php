@@ -45,7 +45,7 @@ class PayrollReportExport implements FromCollection, WithHeadings, WithMapping, 
     public function map($row): array
     {
         return [
-            $row->employee->employee_code ?? '',
+            $row->employee->emp_code ?? '',
             $row->employee->full_name ?? '',
             number_format($row->days_present, 1),
             number_format($row->basic_pay, 2),

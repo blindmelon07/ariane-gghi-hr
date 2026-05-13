@@ -42,7 +42,7 @@ class LeaveRequestForm extends Component
                 ->where('year', $year)
                 ->first();
 
-            $total = $credit?->credits ?? 0;
+            $total = $credit?->total_credits ?? 0;
             $remaining = $leaveService->getRemainingCredits($employee->id, $type->id, $year);
 
             return [

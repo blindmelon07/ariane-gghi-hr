@@ -3,7 +3,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Deductions</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 deduction types and assign them to employees.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Manage deduction types and assign them to employees.</p>
         </div>
         <div class="flex gap-2">
             <button wire:click="openAddType" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition">
@@ -78,13 +78,15 @@
                         </td>
                         <td class="px-4 py-2.5">
                             @if ($d->deductionType)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                    {{ match($d->deductionType->category) {
+                                @php
+                                    $categoryClass = match($d->deductionType->category) {
                                         'government' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
                                         'loan' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
                                         'benefit' => 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
                                         default => 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
-                                    } }}">
+                                    };
+                                @endphp
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $categoryClass }}">
                                     {{ $d->deductionType->code }}
                                 </span>
                             @else
@@ -95,8 +97,14 @@
                         <td class="px-4 py-2.5 text-right font-mono">{{ number_format($d->amount_per_cutoff, 2) }}</td>
                         <td class="px-4 py-2.5 text-right font-mono">{{ number_format($d->remaining_balance, 2) }}</td>
                         <td class="px-4 py-2.5 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $d->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 }}">
-                                {{ $d->is_active ? 'Active' : 'Inactive' }}
+                            @php
+                                $statusClass = $d->is_active
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
+                                $statusLabel = $d->is_active ? 'Active' : 'Inactive';
+                            @endphp
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
+                                {{ $statusLabel }}
                             </span>
                         </td>
                         <td class="px-4 py-2.5 text-center">
@@ -105,6 +113,7 @@
                                 <button wire:click="toggleActive({{ $d->id }})" class="text-xs font-medium {{ $d->is_active ? 'text-red-600 dark:text-red-400 hover:text-red-800' : 'text-green-600 dark:text-green-400 hover:text-green-800' }}">
                                     {{ $d->is_active ? 'Deactivate' : 'Activate' }}
                                 </button>
+                                <button wire:click="delete({{ $d->id }})" wire:confirm="Delete this deduction?" class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Delete</button>
                             </div>
                         </td>
                     </tr>

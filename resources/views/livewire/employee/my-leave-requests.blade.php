@@ -59,8 +59,8 @@
                                             'pending'   => 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
                                             'approved'  => 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
                                             'rejected'  => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-                                            'cancelled' => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400
-                                            default     => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400
+                                            'cancelled' => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                                            default     => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
                                         };
                                     @endphp
                                     <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded {{ $badgeClass }}">

@@ -185,6 +185,14 @@ class DeductionManager extends Component
         unset($this->deductions);
     }
 
+    public function delete(int $id): void
+    {
+        $deduction = OtherDeduction::findOrFail($id);
+        ActivityLogService::log('deduction_deleted', "Deleted deduction \"{$deduction->description}\" for employee #{$deduction->employee_id}.", $deduction);
+        $deduction->delete();
+        unset($this->deductions);
+    }
+
     private function resetModal(): void
     {
         $this->editDeductionId  = null;

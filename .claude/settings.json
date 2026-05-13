@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(composer require:*)"
+      "Bash(composer require:*)",
+      "Bash(grep -A10 'protected $fillable' /c/xampp2/htdocs/biotiime-final/app/Models/LeaveCredit.php)",
+      "Bash(find \"/c/xampp2/htdocs/biotiime-final/resources/views\" -name \"*.blade.php\" -type f -exec grep -l \"livewire\\\\|wire:\" {} \\\\;)",
+      "Bash(grep -rn '$this->payslips\\\\|$this->requests\\\\|$this->totalDays\\\\|$this->remainingCredits' /c/xampp2/htdocs/biotiime-final/app/Livewire '--include=*.php')",
+      "Bash(grep -r '{{ $off->date->format\\('\\\\''l'\\\\''\\) }}' 'c:\\\\xampp2\\\\htdocs\\\\biotiime-final/resources/views/')",
+      "Bash(find resources/views/livewire -name \"*.blade.php\" -type f -exec sh -c 'echo \"=== {} ===\" && grep -n \"wire:click.*delete\\\\|wire:click.*open\" \"$1\"' _ {} \\\\;)",
+      "Bash(grep -n '{{ \\\\$' resources/views/livewire/admin/day-off-manager.blade.php)",
+      "Bash(grep -n \"}} $\\\\|^[[:space:]]*[}}]\" resources/views/livewire/admin/day-off-manager.blade.php resources/views/livewire/admin/deduction-manager.blade.php resources/views/livewire/employee/my-leave-requests.blade.php)"
     ]
   }
 }

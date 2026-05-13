@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,11 +19,17 @@ class LeaveCredit extends Model
     protected function casts(): array
     {
         return [
-            'year'              => 'integer',
-            'total_credits'     => 'decimal:1',
-            'used_credits'      => 'decimal:1',
-            'remaining_credits' => 'decimal:1',
+            'year'          => 'integer',
+            'total_credits' => 'decimal:1',
+            'used_credits'  => 'decimal:1',
         ];
+    }
+
+    protected function remainingCredits(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => round((float) $this->total_credits - (float) $this->used_credits, 1),
+        );
     }
 
     public function employee(): BelongsTo

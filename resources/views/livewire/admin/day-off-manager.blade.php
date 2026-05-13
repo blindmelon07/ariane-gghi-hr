@@ -9,7 +9,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Day Off Management</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 rest days, holidays, and special day offs to employees.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Assign rest days, holidays, and special day offs to employees.</p>
         </div>
         <div class="flex gap-2">
             <button wire:click="openBulk" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition">
@@ -79,7 +79,7 @@
                             <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $off->employee->emp_code ?? '' }}</p>
                         </td>
                         <td class="px-4 py-2.5">{{ $off->date->format('M d, Y') }}</td>
-                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 $off->date->format('l') }}</td>
+                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">{{ $off->date->format('l') }}</td>
                         <td class="px-4 py-2.5">
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
                                 {{ match($off->type) {
@@ -94,7 +94,7 @@
                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 ml-1">Recurring</span>
                             @endif
                         </td>
-                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 $off->description ?? '—' }}</td>
+                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">{{ $off->description ?? '—' }}</td>
                         <td class="px-4 py-2.5 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <button wire:click="openEdit({{ $off->id }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">Edit</button>

@@ -33,6 +33,8 @@
         </script>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @include('layouts._alpine')
+        @livewireStyles
     </head>
     <body class="font-sans antialiased h-full bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-gray-100">
 
@@ -101,5 +103,6 @@
             </div>
         </div>
 
+        @livewireScripts
     </body>
 </html>
