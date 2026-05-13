@@ -21,6 +21,10 @@ class ZKTecoService
 
     protected function device(): ZKTeco
     {
+        if (! extension_loaded('sockets')) {
+            throw new \RuntimeException('PHP sockets extension is not enabled. Enable extension=sockets in php.ini and restart the server.');
+        }
+
         return new ZKTeco($this->ip, $this->port);
     }
 

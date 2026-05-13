@@ -3,9 +3,12 @@
 namespace App\Livewire\Admin;
 
 use App\Models\AttendanceLog;
+use App\Models\Employee;
+use App\Models\User;
 use App\Services\ZKTecoService;
+use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Illuminate\Support\Carbon;
 
 class BiometricsManager extends Component
 {
@@ -22,6 +25,15 @@ class BiometricsManager extends Component
 
     public string $successMessage = '';
     public string $errorMessage   = '';
+
+    // Device account modal
+    public bool   $showAccountModal        = false;
+    public ?int   $accountEmployeeId       = null;
+    public string $accountName             = '';
+    public string $accountEmpCode          = '';
+    public string $accountPassword         = '';
+    public string $accountRole             = 'employee';
+    public bool   $hasExistingAccount      = false;
 
     public function mount(): void
     {
@@ -88,6 +100,72 @@ class BiometricsManager extends Component
         } finally {
             $this->syncingUsers = false;
         }
+    }
+
+    #[Computed]
+    public function deviceUsers()
+    {
+        return Employee::with('user')
+            ->whereNotNull('synced_at')
+            ->orderBy('first_name')
+            ->get();
+    }
+
+    public function openAccountModal(int $id): void
+    {
+        $emp = Employee::with('user')->findOrFail($id);
+
+        $this->accountEmployeeId   = $emp->id;
+        $this->accountName         = $emp->full_name;
+        $this->accountEmpCode      = $emp->emp_code;
+        $this->accountPassword     = '';
+        $this->hasExistingAccount  = (bool) $emp->user;
+        $this->accountRole         = $emp->user?->role ?? 'employee';
+        $this->showAccountModal    = true;
+    }
+
+    public function saveAccount(): void
+    {
+        $this->validate([
+            'accountPassword' => $this->hasExistingAccount ? 'nullable|string|min:6' : 'required|string|min:6',
+            'accountRole'     => 'required|in:employee,hr_admin,manager',
+        ]);
+
+        $emp = Employee::findOrFail($this->accountEmployeeId);
+
+        if ($this->hasExistingAccount && $emp->user) {
+            $emp->user->update(['role' => $this->accountRole]);
+            if ($this->accountPassword) {
+                $emp->user->update(['password' => Hash::make($this->accountPassword)]);
+            }
+            $this->successMessage = "Account updated for {$emp->full_name}.";
+        } else {
+            $existing = User::where('employee_code', $emp->emp_code)->first();
+
+            if ($existing) {
+                $emp->update(['user_id' => $existing->id]);
+                $existing->update(['role' => $this->accountRole, 'is_active' => true]);
+            } else {
+                $user = User::create([
+                    'name'          => $emp->full_name,
+                    'employee_code' => $emp->emp_code,
+                    'password'      => Hash::make($this->accountPassword),
+                    'role'          => $this->accountRole,
+                    'is_active'     => true,
+                ]);
+                $emp->update(['user_id' => $user->id]);
+            }
+
+            $this->successMessage = "Account created for {$emp->full_name}.";
+        }
+
+        $this->showAccountModal = false;
+        unset($this->deviceUsers);
+    }
+
+    public function closeAccountModal(): void
+    {
+        $this->showAccountModal = false;
     }
 
     public function getRecentLogsProperty()

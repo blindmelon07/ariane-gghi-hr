@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -m)",
+      "Bash(php --ini)",
+      "Bash(grep -n \"extension=sockets\\\\|extension=php_sockets\" \"C:\\\\xampp\\\\php\\\\php.ini\")",
+      "Read(//c/xampp/php/**)",
+      "Bash(php -r \"echo PHP_BINARY . PHP_EOL; echo phpversion\\(\\) . PHP_EOL; echo \\(extension_loaded\\('sockets'\\) ? 'sockets: YES' : 'sockets: NO'\\) . PHP_EOL;\")",
+      "Bash(php artisan *)"
+    ]
+  }
+}

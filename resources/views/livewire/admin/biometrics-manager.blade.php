@@ -50,7 +50,7 @@
                 @endif
             </div>
 
-            @if ($connectionStatus?['connected'] && isset($connectionStatus['serial']))
+            @if (($connectionStatus['connected'] ?? false) && isset($connectionStatus['serial']))
                 <div class="grid grid-cols-3 gap-3 mb-5">
                     <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
                         <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Serial</p>
@@ -195,6 +195,127 @@
             </div>
         </div>
     </div>
+
+    {{-- Device Users --}}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Device Users</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Employees imported from the biometric device. Assign an account so they can log in.</p>
+            </div>
+            <span class="text-xs font-medium text-slate-400">{{ $this->deviceUsers->count() }} users</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-gray-100 dark:border-slate-800">
+                        <th class="text-left px-6 py-3 font-medium">Emp Code</th>
+                        <th class="text-left px-6 py-3 font-medium">Name</th>
+                        <th class="text-left px-6 py-3 font-medium">Account</th>
+                        <th class="text-left px-6 py-3 font-medium">Role</th>
+                        <th class="text-left px-6 py-3 font-medium">Synced At</th>
+                        <th class="text-right px-6 py-3 font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 dark:divide-slate-800">
+                    @forelse ($this->deviceUsers as $emp)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="px-6 py-3 font-mono text-xs text-gray-500 dark:text-slate-400">{{ $emp->emp_code }}</td>
+                            <td class="px-6 py-3 font-medium text-gray-800 dark:text-gray-200">{{ $emp->full_name }}</td>
+                            <td class="px-6 py-3">
+                                @if ($emp->user)
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium {{ $emp->user->is_active ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $emp->user->is_active ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
+                                        {{ $emp->user->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                        No Account
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-3 text-xs text-gray-500 dark:text-slate-400">
+                                {{ $emp->user ? ucfirst($emp->user->role) : '—' }}
+                            </td>
+                            <td class="px-6 py-3 text-xs text-gray-400 dark:text-slate-500">
+                                {{ $emp->synced_at?->format('M d, Y H:i') ?? '—' }}
+                            </td>
+                            <td class="px-6 py-3 text-right">
+                                <button wire:click="openAccountModal({{ $emp->id }})"
+                                    class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors {{ $emp->user ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700' : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}">
+                                    {{ $emp->user ? 'Manage Account' : 'Assign Account' }}
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-10 text-center text-sm text-slate-400">
+                                No device users yet. Click <strong>Sync Employees from Device</strong> above to import them.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- Account Modal --}}
+    @if ($showAccountModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" wire:click="closeAccountModal"></div>
+            <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 p-6">
+
+                <div class="flex items-start justify-between mb-5">
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                            {{ $hasExistingAccount ? 'Manage Account' : 'Assign Account' }}
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">{{ $accountName }} &middot; <span class="font-mono">{{ $accountEmpCode }}</span></p>
+                    </div>
+                    <button wire:click="closeAccountModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Role</label>
+                        <select wire:model="accountRole"
+                            class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="employee">Employee</option>
+                            <option value="manager">Manager</option>
+                            <option value="hr_admin">HR Admin</option>
+                        </select>
+                        @error('accountRole') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">
+                            Password {{ $hasExistingAccount ? '(leave blank to keep current)' : '' }}
+                        </label>
+                        <input type="password" wire:model="accountPassword"
+                            placeholder="{{ $hasExistingAccount ? 'Enter new password to change' : 'Set a password' }}"
+                            class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+                        @error('accountPassword') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 mt-6">
+                    <button wire:click="closeAccountModal"
+                        class="px-4 py-2 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        Cancel
+                    </button>
+                    <button wire:click="saveAccount" wire:loading.attr="disabled"
+                        class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium transition-colors">
+                        <span wire:loading.remove wire:target="saveAccount">{{ $hasExistingAccount ? 'Update Account' : 'Create Account' }}</span>
+                        <span wire:loading wire:target="saveAccount">Saving...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- Recent logs table --}}
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
