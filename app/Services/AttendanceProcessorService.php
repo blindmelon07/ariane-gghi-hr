@@ -9,29 +9,25 @@ use Illuminate\Support\Carbon;
 
 class AttendanceProcessorService
 {
+    // Punch times before this boundary are treated as AM; at/after are PM.
+    private const AM_PM_BOUNDARY = '12:30:00';
+
     /**
-     * Process attendance for a given employee on a specific date.
-     *
-     * @return array{time_in: ?string, time_out: ?string, hours_worked: float, minutes_late: int, minutes_undertime: int, status: string}
+     * @return array{
+     *   am_time_in: ?string, am_time_out: ?string,
+     *   pm_time_in: ?string, pm_time_out: ?string,
+     *   time_in: ?string, time_out: ?string,
+     *   hours_worked: float, minutes_late: int, minutes_undertime: int, status: string
+     * }
      */
     public function processDay(Employee $employee, string $date): array
     {
-        $carbon = Carbon::parse($date);
-
-        // Check if the employee has a day-off record for this date
         $hasDayOff = DayOff::where('employee_id', $employee->id)
             ->whereDate('date', $date)
             ->exists();
 
         if ($hasDayOff) {
-            return [
-                'time_in'          => null,
-                'time_out'         => null,
-                'hours_worked'     => 0,
-                'minutes_late'     => 0,
-                'minutes_undertime' => 0,
-                'status'           => 'Day-off',
-            ];
+            return $this->emptyResult('Day-off');
         }
 
         $logs = AttendanceLog::where('employee_id', $employee->id)
@@ -39,22 +35,21 @@ class AttendanceProcessorService
             ->orderBy('punch_time')
             ->get();
 
-        // No records at all → Absent
         if ($logs->isEmpty()) {
-            return [
-                'time_in'          => null,
-                'time_out'         => null,
-                'hours_worked'     => 0,
-                'minutes_late'     => 0,
-                'minutes_undertime' => 0,
-                'status'           => 'Absent',
-            ];
+            return $this->emptyResult('Absent');
         }
 
-        $timeIn  = $logs->first()->punch_time;
-        $timeOut = $logs->count() > 1 ? $logs->last()->punch_time : null;
+        $boundary = Carbon::parse($date . ' ' . self::AM_PM_BOUNDARY);
 
-        // Look up the employee's assigned schedule for this date, fallback to 8:00-17:00
+        $amLogs = $logs->filter(fn ($l) => $l->punch_time->lt($boundary))->values();
+        $pmLogs = $logs->filter(fn ($l) => $l->punch_time->gte($boundary))->values();
+
+        $amIn  = $amLogs->first()?->punch_time;
+        $amOut = $amLogs->count() > 1 ? $amLogs->last()->punch_time : null;
+        $pmIn  = $pmLogs->first()?->punch_time;
+        $pmOut = $pmLogs->count() > 1 ? $pmLogs->last()->punch_time : null;
+
+        // Lookup schedule (falls back to 08:00–17:00)
         $scheduleIn  = Carbon::parse($date)->setTime(8, 0, 0);
         $scheduleOut = Carbon::parse($date)->setTime(17, 0, 0);
 
@@ -67,45 +62,66 @@ class AttendanceProcessorService
             ->with('schedule')
             ->first();
 
-        if ($assignment && $assignment->schedule) {
-            $sched = $assignment->schedule;
-            $inParts  = explode(':', substr($sched->time_in, 0, 5));
-            $outParts = explode(':', substr($sched->time_out, 0, 5));
-            $scheduleIn  = Carbon::parse($date)->setTime((int)$inParts[0], (int)$inParts[1], 0);
-            $scheduleOut = Carbon::parse($date)->setTime((int)$outParts[0], (int)$outParts[1], 0);
+        if ($assignment?->schedule) {
+            $inParts  = explode(':', substr($assignment->schedule->time_in, 0, 5));
+            $outParts = explode(':', substr($assignment->schedule->time_out, 0, 5));
+            $scheduleIn  = Carbon::parse($date)->setTime((int) $inParts[0], (int) $inParts[1], 0);
+            $scheduleOut = Carbon::parse($date)->setTime((int) $outParts[0], (int) $outParts[1], 0);
         }
 
-        $minutesLate     = (int) max(0, $timeIn->diffInMinutes($scheduleIn, false) * -1);
-        $minutesUndertime = 0;
-        $hoursWorked     = 0;
+        $pmScheduleIn = Carbon::parse($date)->setTime(13, 0, 0);
 
-        if ($timeOut) {
-            $minutesUndertime = (int) max(0, $scheduleOut->diffInMinutes($timeOut, false) * -1);
-            $hoursWorked      = round($timeOut->floatDiffInHours($timeIn), 2);
-        }
+        // Late = AM late + PM late
+        $amLate = $amIn ? (int) max(0, $amIn->diffInMinutes($scheduleIn, false) * -1) : 0;
+        $pmLate = $pmIn ? (int) max(0, $pmIn->diffInMinutes($pmScheduleIn, false) * -1) : 0;
+        $minutesLate = $amLate + $pmLate;
 
-        // Determine status
-        $status = 'Absent';
+        $amHours = ($amIn && $amOut) ? round($amOut->floatDiffInHours($amIn), 2) : 0;
+        $pmHours = ($pmIn && $pmOut) ? round($pmOut->floatDiffInHours($pmIn), 2) : 0;
+        $hoursWorked = round($amHours + $pmHours, 2);
 
-        if ($timeIn && $timeOut) {
-            if ($hoursWorked < 4) {
-                $status = 'Half-day';
-            } elseif ($minutesLate > 0) {
-                $status = 'Late';
-            } else {
-                $status = 'Present';
-            }
-        } elseif ($timeIn) {
-            // Has time_in but no time_out
-            $status = 'Half-day';
-        }
+        $minutesUndertime = $pmOut
+            ? (int) max(0, $scheduleOut->diffInMinutes($pmOut, false) * -1)
+            : 0;
+
+        // Status
+        $timeIn  = $amIn ?? $pmIn;
+        $timeOut = $pmOut ?? $amOut;
+
+        $status = match (true) {
+            !$timeIn                    => 'Absent',
+            $hoursWorked >= 4 && $minutesLate > 0 => 'Late',
+            $hoursWorked >= 4           => 'Present',
+            $hoursWorked > 0            => 'Half-day',
+            default                     => 'Absent',
+        };
 
         return [
-            'time_in'           => $timeIn->format('h:i A'),
+            'am_time_in'        => $amIn?->format('h:i A'),
+            'am_time_out'       => $amOut?->format('h:i A'),
+            'pm_time_in'        => $pmIn?->format('h:i A'),
+            'pm_time_out'       => $pmOut?->format('h:i A'),
+            'time_in'           => $timeIn?->format('h:i A'),
             'time_out'          => $timeOut?->format('h:i A'),
             'hours_worked'      => $hoursWorked,
             'minutes_late'      => $minutesLate,
             'minutes_undertime' => $minutesUndertime,
+            'status'            => $status,
+        ];
+    }
+
+    private function emptyResult(string $status): array
+    {
+        return [
+            'am_time_in'        => null,
+            'am_time_out'       => null,
+            'pm_time_in'        => null,
+            'pm_time_out'       => null,
+            'time_in'           => null,
+            'time_out'          => null,
+            'hours_worked'      => 0,
+            'minutes_late'      => 0,
+            'minutes_undertime' => 0,
             'status'            => $status,
         ];
     }

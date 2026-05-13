@@ -172,7 +172,7 @@ class BiometricsManager extends Component
     {
         return AttendanceLog::with('employee')
             ->orderByDesc('punch_time')
-            ->limit(15)
+            ->limit(4)
             ->get();
     }
 

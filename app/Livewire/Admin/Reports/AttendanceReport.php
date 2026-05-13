@@ -84,16 +84,20 @@ class AttendanceReport extends Component
                 $day = $processor->processDay($emp, $d->toDateString());
 
                 $rows->push([
-                    'emp_code'   => $emp->emp_code,
-                    'name'       => $emp->full_name,
-                    'department' => $emp->department,
-                    'date'       => $d->format('M d, Y'),
-                    'date_raw'   => $d->toDateString(),
-                    'time_in'    => $day['time_in'],
-                    'time_out'   => $day['time_out'],
-                    'hours'      => $day['hours_worked'],
-                    'late_min'   => $day['minutes_late'],
-                    'status'     => $day['status'],
+                    'emp_code'    => $emp->emp_code,
+                    'name'        => $emp->full_name,
+                    'department'  => $emp->department,
+                    'date'        => $d->format('M d, Y'),
+                    'date_raw'    => $d->toDateString(),
+                    'am_time_in'  => $day['am_time_in'],
+                    'am_time_out' => $day['am_time_out'],
+                    'pm_time_in'  => $day['pm_time_in'],
+                    'pm_time_out' => $day['pm_time_out'],
+                    'time_in'     => $day['time_in'],
+                    'time_out'    => $day['time_out'],
+                    'hours'       => $day['hours_worked'],
+                    'late_min'    => $day['minutes_late'],
+                    'status'      => $day['status'],
                 ]);
             }
         }

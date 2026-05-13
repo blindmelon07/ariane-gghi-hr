@@ -25,8 +25,8 @@
         <thead>
             <tr>
                 <th>Code</th><th>Name</th><th>Dept</th><th>Date</th>
-                <th>Time In</th><th>Time Out</th><th class="text-right">Hours</th>
-                <th class="text-right">Late</th><th>Status</th>
+                <th>AM In</th><th>AM Out</th><th>PM In</th><th>PM Out</th>
+                <th class="text-right">Hours</th><th class="text-right">Late</th><th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -36,8 +36,10 @@
                     <td>{{ $row['name'] }}</td>
                     <td>{{ $row['department'] }}</td>
                     <td>{{ $row['date'] }}</td>
-                    <td>{{ $row['time_in'] ?? '—' }}</td>
-                    <td>{{ $row['time_out'] ?? '—' }}</td>
+                    <td>{{ $row['am_time_in'] ?? '—' }}</td>
+                    <td>{{ $row['am_time_out'] ?? '—' }}</td>
+                    <td>{{ $row['pm_time_in'] ?? '—' }}</td>
+                    <td>{{ $row['pm_time_out'] ?? '—' }}</td>
                     <td class="text-right">{{ number_format($row['hours'], 2) }}</td>
                     <td class="text-right {{ $row['late_min'] > 0 ? 'late' : '' }}">{{ $row['late_min'] }}</td>
                     <td>{{ $row['status'] }}</td>

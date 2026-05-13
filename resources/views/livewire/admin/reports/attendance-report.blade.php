@@ -82,8 +82,10 @@
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Department</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Time In</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Time Out</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">AM In</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">AM Out</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">PM In</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">PM Out</th>
                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Hours</th>
                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Late (min)</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
@@ -96,8 +98,10 @@
                         <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{{ $row['name'] }}</td>
                         <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['department'] }}</td>
                         <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['date'] }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['time_in'] ?? '—' }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['time_out'] ?? '—' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['am_time_in'] ?? '—' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['am_time_out'] ?? '—' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['pm_time_in'] ?? '—' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $row['pm_time_out'] ?? '—' }}</td>
                         <td class="px-4 py-3 text-sm text-right text-gray-700 dark:text-gray-200 font-mono">{{ number_format($row['hours'], 2) }}</td>
                         <td class="px-4 py-3 text-sm text-right {{ $row['late_min'] > 0 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-600 dark:text-gray-300' }}">{{ $row['late_min'] }}</td>
                         <td class="px-4 py-3 text-sm">
@@ -111,7 +115,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="px-4 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No attendance data for the selected period.</td>
+                        <td colspan="11" class="px-4 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No attendance data for the selected period.</td>
                     </tr>
                 @endforelse
             </tbody>
