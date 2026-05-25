@@ -76,8 +76,12 @@ class AttendanceProcessorService
         $pmLate = $pmIn ? (int) max(0, $pmIn->diffInMinutes($pmScheduleIn, false) * -1) : 0;
         $minutesLate = $amLate + $pmLate;
 
-        $amHours = ($amIn && $amOut) ? round($amOut->floatDiffInHours($amIn), 2) : 0;
-        $pmHours = ($pmIn && $pmOut) ? round($pmOut->floatDiffInHours($pmIn), 2) : 0;
+        $amHours = ($amIn && $amOut)
+            ? round(abs($amOut->getTimestamp() - $amIn->getTimestamp()) / 3600, 2)
+            : 0;
+        $pmHours = ($pmIn && $pmOut)
+            ? round(abs($pmOut->getTimestamp() - $pmIn->getTimestamp()) / 3600, 2)
+            : 0;
         $hoursWorked = round($amHours + $pmHours, 2);
 
         $minutesUndertime = $pmOut

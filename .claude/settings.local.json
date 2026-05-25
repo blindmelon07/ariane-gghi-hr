@@ -6,7 +6,11 @@
       "Bash(grep -n \"extension=sockets\\\\|extension=php_sockets\" \"C:\\\\xampp\\\\php\\\\php.ini\")",
       "Read(//c/xampp/php/**)",
       "Bash(php -r \"echo PHP_BINARY . PHP_EOL; echo phpversion\\(\\) . PHP_EOL; echo \\(extension_loaded\\('sockets'\\) ? 'sockets: YES' : 'sockets: NO'\\) . PHP_EOL;\")",
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(ls ~/.ssh/ 2>/dev/null || echo \"No .ssh folder found\")",
+      "Read(//c/Users/HR-SERVER/.ssh/**)",
+      "Bash(git remote *)",
+      "Bash(git push *)"
     ]
   }
 }
