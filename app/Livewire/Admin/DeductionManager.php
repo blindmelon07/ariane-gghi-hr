@@ -20,15 +20,16 @@ class DeductionManager extends Component
     public string $filterType = '';
 
     // Add/Edit modal state
-    public bool   $showModal          = false;
-    public ?int   $editDeductionId    = null;
-    public ?int   $modalEmployeeId    = null;
-    public string $empSearch          = '';
-    public string $deductionTypeId    = '';
-    public string $description        = '';
-    public string $amountPerCutoff    = '';
-    public string $remainingBalance   = '';
-    public bool   $isActive           = true;
+    public bool   $showModal             = false;
+    public ?int   $editDeductionId       = null;
+    public ?int   $modalEmployeeId       = null;
+    public string $empSearch             = '';
+    public string $deductionTypeId       = '';
+    public string $selectedTypeCategory  = '';
+    public string $description           = '';
+    public string $amountPerCutoff       = '';
+    public string $remainingBalance      = '';
+    public bool   $isActive              = true;
 
     // Deduction Type management
     public bool   $showTypeModal      = false;
@@ -46,9 +47,17 @@ class DeductionManager extends Component
     {
         if ($this->deductionTypeId) {
             $type = DeductionType::find($this->deductionTypeId);
-            if ($type && !$this->editDeductionId) {
-                $this->description = $type->name;
+            if ($type) {
+                $this->selectedTypeCategory = $type->category;
+                if (!$this->editDeductionId) {
+                    $this->description = $type->name;
+                }
+                if ($type->category !== 'loan') {
+                    $this->remainingBalance = '0';
+                }
             }
+        } else {
+            $this->selectedTypeCategory = '';
         }
     }
 
@@ -130,28 +139,31 @@ class DeductionManager extends Component
 
     public function openEdit(int $id): void
     {
-        $deduction = OtherDeduction::with('employee')->findOrFail($id);
+        $deduction = OtherDeduction::with('employee', 'deductionType')->findOrFail($id);
         $this->resetModal();
 
-        $this->editDeductionId  = $deduction->id;
-        $this->modalEmployeeId  = $deduction->employee_id;
-        $this->empSearch        = $deduction->employee->full_name . ' (' . $deduction->employee->emp_code . ')';
-        $this->deductionTypeId  = (string) ($deduction->deduction_type_id ?? '');
-        $this->description      = $deduction->description;
-        $this->amountPerCutoff  = (string) $deduction->amount_per_cutoff;
-        $this->remainingBalance = (string) $deduction->remaining_balance;
-        $this->isActive         = $deduction->is_active;
-        $this->showModal        = true;
+        $this->editDeductionId      = $deduction->id;
+        $this->modalEmployeeId      = $deduction->employee_id;
+        $this->empSearch            = $deduction->employee->full_name . ' (' . $deduction->employee->emp_code . ')';
+        $this->deductionTypeId      = (string) ($deduction->deduction_type_id ?? '');
+        $this->selectedTypeCategory = $deduction->deductionType?->category ?? '';
+        $this->description          = $deduction->description;
+        $this->amountPerCutoff      = (string) $deduction->amount_per_cutoff;
+        $this->remainingBalance     = (string) $deduction->remaining_balance;
+        $this->isActive             = $deduction->is_active;
+        $this->showModal            = true;
     }
 
     public function save(): void
     {
+        $isLoan = $this->selectedTypeCategory === 'loan';
+
         $this->validate([
             'modalEmployeeId'  => 'required|exists:employees,id',
             'deductionTypeId'  => 'required|exists:deduction_types,id',
             'description'      => 'required|string|max:255',
             'amountPerCutoff'  => 'required|numeric|min:0',
-            'remainingBalance' => 'required|numeric|min:0',
+            'remainingBalance' => $isLoan ? 'required|numeric|min:0' : 'nullable|numeric|min:0',
         ]);
 
         $data = [
@@ -159,7 +171,7 @@ class DeductionManager extends Component
             'deduction_type_id' => $this->deductionTypeId,
             'description'       => $this->description,
             'amount_per_cutoff' => $this->amountPerCutoff,
-            'remaining_balance' => $this->remainingBalance,
+            'remaining_balance' => $this->remainingBalance !== '' ? $this->remainingBalance : 0,
             'is_active'         => $this->isActive,
         ];
 
@@ -195,14 +207,15 @@ class DeductionManager extends Component
 
     private function resetModal(): void
     {
-        $this->editDeductionId  = null;
-        $this->modalEmployeeId  = null;
-        $this->empSearch        = '';
-        $this->deductionTypeId  = '';
-        $this->description      = '';
-        $this->amountPerCutoff  = '';
-        $this->remainingBalance = '';
-        $this->isActive         = true;
+        $this->editDeductionId      = null;
+        $this->modalEmployeeId      = null;
+        $this->empSearch            = '';
+        $this->deductionTypeId      = '';
+        $this->selectedTypeCategory = '';
+        $this->description          = '';
+        $this->amountPerCutoff      = '';
+        $this->remainingBalance     = '';
+        $this->isActive             = true;
         $this->resetValidation();
     }
 

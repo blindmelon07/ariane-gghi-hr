@@ -288,7 +288,35 @@ describe('deduction: save', function () {
             ->test(DeductionManager::class)
             ->call('openAdd')
             ->call('save')
-            ->assertHasErrors(['modalEmployeeId', 'deductionTypeId', 'description', 'amountPerCutoff', 'remainingBalance']);
+            ->assertHasErrors(['modalEmployeeId', 'deductionTypeId', 'description', 'amountPerCutoff']);
+    });
+
+    it('requires remaining balance only for loan types', function () {
+        $loanType = testDeductionType(['category' => 'loan']);
+
+        Livewire::actingAs(adminUser())
+            ->test(DeductionManager::class)
+            ->call('openAdd')
+            ->set('deductionTypeId', (string) $loanType->id)
+            ->set('remainingBalance', '')
+            ->call('save')
+            ->assertHasErrors(['remainingBalance']);
+    });
+
+    it('does not require remaining balance for government contribution types', function () {
+        $emp  = testEmployee();
+        $type = testDeductionType(['category' => 'government']);
+
+        Livewire::actingAs(adminUser())
+            ->test(DeductionManager::class)
+            ->call('openAdd')
+            ->set('modalEmployeeId', $emp->id)
+            ->set('deductionTypeId', (string) $type->id)
+            ->set('description', 'Pag-IBIG Contribution')
+            ->set('amountPerCutoff', '100')
+            ->call('save')
+            ->assertHasNoErrors(['remainingBalance'])
+            ->assertSet('showModal', false);
     });
 
     it('rejects a non-existent employee id', function () {

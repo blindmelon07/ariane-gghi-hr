@@ -198,14 +198,16 @@
                     @error('amountPerCutoff') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                {{-- Remaining balance --}}
+                {{-- Remaining balance (loans only) --}}
+                @if ($selectedTypeCategory === 'loan')
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Remaining Balance</label>
                     <input wire:model.live="remainingBalance" type="number" step="0.01" min="0" placeholder="0.00"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">For loans: total remaining. For recurring (PhilHealth, Pag-IBIG): set to 0.</p>
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">Total loan amount still owed.</p>
                     @error('remainingBalance') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
+                @endif
 
                 {{-- Active toggle --}}
                 <label class="flex items-center gap-2 cursor-pointer">

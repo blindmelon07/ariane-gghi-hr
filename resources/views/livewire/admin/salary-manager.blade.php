@@ -13,7 +13,7 @@
     {{-- Table --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Employee</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Department</th>
@@ -31,7 +31,7 @@
                         <tr class="bg-indigo-50 dark:bg-indigo-950/30">
                             <td class="px-6 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                                 <div>{{ $employee->full_name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 $employee->emp_code }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $employee->emp_code }}</div>
                             </td>
                             <td class="px-6 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $employee->department }}</td>
                             <td class="px-6 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $employee->position }}</td>
@@ -58,7 +58,7 @@
                         <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
                             <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                                 <div>{{ $employee->full_name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 $employee->emp_code }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $employee->emp_code }}</div>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $employee->department }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $employee->position }}</td>

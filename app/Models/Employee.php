@@ -72,7 +72,21 @@ class Employee extends Model
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn () => trim($this->first_name . ' ' . $this->last_name),
+            get: function () {
+                $first = trim($this->first_name ?? '');
+                $last  = trim($this->last_name ?? '');
+
+                // Handle "Last,First" or "Last,First,Middle" stored in first_name with empty last_name
+                if ($last === '' && str_contains($first, ',')) {
+                    $parts = array_map('trim', explode(',', $first));
+                    $surname = array_shift($parts);
+                    $first = implode(' ', $parts) . ' ' . $surname;
+                } else {
+                    $first = $first . ($last !== '' ? ' ' . $last : '');
+                }
+
+                return ucwords(strtolower(trim($first)));
+            },
         );
     }
 }
