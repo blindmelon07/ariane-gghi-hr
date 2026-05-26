@@ -66,7 +66,7 @@
             {{-- Reason --}}
             <div>
                 <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason</label>
-                <textarea wire:model="reason" id="reason" rows="3"
+                <textarea wire:model.live="reason" id="reason" rows="3"
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400 text-sm"
                           placeholder="Briefly describe the reason for your leave..."></textarea>
                 @error('reason') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror

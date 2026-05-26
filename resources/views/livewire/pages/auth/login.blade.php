@@ -44,7 +44,7 @@ new #[Layout('layouts.guest')] class extends Component
                     </svg>
                 </div>
                 <input
-                    wire:model="form.employee_code"
+                    wire:model.live="form.employee_code"
                     id="employee_code"
                     type="text"
                     name="employee_code"
@@ -75,7 +75,7 @@ new #[Layout('layouts.guest')] class extends Component
                     </svg>
                 </div>
                 <input
-                    wire:model="form.password"
+                    wire:model.live="form.password"
                     id="password"
                     type="password"
                     name="password"
@@ -95,7 +95,7 @@ new #[Layout('layouts.guest')] class extends Component
         {{-- Remember me --}}
         <div class="flex items-center">
             <input
-                wire:model="form.remember"
+                wire:model.live="form.remember"
                 id="remember"
                 type="checkbox"
                 class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-800"

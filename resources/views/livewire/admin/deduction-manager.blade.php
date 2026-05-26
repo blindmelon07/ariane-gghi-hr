@@ -185,7 +185,7 @@
                 {{-- Description --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description / Notes</label>
-                    <input wire:model="description" type="text" placeholder="Auto-filled from type, or custom note"
+                    <input wire:model.live="description" type="text" placeholder="Auto-filled from type, or custom note"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('description') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -193,7 +193,7 @@
                 {{-- Amount per cutoff --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Amount per Cutoff</label>
-                    <input wire:model="amountPerCutoff" type="number" step="0.01" min="0" placeholder="0.00"
+                    <input wire:model.live="amountPerCutoff" type="number" step="0.01" min="0" placeholder="0.00"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('amountPerCutoff') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -201,7 +201,7 @@
                 {{-- Remaining balance --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Remaining Balance</label>
-                    <input wire:model="remainingBalance" type="number" step="0.01" min="0" placeholder="0.00"
+                    <input wire:model.live="remainingBalance" type="number" step="0.01" min="0" placeholder="0.00"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">For loans: total remaining. For recurring (PhilHealth, Pag-IBIG): set to 0.</p>
                     @error('remainingBalance') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
@@ -209,7 +209,7 @@
 
                 {{-- Active toggle --}}
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input wire:model="isActive" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400" />
+                    <input wire:model.live="isActive" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400" />
                     <span class="text-sm text-gray-700 dark:text-gray-200">Active</span>
                 </label>
             </div>
@@ -278,17 +278,17 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Code</label>
-                    <input wire:model="typeCode" type="text" placeholder="e.g. SSS_LOAN" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm uppercase" maxlength="30" />
+                    <input wire:model.live="typeCode" type="text" placeholder="e.g. SSS_LOAN" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm uppercase" maxlength="30" />
                     @error('typeCode') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
-                    <input wire:model="typeName" type="text" placeholder="e.g. SSS Salary Loan" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <input wire:model.live="typeName" type="text" placeholder="e.g. SSS Salary Loan" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('typeName') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Category</label>
-                    <select wire:model="typeCategory" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="typeCategory" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="government">Government</option>
                         <option value="loan">Loan</option>
                         <option value="benefit">Benefit</option>

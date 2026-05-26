@@ -117,7 +117,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         Remarks {{ $actionType === 'reject' ? '(required)' : '(optional)' }}
                     </label>
-                    <textarea wire:model="remarks" rows="3"
+                    <textarea wire:model.live="remarks" rows="3"
                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400 text-sm"
                               placeholder="Add remarks..."></textarea>
                     @error('remarks') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror

@@ -35,12 +35,12 @@
             <form wire:submit="createPeriod" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Period Name</label>
-                    <input type="text" wire:model="periodName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <input type="text" wire:model.live="periodName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('periodName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Cutoff Type</label>
-                    <select wire:model="cutoffType" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="cutoffType" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="semi_monthly_1">1st Half (1-15)</option>
                         <option value="semi_monthly_2">2nd Half (16-end)</option>
                         <option value="monthly">Monthly</option>
@@ -49,12 +49,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Start Date</label>
-                        <input type="date" wire:model="startDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input type="date" wire:model.live="startDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('startDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">End Date</label>
-                        <input type="date" wire:model="endDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input type="date" wire:model.live="endDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('endDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>

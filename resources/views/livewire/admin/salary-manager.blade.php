@@ -41,11 +41,11 @@
                                 @error('basicSalary') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                             </td>
                             <td class="px-6 py-3">
-                                <input type="number" step="0.01" wire:model="dailyRate"
+                                <input type="number" step="0.01" wire:model.live="dailyRate"
                                        class="w-28 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                             </td>
                             <td class="px-6 py-3">
-                                <input type="number" step="0.01" wire:model="hourlyRate"
+                                <input type="number" step="0.01" wire:model.live="hourlyRate"
                                        class="w-28 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                             </td>
                             <td class="px-6 py-3 text-right space-x-2">

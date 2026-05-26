@@ -114,12 +114,12 @@
                     <div class="flex items-center gap-2">
                         <div>
                             <label class="block text-[10px] text-gray-400 dark:text-gray-500 text-center">Total</label>
-                            <input wire:model="modalCredits.{{ $type->id }}.total" type="number" step="0.5" min="0"
+                            <input wire:model.live="modalCredits.{{ $type->id }}.total" type="number" step="0.5" min="0"
                                 class="w-16 rounded border-gray-300 dark:border-gray-600 text-xs text-center shadow-sm" />
                         </div>
                         <div>
                             <label class="block text-[10px] text-gray-400 dark:text-gray-500 text-center">Used</label>
-                            <input wire:model="modalCredits.{{ $type->id }}.used" type="number" step="0.5" min="0"
+                            <input wire:model.live="modalCredits.{{ $type->id }}.used" type="number" step="0.5" min="0"
                                 class="w-16 rounded border-gray-300 dark:border-gray-600 text-xs text-center shadow-sm" />
                         </div>
                     </div>
@@ -147,7 +147,7 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Leave Type</label>
-                    <select wire:model="bulkLeaveTypeId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="bulkLeaveTypeId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select…</option>
                         @foreach ($this->leaveTypes as $type)
                             <option value="{{ $type->id }}">{{ $type->name }} ({{ $type->code }})</option>
@@ -158,7 +158,7 @@
 
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Credits</label>
-                    <input wire:model="bulkCredits" type="number" step="0.5" min="0" placeholder="0" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <input wire:model.live="bulkCredits" type="number" step="0.5" min="0" placeholder="0" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('bulkCredits') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 
@@ -166,11 +166,11 @@
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Mode</label>
                     <div class="flex gap-4">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input wire:model="bulkMode" type="radio" value="set" class="text-indigo-600 dark:text-indigo-400" />
+                            <input wire:model.live="bulkMode" type="radio" value="set" class="text-indigo-600 dark:text-indigo-400" />
                             <span class="text-sm text-gray-700 dark:text-gray-200">Set total to value</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input wire:model="bulkMode" type="radio" value="add" class="text-indigo-600 dark:text-indigo-400" />
+                            <input wire:model.live="bulkMode" type="radio" value="add" class="text-indigo-600 dark:text-indigo-400" />
                             <span class="text-sm text-gray-700 dark:text-gray-200">Add to existing</span>
                         </label>
                     </div>

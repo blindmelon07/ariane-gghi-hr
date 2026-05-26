@@ -97,33 +97,33 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">First Name</label>
-                        <input type="text" wire:model="editFirstName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input type="text" wire:model.live="editFirstName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('editFirstName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Last Name</label>
-                        <input type="text" wire:model="editLastName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input type="text" wire:model.live="editLastName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('editLastName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Department</label>
-                        <input type="text" wire:model="editDepartment" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input type="text" wire:model.live="editDepartment" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Position</label>
-                        <input type="text" wire:model="editPosition" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input type="text" wire:model.live="editPosition" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date of Birth</label>
-                        <input type="date" wire:model="editDob" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input type="date" wire:model.live="editDob" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                     <div class="flex items-end pb-1">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" wire:model="editIsActive" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400" />
+                            <input type="checkbox" wire:model.live="editIsActive" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400" />
                             <span class="text-sm text-gray-700 dark:text-gray-200">Active</span>
                         </label>
                     </div>
@@ -156,7 +156,7 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
                         <div class="flex gap-2">
-                            <select wire:model="accountRole" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                            <select wire:model.live="accountRole" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                                 <option value="employee">Employee</option>
                                 <option value="hr_admin">HR Admin</option>
                                 <option value="manager">Manager</option>
@@ -169,7 +169,7 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">New Password</label>
                         <div class="flex gap-2">
-                            <input wire:model="accountPassword" type="text" placeholder="Min 6 characters" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input wire:model.live="accountPassword" type="text" placeholder="Min 6 characters" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <button wire:click="resetPassword" class="px-3 py-2 bg-amber-600 dark:bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition">Reset</button>
                         </div>
                         @error('accountPassword') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
@@ -193,13 +193,13 @@
 
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Password</label>
-                        <input wire:model="accountPassword" type="text" placeholder="Set initial password (min 6 chars)" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="accountPassword" type="text" placeholder="Set initial password (min 6 chars)" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('accountPassword') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
-                        <select wire:model="accountRole" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                        <select wire:model.live="accountRole" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                             <option value="employee">Employee</option>
                             <option value="hr_admin">HR Admin</option>
                             <option value="manager">Manager</option>

@@ -108,13 +108,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">From</label>
-                        <input type="date" wire:model="fromDate"
+                        <input type="date" wire:model.live="fromDate"
                                class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
                         @error('fromDate') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">To</label>
-                        <input type="date" wire:model="toDate"
+                        <input type="date" wire:model.live="toDate"
                                class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
                         @error('toDate') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -282,7 +282,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Role</label>
-                        <select wire:model="accountRole"
+                        <select wire:model.live="accountRole"
                             class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                             <option value="employee">Employee</option>
                             <option value="manager">Manager</option>
@@ -295,7 +295,7 @@
                         <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">
                             Password {{ $hasExistingAccount ? '(leave blank to keep current)' : '' }}
                         </label>
-                        <input type="password" wire:model="accountPassword"
+                        <input type="password" wire:model.live="accountPassword"
                             placeholder="{{ $hasExistingAccount ? 'Enter new password to change' : 'Set a password' }}"
                             class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
                         @error('accountPassword') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror

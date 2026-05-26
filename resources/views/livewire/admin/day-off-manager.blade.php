@@ -171,7 +171,7 @@
                 {{-- Single date --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Date</label>
-                    <input wire:model="date" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <input wire:model.live="date" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('date') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 @else
@@ -196,12 +196,12 @@
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Validity Period</label>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <input wire:model="dateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input wire:model.live="dateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">From</p>
                             @error('dateFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <input wire:model="dateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input wire:model.live="dateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">To</p>
                             @error('dateTo') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
@@ -222,7 +222,7 @@
                 {{-- Type --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
-                    <select wire:model="type" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="type" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="rest_day">Rest Day</option>
                         <option value="holiday">Holiday</option>
                         <option value="special">Special</option>
@@ -233,7 +233,7 @@
                 {{-- Description --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description (optional)</label>
-                    <input wire:model="description" type="text" placeholder="e.g. Weekly rest day, New Year's Day"
+                    <input wire:model.live="description" type="text" placeholder="e.g. Weekly rest day, New Year's Day"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
             </div>
@@ -259,7 +259,7 @@
                 {{-- Department --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                    <select wire:model="bulkDept" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="bulkDept" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select department…</option>
                         @foreach ($this->departments as $dept)
                             <option value="{{ $dept }}">{{ $dept }}</option>
@@ -289,12 +289,12 @@
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Validity Period</label>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <input wire:model="bulkDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input wire:model.live="bulkDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">From</p>
                             @error('bulkDateFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <input wire:model="bulkDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input wire:model.live="bulkDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">To</p>
                             @error('bulkDateTo') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
@@ -314,7 +314,7 @@
                 {{-- Type --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
-                    <select wire:model="bulkType" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="bulkType" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="rest_day">Rest Day</option>
                         <option value="holiday">Holiday</option>
                         <option value="special">Special</option>
@@ -325,7 +325,7 @@
                 {{-- Description --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description (optional)</label>
-                    <input wire:model="bulkDescription" type="text" placeholder="e.g. Weekly rest day"
+                    <input wire:model.live="bulkDescription" type="text" placeholder="e.g. Weekly rest day"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
             </div>

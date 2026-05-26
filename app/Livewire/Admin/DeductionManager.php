@@ -233,7 +233,7 @@ class DeductionManager extends Component
             'typeCategory' => 'required|in:government,loan,benefit,other',
         ]);
 
-        if ($this->editTypeId) {
+        if ($this->editTypeId > 0) {
             DeductionType::findOrFail($this->editTypeId)->update([
                 'code'     => strtoupper($this->typeCode),
                 'name'     => $this->typeName,

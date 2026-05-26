@@ -211,12 +211,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule Name</label>
-                        <input wire:model="schedName" type="text" placeholder="e.g. Nursing Day 12h" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="schedName" type="text" placeholder="e.g. Nursing Day 12h" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('schedName') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                        <input wire:model="schedDept" type="text" list="dept-list" placeholder="e.g. Nursing" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="schedDept" type="text" list="dept-list" placeholder="e.g. Nursing" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         <datalist id="dept-list">
                             @foreach ($this->scheduleDepartments as $d)
                                 <option value="{{ $d }}">
@@ -229,12 +229,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time In</label>
-                        <input wire:model="schedTimeIn" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="schedTimeIn" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('schedTimeIn') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time Out</label>
-                        <input wire:model="schedTimeOut" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="schedTimeOut" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('schedTimeOut') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -242,11 +242,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Break Start <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model="schedBreakStart" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="schedBreakStart" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Break End <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model="schedBreakEnd" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="schedBreakEnd" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                 </div>
 
@@ -255,25 +255,25 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time In 2</label>
-                            <input wire:model="schedTimeIn2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input wire:model.live="schedTimeIn2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time Out 2</label>
-                            <input wire:model="schedTimeOut2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input wire:model.live="schedTimeOut2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         </div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-4">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input wire:model="schedNightShift" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400" />
+                        <input wire:model.live="schedNightShift" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400" />
                         <span class="text-sm text-gray-700 dark:text-gray-200">Night Shift</span>
                     </label>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                    <input wire:model="schedDescription" type="text" placeholder="e.g. 12:00-13:00 Lunch Break" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <input wire:model.live="schedDescription" type="text" placeholder="e.g. 12:00-13:00 Lunch Break" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
             </div>
 
@@ -320,7 +320,7 @@
                 {{-- Schedule picker --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
-                    <select wire:model="assignScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="assignScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select schedule…</option>
                         @foreach ($this->allSchedules->groupBy('department') as $dept => $scheds)
                             <optgroup label="{{ $dept }}">
@@ -337,12 +337,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective From</label>
-                        <input wire:model="assignFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="assignFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('assignFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective To <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model="assignTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="assignTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                 </div>
             </div>
@@ -378,7 +378,7 @@
 
                 <div>
                     <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
-                    <select wire:model="bulkScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <select wire:model.live="bulkScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select schedule…</option>
                         @foreach ($this->deptSchedules as $s)
                             <option value="{{ $s->id }}">{{ $s->name }} ({{ $s->formatted_time }})</option>
@@ -390,12 +390,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective From</label>
-                        <input wire:model="bulkFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="bulkFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('bulkFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective To <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model="bulkTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <input wire:model.live="bulkTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                 </div>
             </div>

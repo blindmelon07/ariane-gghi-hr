@@ -3,7 +3,7 @@
 use App\Http\Controllers\PayslipController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::redirect('/', '/login')->name('home');
 
 // Employee dashboard
 Route::view('dashboard', 'dashboard')
