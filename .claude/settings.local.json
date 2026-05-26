@@ -10,7 +10,9 @@
       "Bash(ls ~/.ssh/ 2>/dev/null || echo \"No .ssh folder found\")",
       "Read(//c/Users/HR-SERVER/.ssh/**)",
       "Bash(git remote *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(php -r ' *)",
+      "Bash(ping -n 6 127.0.0.1)"
     ]
   }
 }

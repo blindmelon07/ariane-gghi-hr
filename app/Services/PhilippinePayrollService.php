@@ -150,8 +150,9 @@ class PhilippinePayrollService
         $basicSalary = (float) $salary->basic_salary;
 
         // Count working days in period (Mon-Sat, exclude Sunday)
+        // Use Carbon::parse to get a mutable instance — CarbonImmutable::addDay() returns a new object
         $workingDays = 0;
-        for ($d = $period->start_date->copy(); $d->lte($period->end_date); $d->addDay()) {
+        for ($d = Carbon::parse($period->start_date); $d->lte($period->end_date); $d->addDay()) {
             if (!$d->isSunday()) {
                 $workingDays++;
             }
@@ -192,18 +193,18 @@ class PhilippinePayrollService
 
             // Late
             if ($timeIn->gt($schedIn)) {
-                $totalLateMinutes += (int) $timeIn->diffInMinutes($schedIn);
+                $totalLateMinutes += abs((int) $timeIn->diffInMinutes($schedIn));
             }
 
             if ($timeOut) {
                 // Undertime
                 if ($timeOut->lt($schedOut)) {
-                    $totalUndertimeMinutes += (int) $schedOut->diffInMinutes($timeOut);
+                    $totalUndertimeMinutes += abs((int) $schedOut->diffInMinutes($timeOut));
                 }
 
                 // Overtime: hours worked beyond 8 when punch_out is after 17:00
                 if ($timeOut->gt($schedOut)) {
-                    $otHours = $timeOut->floatDiffInHours($schedOut);
+                    $otHours = abs($timeOut->floatDiffInHours($schedOut));
                     $totalOvertimeHours += $otHours;
                 }
             }
