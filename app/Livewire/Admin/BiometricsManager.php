@@ -41,8 +41,18 @@ class BiometricsManager extends Component
         $this->toDate   = now()->toDateString();
     }
 
+    public function deviceConfigured(): bool
+    {
+        return !empty(config('zkteco.ip'));
+    }
+
     public function testConnection(): void
     {
+        if (!$this->deviceConfigured()) {
+            $this->errorMessage = 'ZKTeco device is not configured on this server. Sync is managed by the local machine.';
+            return;
+        }
+
         $this->testing        = true;
         $this->successMessage = '';
         $this->errorMessage   = '';
@@ -65,6 +75,11 @@ class BiometricsManager extends Component
 
     public function syncAttendance(): void
     {
+        if (!$this->deviceConfigured()) {
+            $this->errorMessage = 'ZKTeco device is not configured on this server. Sync is managed by the local machine.';
+            return;
+        }
+
         $this->validate([
             'fromDate' => 'required|date',
             'toDate'   => 'required|date|after_or_equal:fromDate',
@@ -90,6 +105,11 @@ class BiometricsManager extends Component
 
     public function syncUsers(): void
     {
+        if (!$this->deviceConfigured()) {
+            $this->errorMessage = 'ZKTeco device is not configured on this server. Sync is managed by the local machine.';
+            return;
+        }
+
         $this->syncingUsers   = true;
         $this->successMessage = '';
         $this->errorMessage   = '';

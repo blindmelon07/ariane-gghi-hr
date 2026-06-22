@@ -20,6 +20,12 @@
 
         {{-- ZKTeco connection card --}}
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6">
+            @if (!$this->deviceConfigured())
+                <div class="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    ZKTeco sync is managed by the local machine. Attendance data is pushed here automatically every 15 minutes.
+                </div>
+            @endif
             <div class="flex items-start justify-between mb-5">
                 <div>
                     <h2 class="text-base font-semibold text-gray-900 dark:text-white">Device Connection</h2>
@@ -67,6 +73,7 @@
                 </div>
             @endif
 
+            @if ($this->deviceConfigured())
             <button
                 wire:click="testConnection"
                 wire:loading.attr="disabled"
@@ -81,6 +88,7 @@
                 </svg>
                 Test Connection
             </button>
+            @endif
         </div>
 
         {{-- Stats column --}}
@@ -96,7 +104,8 @@
         </div>
     </div>
 
-    {{-- Sync controls --}}
+    {{-- Sync controls — only shown when ZKTeco device is configured locally --}}
+    @if ($this->deviceConfigured())
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {{-- Attendance sync --}}
@@ -165,6 +174,8 @@
             </div>
         </div>
     </div>
+
+    @endif
 
     {{-- Sync History --}}
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
