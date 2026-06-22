@@ -6,8 +6,10 @@ use App\Models\AttendanceLog;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\OtherDeduction;
+use App\Models\OvertimeRequest;
 use App\Models\PayrollPeriod;
 use Illuminate\Support\Carbon;
+use App\Services\AttendanceProcessorService;
 
 class PhilippinePayrollService
 {
@@ -158,59 +160,59 @@ class PhilippinePayrollService
             }
         }
 
-        // Get attendance data for the period
-        $logs = AttendanceLog::where('employee_id', $employee->id)
+        // Distinct dates with at least one punch in the period
+        $punchDates = AttendanceLog::where('employee_id', $employee->id)
             ->whereBetween('punch_date', [$period->start_date, $period->end_date])
-            ->orderBy('punch_time')
-            ->get();
-
-        // Distinct days with at least one punch
-        $punchDates = $logs->pluck('punch_date')->map(fn ($d) => $d->toDateString())->unique();
+            ->distinct()
+            ->pluck('punch_date')
+            ->map(fn ($d) => is_string($d) ? $d : $d->toDateString())
+            ->unique()
+            ->values();
 
         // Count approved leave days within period
         $approvedLeaveDays = $this->getApprovedLeaveDays($employee->id, $period->start_date, $period->end_date);
 
-        $daysPresent = $punchDates->count();
-        $daysAbsent  = max(0, $workingDays - $daysPresent - $approvedLeaveDays);
-        $basicPay    = round($dailyRate * $daysPresent, 2);
-
-        // Calculate overtime, late, undertime from daily logs
-        $totalOvertimeHours   = 0;
-        $totalLateMinutes     = 0;
+        // Process each punch day through AttendanceProcessorService.
+        // Days where PM In exists but PM Out is missing are "incomplete" and excluded from payroll.
+        $processor             = app(AttendanceProcessorService::class);
+        $daysPresent           = 0;
+        $basicPay              = 0.0;
+        $totalLateMinutes      = 0;
         $totalUndertimeMinutes = 0;
 
         foreach ($punchDates as $dateStr) {
-            $dayLogs  = $logs->filter(fn ($l) => $l->punch_date->toDateString() === $dateStr)->sortBy('punch_time');
-            $timeIn   = $dayLogs->first()?->punch_time;
-            $timeOut  = $dayLogs->count() > 1 ? $dayLogs->last()->punch_time : null;
+            $day = $processor->processDay($employee, $dateStr);
 
-            if (!$timeIn) {
+            // Incomplete: PM session opened but never closed
+            if ($day['pm_time_in'] !== null && $day['pm_time_out'] === null) {
                 continue;
             }
 
-            $schedIn  = Carbon::parse($dateStr)->setTime(8, 0, 0);
-            $schedOut = Carbon::parse($dateStr)->setTime(17, 0, 0);
-
-            // Late
-            if ($timeIn->gt($schedIn)) {
-                $totalLateMinutes += abs((int) $timeIn->diffInMinutes($schedIn));
+            // Incomplete: only a single punch with no time-out at all
+            if ($day['time_in'] !== null && $day['time_out'] === null) {
+                continue;
             }
 
-            if ($timeOut) {
-                // Undertime
-                if ($timeOut->lt($schedOut)) {
-                    $totalUndertimeMinutes += abs((int) $schedOut->diffInMinutes($timeOut));
-                }
-
-                // Overtime: hours worked beyond 8 when punch_out is after 17:00
-                if ($timeOut->gt($schedOut)) {
-                    $otHours = abs($timeOut->floatDiffInHours($schedOut));
-                    $totalOvertimeHours += $otHours;
-                }
+            // Absent (no punches matched — shouldn't happen since we queried punch dates, but guard anyway)
+            if ($day['time_in'] === null) {
+                continue;
             }
+
+            $daysPresent++;
+            $basicPay              += $dailyRate;
+            $totalLateMinutes      += $day['minutes_late'];
+            $totalUndertimeMinutes += $day['minutes_undertime'];
         }
 
-        $overtimeHours = round($totalOvertimeHours, 2);
+        $basicPay    = round($basicPay, 2);
+        $daysAbsent  = max(0, $workingDays - $daysPresent - $approvedLeaveDays);
+
+        // Overtime: only approved OT requests count — not raw attendance
+        $approvedOt    = OvertimeRequest::where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereBetween('date', [$period->start_date, $period->end_date])
+            ->get();
+        $overtimeHours = round($approvedOt->sum(fn ($r) => (float) ($r->approved_hours ?? $r->requested_hours)), 2);
         $overtimePay   = round($overtimeHours * $hourlyRate * 1.25, 2);
 
         $lateDeduction      = round($totalLateMinutes * ($hourlyRate / 60), 2);

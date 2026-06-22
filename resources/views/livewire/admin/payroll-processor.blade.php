@@ -10,7 +10,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Payroll Periods</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 $this->employeeCount }} employees with salary configured</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ $this->employeeCount }} employees with salary configured</p>
         </div>
         <div class="flex items-center gap-3">
             <select wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
@@ -59,7 +59,7 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" wire:click="$set('showCreate', false)" class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:bg-gray-800/50">Cancel</button>
+                    <button type="button" wire:click="$set('showCreate', false)" class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
                     <button type="submit" class="rounded-lg bg-indigo-600 dark:bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:hover:bg-indigo-600">Create</button>
                 </div>
             </form>
@@ -70,7 +70,7 @@
     {{-- Periods Table --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Period</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cutoff</th>
@@ -91,7 +91,7 @@
                                 $colors = ['draft' => 'gray', 'processing' => 'yellow', 'processed' => 'blue', 'finalized' => 'green'];
                                 $c = $colors[$period->status] ?? 'gray';
                             @endphp
-                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800 dark:bg-{{ $c }}-900/30 dark:text-{{ $c }}-300">
                                 {{ ucfirst($period->status) }}
                             </span>
                         </td>
@@ -106,7 +106,10 @@
                                 <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone." class="text-sm text-green-600 dark:text-green-400 hover:text-green-800 font-medium">Finalize</button>
                             @endif
                             @if (in_array($period->status, ['processed', 'finalized']))
-                                <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-gray-100 font-medium">Excel</button>
+                                <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 font-medium">Excel</button>
+                            @endif
+                            @if (in_array($period->status, ['processed', 'finalized']))
+                                <button wire:click="viewPayslips({{ $period->id }})" class="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 font-medium">Payslips</button>
                             @endif
                         </td>
                     </tr>
@@ -122,4 +125,77 @@
     <div class="mt-4">
         {{ $this->periods->links() }}
     </div>
+
+    {{-- Per-Employee Payslip Viewer Modal --}}
+    @if ($viewPeriodId && $this->viewPeriod)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 p-4"
+         x-data x-on:keydown.escape.window="$wire.closePayslips()">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+
+            {{-- Modal Header --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Payslips — {{ $this->viewPeriod->name }}</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        {{ $this->viewPeriod->start_date->format('M d') }} – {{ $this->viewPeriod->end_date->format('M d, Y') }}
+                    </p>
+                </div>
+                <button wire:click="closePayslips" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            {{-- Employee List --}}
+            <div class="overflow-y-auto flex-1">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Employee</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Gross Pay</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Deductions</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Net Pay</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Download</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @foreach ($this->periodPayslips as $row)
+                            @php $emp = $row['employee']; $slip = $row['payslip']; @endphp
+                            <tr class="hover:bg-gray-50 dark:bg-gray-800/40">
+                                <td class="px-6 py-3">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $emp->full_name }}</p>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $emp->emp_code }}</p>
+                                </td>
+                                <td class="px-6 py-3 text-sm text-right font-mono text-gray-700 dark:text-gray-300">
+                                    {{ $slip ? '₱ ' . number_format($slip->gross_pay, 2) : '—' }}
+                                </td>
+                                <td class="px-6 py-3 text-sm text-right font-mono text-red-600 dark:text-red-400">
+                                    {{ $slip ? '₱ ' . number_format($slip->total_deductions, 2) : '—' }}
+                                </td>
+                                <td class="px-6 py-3 text-sm text-right font-mono font-semibold text-green-600 dark:text-green-400">
+                                    {{ $slip ? '₱ ' . number_format($slip->net_pay, 2) : '—' }}
+                                </td>
+                                <td class="px-6 py-3 text-center">
+                                    <a href="{{ route('admin.payslips.download', [$emp->id, $viewPeriodId]) }}"
+                                       target="_blank"
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg
+                                              {{ $slip ? 'bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}
+                                              transition">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        </svg>
+                                        {{ $slip ? 'Download' : 'Generate & Download' }}
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
+                "Generate & Download" computes and saves the payslip on the fly for employees without one.
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

@@ -30,12 +30,18 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::view('leave/my-requests', 'leave.my-requests')->name('leave.my-requests');
     Route::view('leave/balance', 'leave.balance')->name('leave.balance');
     Route::view('payslips', 'payslips.index')->name('payslips.index');
+    Route::view('overtime/request', 'overtime.request')->name('overtime.request');
 });
 
 // Payslip download (any authenticated user — controller checks ownership)
 Route::get('payslips/{payslip}/download', [PayslipController::class, 'download'])
     ->middleware(['auth'])
     ->name('payslips.download');
+
+// Admin: generate & download single employee payslip on demand
+Route::get('admin/payslips/{employee}/{period}/download', [PayslipController::class, 'adminDownload'])
+    ->middleware(['auth', 'role:hr_admin'])
+    ->name('admin.payslips.download');
 
 Route::view('admin/biometrics', 'admin.biometrics')
     ->middleware(['auth', 'role:hr_admin'])
@@ -59,6 +65,7 @@ Route::middleware(['auth', 'role:hr_admin'])->group(function () {
     Route::view('admin/day-offs', 'admin.day-offs')->name('admin.day-offs');
     Route::view('admin/schedules', 'admin.schedules')->name('admin.schedules');
     Route::view('admin/reports/payroll', 'admin.reports.payroll')->name('admin.reports.payroll');
+    Route::view('admin/overtime', 'admin.overtime')->name('admin.overtime');
 });
 
 // Report Routes (HR Admin + Manager)

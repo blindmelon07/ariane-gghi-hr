@@ -107,7 +107,12 @@
                         <td class="px-4 py-3 text-sm">
                             @php
                                 $c = match($row['status']) {
-                                    'Present' => 'green', 'Late' => 'yellow', 'Absent' => 'red', 'Half-day' => 'orange', default => 'gray'
+                                    'Present'    => 'green',
+                                    'Late'       => 'yellow',
+                                    'Absent'     => 'red',
+                                    'Half-day'   => 'orange',
+                                    'Incomplete' => 'purple',
+                                    default      => 'gray',
                                 };
                             @endphp
                             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800">{{ $row['status'] }}</span>

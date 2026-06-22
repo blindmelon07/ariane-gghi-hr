@@ -92,12 +92,18 @@ class AttendanceProcessorService
         $timeIn  = $amIn ?? $pmIn;
         $timeOut = $pmOut ?? $amOut;
 
+        // Incomplete: PM session started but employee never punched out at end of day,
+        // OR only one punch recorded for the entire day (no time-out at all).
+        $isIncomplete = ($pmIn !== null && $pmOut === null)
+                     || ($timeIn !== null && $timeOut === null);
+
         $status = match (true) {
-            !$timeIn                    => 'Absent',
+            !$timeIn                              => 'Absent',
+            $isIncomplete                         => 'Incomplete',
             $hoursWorked >= 4 && $minutesLate > 0 => 'Late',
-            $hoursWorked >= 4           => 'Present',
-            $hoursWorked > 0            => 'Half-day',
-            default                     => 'Absent',
+            $hoursWorked >= 4                     => 'Present',
+            $hoursWorked > 0                      => 'Half-day',
+            default                               => 'Absent',
         };
 
         return [

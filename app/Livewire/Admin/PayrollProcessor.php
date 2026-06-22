@@ -6,8 +6,8 @@ use App\Exports\PayrollExport;
 use App\Jobs\GeneratePayslipsJob;
 use App\Models\Employee;
 use App\Models\PayrollPeriod;
-use App\Services\ActivityLogService;
 use App\Models\Payslip;
+use App\Services\ActivityLogService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -25,6 +25,9 @@ class PayrollProcessor extends Component
     public string $startDate     = '';
     public string $endDate       = '';
     public string $periodName    = '';
+
+    // Per-period payslip viewer
+    public ?int   $viewPeriodId  = null;
 
     public function mount(): void
     {
@@ -124,6 +127,44 @@ class PayrollProcessor extends Component
             new PayrollExport($periodId),
             'payroll-' . $period->start_date->format('Y-m-d') . '.xlsx'
         );
+    }
+
+    public function viewPayslips(int $periodId): void
+    {
+        $this->viewPeriodId = $periodId;
+    }
+
+    public function closePayslips(): void
+    {
+        $this->viewPeriodId = null;
+    }
+
+    #[Computed]
+    public function periodPayslips()
+    {
+        if (!$this->viewPeriodId) {
+            return collect();
+        }
+
+        $employees = Employee::with('salaryDetail')
+            ->where('is_active', true)
+            ->orderBy('last_name')
+            ->get();
+
+        $payslips = Payslip::where('payroll_period_id', $this->viewPeriodId)
+            ->get()
+            ->keyBy('employee_id');
+
+        return $employees->map(fn ($emp) => [
+            'employee' => $emp,
+            'payslip'  => $payslips->get($emp->id),
+        ]);
+    }
+
+    #[Computed]
+    public function viewPeriod()
+    {
+        return $this->viewPeriodId ? PayrollPeriod::find($this->viewPeriodId) : null;
     }
 
     #[Computed]

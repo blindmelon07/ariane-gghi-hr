@@ -40,7 +40,8 @@
       "PowerShell(Invoke-WebRequest -Uri \"http://127.0.0.1:8098/__input_test.php\" -Method POST -ContentType \"application/json\" -Body '{\"components\":[{\"snapshot\":\"test\",\"updates\":{},\"calls\":[]}]}' -UseBasicParsing 2>&1)",
       "PowerShell($serverPhp = \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\vendor\\\\laravel\\\\framework\\\\src\\\\Illuminate\\\\Foundation\\\\resources\\\\server.php\")",
       "PowerShell($publicDir  = \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\public\")",
-      "Bash(Get-Content \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\storage\\\\logs\\\\laravel.log\" -Tail 60)"
+      "Bash(Get-Content \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\storage\\\\logs\\\\laravel.log\" -Tail 60)",
+      "Bash(dir \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\database\\\\migrations\\\\\" /b /o:n | tail -5)"
     ]
   }
 }
