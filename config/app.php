@@ -15,6 +15,8 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'sync_api_token' => env('SYNC_API_TOKEN', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

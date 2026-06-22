@@ -4,8 +4,10 @@ namespace App\Livewire\Admin;
 
 use App\Models\AttendanceLog;
 use App\Models\Employee;
+use App\Models\SyncLog;
 use App\Models\User;
 use App\Services\ZKTecoService;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -16,8 +18,6 @@ class BiometricsManager extends Component
     public string $toDate   = '';
 
     public ?array $connectionStatus = null;
-    public ?array $syncResult       = null;
-    public ?array $userSyncResult   = null;
 
     public bool $testing      = false;
     public bool $syncing      = false;
@@ -27,13 +27,13 @@ class BiometricsManager extends Component
     public string $errorMessage   = '';
 
     // Device account modal
-    public bool   $showAccountModal        = false;
-    public ?int   $accountEmployeeId       = null;
-    public string $accountName             = '';
-    public string $accountEmpCode          = '';
-    public string $accountPassword         = '';
-    public string $accountRole             = 'employee';
-    public bool   $hasExistingAccount      = false;
+    public bool   $showAccountModal   = false;
+    public ?int   $accountEmployeeId  = null;
+    public string $accountName        = '';
+    public string $accountEmpCode     = '';
+    public string $accountPassword    = '';
+    public string $accountRole        = 'employee';
+    public bool   $hasExistingAccount = false;
 
     public function mount(): void
     {
@@ -50,14 +50,14 @@ class BiometricsManager extends Component
 
         try {
             $this->connectionStatus = app(ZKTecoService::class)->testConnection();
-
             if ($this->connectionStatus['connected']) {
                 $this->successMessage = 'Device connected successfully.';
             } else {
-                $this->errorMessage = $this->connectionStatus['message'];
+                $this->errorMessage = $this->connectionStatus['message'] ?? 'Connection failed.';
             }
         } catch (\Throwable $e) {
-            $this->errorMessage = 'Error: ' . $e->getMessage();
+            $this->connectionStatus = ['connected' => false, 'message' => $e->getMessage()];
+            $this->errorMessage     = 'Connection failed: ' . $e->getMessage();
         } finally {
             $this->testing = false;
         }
@@ -73,11 +73,14 @@ class BiometricsManager extends Component
         $this->syncing        = true;
         $this->successMessage = '';
         $this->errorMessage   = '';
-        $this->syncResult     = null;
 
         try {
-            $this->syncResult     = app(ZKTecoService::class)->syncAttendance($this->fromDate, $this->toDate);
-            $this->successMessage = "Synced {$this->syncResult['synced']} attendance records.";
+            Artisan::call('sync:attendance', [
+                '--from' => $this->fromDate,
+                '--to'   => $this->toDate,
+            ]);
+            $this->successMessage = "Attendance synced ({$this->fromDate} to {$this->toDate}). Check Sync History below.";
+            unset($this->recentSyncLogs);
         } catch (\Throwable $e) {
             $this->errorMessage = 'Sync failed: ' . $e->getMessage();
         } finally {
@@ -90,13 +93,14 @@ class BiometricsManager extends Component
         $this->syncingUsers   = true;
         $this->successMessage = '';
         $this->errorMessage   = '';
-        $this->userSyncResult = null;
 
         try {
-            $this->userSyncResult = app(ZKTecoService::class)->syncUsers();
-            $this->successMessage = "Synced {$this->userSyncResult['synced']} employees from device.";
+            Artisan::call('sync:employees');
+            $this->successMessage = 'Employees synced from device successfully.';
+            unset($this->recentSyncLogs);
+            unset($this->deviceUsers);
         } catch (\Throwable $e) {
-            $this->errorMessage = 'User sync failed: ' . $e->getMessage();
+            $this->errorMessage = 'Sync failed: ' . $e->getMessage();
         } finally {
             $this->syncingUsers = false;
         }
@@ -111,17 +115,23 @@ class BiometricsManager extends Component
             ->get();
     }
 
+    #[Computed]
+    public function recentSyncLogs()
+    {
+        return SyncLog::orderByDesc('started_at')->limit(15)->get();
+    }
+
     public function openAccountModal(int $id): void
     {
         $emp = Employee::with('user')->findOrFail($id);
 
-        $this->accountEmployeeId   = $emp->id;
-        $this->accountName         = $emp->full_name;
-        $this->accountEmpCode      = $emp->emp_code;
-        $this->accountPassword     = '';
-        $this->hasExistingAccount  = (bool) $emp->user;
-        $this->accountRole         = $emp->user?->role ?? 'employee';
-        $this->showAccountModal    = true;
+        $this->accountEmployeeId  = $emp->id;
+        $this->accountName        = $emp->full_name;
+        $this->accountEmpCode     = $emp->emp_code;
+        $this->accountPassword    = '';
+        $this->hasExistingAccount = (bool) $emp->user;
+        $this->accountRole        = $emp->user?->role ?? 'employee';
+        $this->showAccountModal   = true;
     }
 
     public function saveAccount(): void
@@ -172,7 +182,7 @@ class BiometricsManager extends Component
     {
         return AttendanceLog::with('employee')
             ->orderByDesc('punch_time')
-            ->limit(4)
+            ->limit(15)
             ->get();
     }
 

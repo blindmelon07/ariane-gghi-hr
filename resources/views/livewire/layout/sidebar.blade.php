@@ -82,10 +82,10 @@ new class extends Component
     }"
 >
     {{-- ── Brand / Toggle row (h-14 matches header) ── --}}
-    <div class="h-14 flex items-center shrink-0 border-b border-slate-800 overflow-hidden relative">
+    <div class="relative flex items-center overflow-hidden border-b h-14 shrink-0 border-slate-800">
 
         {{-- Logo — hides when collapsed --}}
-        <div class="flex-1 flex items-center justify-center px-3 overflow-hidden"
+        <div class="flex items-center justify-center flex-1 px-3 overflow-hidden"
              x-show="!$store.sidebar.collapsed"
              x-transition:enter="transition-opacity duration-200 delay-100"
              x-transition:enter-start="opacity-0"
@@ -96,7 +96,7 @@ new class extends Component
         >
             <img src="{{ asset('images/gghi logo.png') }}"
                  alt="{{ config('app.name', 'HR Portal') }}"
-                 class="h-9 w-auto object-contain" />
+                 class="object-contain w-auto h-9" />
         </div>
 
         {{-- Collapsed: just an icon placeholder --}}
@@ -109,7 +109,7 @@ new class extends Component
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
         >
-            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600/20">
                 <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
@@ -133,19 +133,18 @@ new class extends Component
     </div>
 
     {{-- ── User Profile ── --}}
-    <div class="border-b border-slate-800 shrink-0 overflow-hidden"
+    <div class="overflow-hidden border-b border-slate-800 shrink-0"
          :class="$store.sidebar.collapsed ? 'py-3 px-2' : 'px-4 py-3'">
         <div class="flex items-center gap-3">
             {{-- Avatar always visible --}}
-            <div class="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/50
-                        flex items-center justify-center shrink-0 mx-auto"
+            <div class="flex items-center justify-center w-8 h-8 mx-auto border rounded-full bg-indigo-600/30 border-indigo-500/50 shrink-0"
                  :class="$store.sidebar.collapsed ? 'mx-auto' : ''">
                 <span class="text-xs font-bold text-indigo-300">
                     {{ strtoupper(substr(Auth::user()?->name ?? 'U', 0, 2)) }}
                 </span>
             </div>
             {{-- Name + role — hidden when collapsed --}}
-            <div class="min-w-0 flex-1 overflow-hidden"
+            <div class="flex-1 min-w-0 overflow-hidden"
                  x-show="!$store.sidebar.collapsed"
                  x-transition:enter="transition-opacity duration-200 delay-75"
                  x-transition:enter-start="opacity-0"
@@ -154,7 +153,7 @@ new class extends Component
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
             >
-                <p class="text-sm font-semibold text-white truncate leading-tight">{{ Auth::user()?->name }}</p>
+                <p class="text-sm font-semibold leading-tight text-white truncate">{{ Auth::user()?->name }}</p>
                 <p class="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
                     {{ str_replace('_', ' ', Auth::user()?->role ?? '') }}
                 </p>
@@ -163,7 +162,7 @@ new class extends Component
     </div>
 
     {{-- ── Navigation ── --}}
-    <nav class="flex-1 overflow-y-auto py-3 space-y-4"
+    <nav class="flex-1 overflow-y-auto py-3 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
          :class="$store.sidebar.collapsed ? 'px-2' : 'px-3'">
         @foreach ($this->menuItems() as $section => $items)
             <div>
@@ -213,7 +212,7 @@ new class extends Component
                         </span>
 
                         {{-- Label — fades out when collapsed --}}
-                        <span class="truncate whitespace-nowrap overflow-hidden transition-all duration-200"
+                        <span class="overflow-hidden truncate transition-all duration-200 whitespace-nowrap"
                               x-show="!$store.sidebar.collapsed"
                               x-transition:enter="transition-opacity duration-200 delay-75"
                               x-transition:enter-start="opacity-0"
@@ -244,12 +243,12 @@ new class extends Component
     </nav>
 
     {{-- ── Footer: logout ── --}}
-    <div class="shrink-0 border-t border-slate-800 p-3">
+    <div class="p-3 border-t shrink-0 border-slate-800">
         <div class="flex items-center gap-3"
              :class="$store.sidebar.collapsed ? 'justify-center' : 'px-2'">
 
             {{-- Employee code — hidden when collapsed --}}
-            <div class="min-w-0 flex-1 overflow-hidden"
+            <div class="flex-1 min-w-0 overflow-hidden"
                  x-show="!$store.sidebar.collapsed"
                  x-transition:enter="transition-opacity duration-200 delay-75"
                  x-transition:enter-start="opacity-0"
@@ -258,14 +257,14 @@ new class extends Component
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
             >
-                <p class="text-xs font-medium text-slate-300 truncate">{{ Auth::user()?->employee_code }}</p>
+                <p class="text-xs font-medium truncate text-slate-300">{{ Auth::user()?->employee_code }}</p>
                 <p class="text-[10px] text-slate-500 mt-0.5">Logged in</p>
             </div>
 
             <button
                 wire:click="logout"
                 wire:confirm="Are you sure you want to log out?"
-                class="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
+                class="p-2 transition-colors rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 shrink-0"
                 title="Log out">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"

@@ -12,7 +12,17 @@
       "Bash(git remote *)",
       "Bash(git push *)",
       "Bash(php -r ' *)",
-      "Bash(ping -n 6 127.0.0.1)"
+      "Bash(ping -n 6 127.0.0.1)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "PowerShell(cd \"c:\\\\xampp\\\\htdocs\\\\ariane-gghi-hr\"; Start-Process -FilePath \"php\" -ArgumentList \"artisan\", \"serve\" -NoNewWindow -PassThru | Select-Object Id; Start-Sleep -Seconds 3; try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:8000\" -TimeoutSec 5 -UseBasicParsing; \"Status: $\\($r.StatusCode\\)\" } catch { \"Error: $_\" })",
+      "PowerShell(cd \"c:\\\\xampp\\\\htdocs\\\\ariane-gghi-hr\"; Start-Process -FilePath \"php\" -ArgumentList \"artisan\", \"serve\" -NoNewWindow -PassThru | Select-Object Id; Start-Sleep -Seconds 4; try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:8000\" -TimeoutSec 5 -UseBasicParsing; \"Status: $\\($r.StatusCode\\)\" } catch { \"Error: $_\" })",
+      "Bash(php c:/xampp/htdocs/ariane-gghi-hr/artisan migrate:status)",
+      "Bash(php c:/xampp/htdocs/ariane-gghi-hr/artisan migrate --path=database/migrations/2026_06_21_000001_create_sync_logs_table.php)",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\xampp\\\\htdocs\\\\ariane-gghi-hr\\\\app\\\\Console\\\\Commands\")",
+      "Bash(php c:/xampp/htdocs/ariane-gghi-hr/artisan sync:attendance --help)",
+      "Bash(php -r \"echo bin2hex\\(random_bytes\\(32\\)\\);\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\xampp\\\\htdocs\\\\ariane-gghi-hr\\\\app\\\\Http\\\\Controllers\\\\Api\")"
     ]
   }
 }

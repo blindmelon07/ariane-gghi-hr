@@ -18,7 +18,7 @@
     {{-- Top row: connection card + stats --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {{-- Connection card --}}
+        {{-- ZKTeco connection card --}}
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6">
             <div class="flex items-start justify-between mb-5">
                 <div>
@@ -102,7 +102,7 @@
         {{-- Attendance sync --}}
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-1">Sync Attendance</h2>
-            <p class="text-xs text-gray-400 dark:text-slate-500 mb-5">Pull punch records from the device for a date range.</p>
+            <p class="text-xs text-gray-400 dark:text-slate-500 mb-5">Dispatch a background job to pull punch records from the ZKTeco device for a date range.</p>
 
             <div class="space-y-3 mb-5">
                 <div class="grid grid-cols-2 gap-3">
@@ -135,29 +135,12 @@
                 </svg>
                 Sync Attendance
             </button>
-
-            @if ($syncResult)
-                <div class="mt-4 grid grid-cols-3 gap-2 text-center">
-                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $syncResult['total'] }}</p>
-                        <p class="text-[10px] text-slate-400">Total</p>
-                    </div>
-                    <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                        <p class="text-lg font-bold text-emerald-700 dark:text-emerald-400">{{ $syncResult['synced'] }}</p>
-                        <p class="text-[10px] text-slate-400">Synced</p>
-                    </div>
-                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                        <p class="text-lg font-bold text-gray-500 dark:text-slate-400">{{ $syncResult['skipped'] }}</p>
-                        <p class="text-[10px] text-slate-400">Skipped</p>
-                    </div>
-                </div>
-            @endif
         </div>
 
         {{-- Employee/user sync --}}
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-1">Sync Employees</h2>
-            <p class="text-xs text-gray-400 dark:text-slate-500 mb-5">Import registered users from the biometric device.</p>
+            <p class="text-xs text-gray-400 dark:text-slate-500 mb-5">Dispatch a background job to import employees from the ZKTeco device.</p>
 
             <button
                 wire:click="syncUsers"
@@ -171,28 +154,93 @@
                 <svg wire:loading.remove wire:target="syncUsers" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                Sync Employees from Device
+                Sync Employees from BioTime
             </button>
-
-            @if ($userSyncResult)
-                <div class="mt-4 grid grid-cols-2 gap-2 text-center">
-                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $userSyncResult['total'] }}</p>
-                        <p class="text-[10px] text-slate-400">On Device</p>
-                    </div>
-                    <div class="p-2 rounded-lg bg-sky-50 dark:bg-sky-900/20">
-                        <p class="text-lg font-bold text-sky-700 dark:text-sky-400">{{ $userSyncResult['synced'] }}</p>
-                        <p class="text-[10px] text-slate-400">Synced</p>
-                    </div>
-                </div>
-            @endif
 
             <div class="mt-6 pt-5 border-t border-gray-100 dark:border-slate-800">
                 <p class="text-xs text-gray-400 dark:text-slate-500 leading-relaxed">
-                    Employee names on device will be used as first/last name. Review imported employees in the
+                    Employee names from the device will be used as first/last name. Review imported employees in the
                     <a href="{{ route('admin.employees') }}" wire:navigate class="text-indigo-500 hover:underline">Employees</a> page.
                 </p>
             </div>
+        </div>
+    </div>
+
+    {{-- Sync History --}}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Sync History</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Last 15 sync jobs run by the scheduler or triggered manually.</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-gray-100 dark:border-slate-800">
+                        <th class="text-left px-6 py-3 font-medium">Type</th>
+                        <th class="text-left px-6 py-3 font-medium">Status</th>
+                        <th class="text-left px-6 py-3 font-medium">Records</th>
+                        <th class="text-left px-6 py-3 font-medium">Started</th>
+                        <th class="text-left px-6 py-3 font-medium">Duration</th>
+                        <th class="text-left px-6 py-3 font-medium">Error</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 dark:divide-slate-800">
+                    @forelse ($this->recentSyncLogs as $log)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="px-6 py-3">
+                                <span @class([
+                                    'inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize',
+                                    'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' => $log->type === 'attendance',
+                                    'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400'                 => $log->type === 'employees',
+                                ])>
+                                    {{ $log->type }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-3">
+                                <span @class([
+                                    'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium',
+                                    'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' => $log->status === 'success',
+                                    'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'                 => $log->status === 'failed',
+                                    'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'         => $log->status === 'running',
+                                ])>
+                                    <span @class([
+                                        'w-1.5 h-1.5 rounded-full',
+                                        'bg-emerald-500'              => $log->status === 'success',
+                                        'bg-red-500'                  => $log->status === 'failed',
+                                        'bg-amber-400 animate-pulse'  => $log->status === 'running',
+                                    ])></span>
+                                    {{ ucfirst($log->status) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-3 text-gray-600 dark:text-slate-300">
+                                {{ $log->records_fetched > 0 ? number_format($log->records_fetched) : '—' }}
+                            </td>
+                            <td class="px-6 py-3 text-xs text-gray-400 dark:text-slate-500">
+                                {{ $log->started_at->format('M d, Y H:i:s') }}
+                            </td>
+                            <td class="px-6 py-3 text-xs text-gray-400 dark:text-slate-500">
+                                @if ($log->completed_at)
+                                    {{ $log->started_at->diffInSeconds($log->completed_at) }}s
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td class="px-6 py-3 text-xs text-red-500 dark:text-red-400 max-w-xs truncate">
+                                {{ $log->error_message ?? '—' }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-10 text-center text-sm text-slate-400">
+                                No sync history yet. Jobs will appear here once they run.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -200,10 +248,10 @@
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
             <div>
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Device Users</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Employees imported from the biometric device. Assign an account so they can log in.</p>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">BioTime Employees</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Employees imported from BioTime. Assign an account so they can log in.</p>
             </div>
-            <span class="text-xs font-medium text-slate-400">{{ $this->deviceUsers->count() }} users</span>
+            <span class="text-xs font-medium text-slate-400">{{ $this->deviceUsers->count() }} employees</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -252,7 +300,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-6 py-10 text-center text-sm text-slate-400">
-                                No device users yet. Click <strong>Sync Employees from Device</strong> above to import them.
+                                No employees yet. Click <strong>Sync Employees from BioTime</strong> above to import them.
                             </td>
                         </tr>
                     @endforelse
@@ -317,7 +365,7 @@
         </div>
     @endif
 
-    {{-- Recent logs table --}}
+    {{-- Recent punch logs --}}
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Recent Punch Logs</h2>
@@ -374,7 +422,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-10 text-center text-sm text-slate-400">
-                                No attendance logs yet. Sync from the device to import records.
+                                No attendance logs yet. Sync from BioTime to import records.
                             </td>
                         </tr>
                     @endforelse

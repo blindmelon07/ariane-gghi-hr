@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Models\Employee;
+use App\Models\SyncLog;
 use App\Services\ActivityLogService;
-use App\Services\BioTimeService;
+use App\Services\ZKTecoService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,45 +21,34 @@ class SyncEmployeesJob implements ShouldQueue
         $this->onQueue('biotime');
     }
 
-    public function handle(BioTimeService $bioTime): void
+    public function handle(ZKTecoService $zk): void
     {
+        $syncLog = SyncLog::create([
+            'type'       => 'employees',
+            'status'     => 'running',
+            'started_at' => now(),
+        ]);
+
         try {
-            $bioEmployees = $bioTime->getEmployees();
+            $result = $zk->syncUsers();
+            $count  = $result['synced'];
 
-            $syncedCodes = [];
+            $syncLog->update([
+                'status'          => 'success',
+                'records_fetched' => $count,
+                'completed_at'    => now(),
+            ]);
 
-            foreach ($bioEmployees as $emp) {
-                $empCode = $emp['emp_code'] ?? null;
-                if (!$empCode) {
-                    continue;
-                }
-
-                Employee::updateOrCreate(
-                    ['emp_code' => $empCode],
-                    [
-                        'first_name'  => $emp['first_name'] ?? '',
-                        'last_name'   => $emp['last_name'] ?? '',
-                        'department'  => $emp['department']['dept_name'] ?? $emp['department'] ?? null,
-                        'position'    => $emp['position']['position_name'] ?? $emp['position'] ?? null,
-                        'hire_date'   => $emp['hire_date'] ?? null,
-                        'is_active'   => true,
-                        'biotime_id'  => $emp['id'] ?? null,
-                        'synced_at'   => now(),
-                    ]
-                );
-
-                $syncedCodes[] = $empCode;
-            }
-
-            // Mark employees not in BioTime as inactive
-            Employee::whereNotIn('emp_code', $syncedCodes)
-                ->where('is_active', true)
-                ->update(['is_active' => false]);
-
-            Log::info('SyncEmployeesJob: Successfully synced ' . count($syncedCodes) . ' employees.');
-            ActivityLogService::log('employees_synced', 'Synced ' . count($syncedCodes) . ' employees from BioTime.');
+            Log::info("SyncEmployeesJob: Successfully synced {$count} employees from device.");
+            ActivityLogService::log('employees_synced', "Synced {$count} employees from ZKTeco device.");
         } catch (\Throwable $e) {
-            Log::error('SyncEmployeesJob: Failed — ' . $e->getMessage());
+            $syncLog->update([
+                'status'        => 'failed',
+                'error_message' => $e->getMessage(),
+                'completed_at'  => now(),
+            ]);
+
+            Log::error('SyncEmployeesJob: Failed -- ' . $e->getMessage());
             throw $e;
         }
     }
