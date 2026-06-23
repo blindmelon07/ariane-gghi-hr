@@ -1,6 +1,6 @@
 {
-    "name": "GGHI HR Portal",
-    "short_name": "GGHI HR",
+    "name": "GGHI HRIS",
+    "short_name": "GGHI HRIS",
     "description": "Human Resource Information System",
     "start_url": "/login",
     "display": "standalone",

@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name', 'HR Portal') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="/images/gghilogoapp.png">
+
         <!-- PWA -->
         <link rel="manifest" href="/manifest.json">
         <meta name="theme-color" content="#4f46e5">
