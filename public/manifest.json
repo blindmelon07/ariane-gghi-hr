@@ -2,7 +2,7 @@
     "name": "GGHI HR Portal",
     "short_name": "GGHI HR",
     "description": "Human Resource Information System",
-    "start_url": "/",
+    "start_url": "/login",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#0f172a",
