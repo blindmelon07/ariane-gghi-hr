@@ -22,7 +22,21 @@
       "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\xampp\\\\htdocs\\\\ariane-gghi-hr\\\\app\\\\Console\\\\Commands\")",
       "Bash(php c:/xampp/htdocs/ariane-gghi-hr/artisan sync:attendance --help)",
       "Bash(php -r \"echo bin2hex\\(random_bytes\\(32\\)\\);\")",
-      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\xampp\\\\htdocs\\\\ariane-gghi-hr\\\\app\\\\Http\\\\Controllers\\\\Api\")"
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\xampp\\\\htdocs\\\\ariane-gghi-hr\\\\app\\\\Http\\\\Controllers\\\\Api\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/ariane-gghi-hr/public/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/ariane-gghi-hr/public/manifest.json)",
+      "Bash(curl -s http://localhost/ariane-gghi-hr/public/manifest.json)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/ariane-gghi-hr/public/sw.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/ariane-gghi-hr/public/offline.html)",
+      "Bash(curl -s http://localhost/ariane-gghi-hr/public/admin/dashboard -L -c /tmp/test_cookies.txt -b /tmp/test_cookies.txt)",
+      "Bash(curl -s http://localhost/ariane-gghi-hr/public/login)",
+      "Bash(curl -s http://localhost/ariane-gghi-hr/public/admin/dashboard -c /tmp/hr_cookies.txt -b /tmp/hr_cookies.txt)",
+      "Bash(curl -s http://localhost/ariane-gghi-hr/public/login -c /tmp/hr_cookies.txt)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost/ariane-gghi-hr/public/images/gghi%20logo.png\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/ariane-gghi-hr/public/apple-touch-icon.png)",
+      "Skill(code-review)",
+      "Skill(code-review:*)"
     ]
   }
 }

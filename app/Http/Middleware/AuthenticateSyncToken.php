@@ -10,9 +10,10 @@ class AuthenticateSyncToken
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->bearerToken();
+        $token      = $request->bearerToken();
+        $configured = config('app.sync_api_token', '');
 
-        if (!$token || !hash_equals(config('app.sync_api_token', ''), $token)) {
+        if (!$token || !$configured || !hash_equals($configured, $token)) {
             return response()->json(['message' => 'Unauthorized.'], 401);
         }
 

@@ -71,14 +71,14 @@ new class extends Component
 }; ?>
 
 <aside
-    x-data="{ open: false }"
-    class="flex flex-col h-screen bg-[#0f172a] text-white fixed inset-y-0 left-0 z-50
+    x-data
+    class="sb-pre flex flex-col h-screen bg-[#0f172a] text-white fixed inset-y-0 left-0 z-50
            border-r border-slate-800 transition-all duration-300 ease-in-out"
     :class="{
-        'w-64':  !$store.sidebar.collapsed,
-        'w-16':   $store.sidebar.collapsed,
-        'translate-x-0':           open || !$store.sidebar.collapsed || window.innerWidth >= 640,
-        '-translate-x-full':       !open && window.innerWidth < 640,
+        'w-64':           !$store.sidebar.collapsed,
+        'w-16':            $store.sidebar.collapsed,
+        'translate-x-0':      $store.sidebar.mobileOpen || $store.sidebar.isDesktop,
+        '-translate-x-full': !$store.sidebar.mobileOpen && !$store.sidebar.isDesktop,
     }"
 >
     {{-- ── Brand / Toggle row (h-14 matches header) ── --}}
@@ -182,6 +182,7 @@ new class extends Component
 
                     <a href="{{ route($item['route']) }}"
                        wire:navigate
+                       @click="$store.sidebar.closeMobile()"
                        class="group relative flex items-center gap-3 py-2 mb-0.5 rounded-lg text-sm font-medium transition-all duration-150"
                        :class="{
                            'px-3':    !$store.sidebar.collapsed,

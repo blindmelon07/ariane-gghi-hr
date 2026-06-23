@@ -40,21 +40,20 @@ class SyncController extends Controller
             'started_at' => now(),
         ]);
 
-        $empCache = [];
-        $count    = 0;
+        // Pre-load all referenced employees in one query to avoid N+1
+        $empCodes = collect($request->records)->pluck('emp_code')->unique()->values()->all();
+        $empMap   = Employee::whereIn('emp_code', $empCodes)->pluck('id', 'emp_code');
+
+        $count = 0;
 
         foreach ($request->records as $record) {
             $empCode     = $record['emp_code'];
             $punchCarbon = Carbon::parse($record['punch_time']);
 
-            if (!isset($empCache[$empCode])) {
-                $empCache[$empCode] = Employee::where('emp_code', $empCode)->first();
-            }
-
             AttendanceLog::updateOrCreate(
                 ['emp_code' => $empCode, 'punch_time' => $punchCarbon],
                 [
-                    'employee_id'  => $empCache[$empCode]?->id,
+                    'employee_id'  => $empMap[$empCode] ?? null,
                     'punch_date'   => $punchCarbon->toDateString(),
                     'punch_state'  => $record['punch_state'] ?? 0,
                     'verify_type'  => $record['verify_type'] ?? 0,

@@ -90,12 +90,16 @@ class BiometricsManager extends Component
         $this->errorMessage   = '';
 
         try {
-            Artisan::call('sync:attendance', [
+            $exit = Artisan::call('sync:attendance', [
                 '--from' => $this->fromDate,
                 '--to'   => $this->toDate,
             ]);
-            $this->successMessage = "Attendance synced ({$this->fromDate} to {$this->toDate}). Check Sync History below.";
-            unset($this->recentSyncLogs);
+            if ($exit === 0) {
+                $this->successMessage = "Attendance synced ({$this->fromDate} to {$this->toDate}). Check Sync History below.";
+                unset($this->recentSyncLogs);
+            } else {
+                $this->errorMessage = 'Sync failed. Check Sync History for details.';
+            }
         } catch (\Throwable $e) {
             $this->errorMessage = 'Sync failed: ' . $e->getMessage();
         } finally {
@@ -115,10 +119,14 @@ class BiometricsManager extends Component
         $this->errorMessage   = '';
 
         try {
-            Artisan::call('sync:employees');
-            $this->successMessage = 'Employees synced from device successfully.';
-            unset($this->recentSyncLogs);
-            unset($this->deviceUsers);
+            $exit = Artisan::call('sync:employees');
+            if ($exit === 0) {
+                $this->successMessage = 'Employees synced from device successfully.';
+                unset($this->recentSyncLogs);
+                unset($this->deviceUsers);
+            } else {
+                $this->errorMessage = 'Sync failed. Check Sync History for details.';
+            }
         } catch (\Throwable $e) {
             $this->errorMessage = 'Sync failed: ' . $e->getMessage();
         } finally {
