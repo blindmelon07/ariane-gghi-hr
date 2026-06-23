@@ -1,9 +1,6 @@
-const CACHE_NAME = 'gghi-hr-v1';
+const CACHE_NAME = 'gghi-hr-v2';
 
-// Static assets to cache on install
-const STATIC_ASSETS = [
-    '/offline.html',
-];
+const STATIC_ASSETS = ['/offline.html'];
 
 self.addEventListener('install', event => {
     event.waitUntil(
@@ -25,29 +22,26 @@ self.addEventListener('fetch', event => {
     const { request } = event;
     const url = new URL(request.url);
 
-    // Skip non-GET and cross-origin requests
+    // Only handle same-origin GET requests
     if (request.method !== 'GET' || url.origin !== location.origin) return;
 
-    // Cache-first for build assets (versioned JS/CSS)
+    // Cache-first for versioned Vite build assets only
     if (url.pathname.startsWith('/build/')) {
         event.respondWith(
             caches.match(request).then(cached => {
                 if (cached) return cached;
                 return fetch(request).then(response => {
-                    const clone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+                    if (response.ok) {
+                        const clone = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+                    }
                     return response;
-                });
+                }).catch(() => caches.match('/offline.html'));
             })
         );
         return;
     }
 
-    // Network-first for HTML pages (dynamic content)
-    if (request.headers.get('Accept')?.includes('text/html')) {
-        event.respondWith(
-            fetch(request).catch(() => caches.match('/offline.html'))
-        );
-        return;
-    }
+    // All HTML page navigation is left to the browser — no SW interception.
+    // This prevents the SW from ever forwarding a server 403/redirect error.
 });
