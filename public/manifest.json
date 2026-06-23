@@ -9,22 +9,10 @@
     "theme_color": "#4f46e5",
     "icons": [
         {
-            "src": "/apple-touch-icon.png",
-            "sizes": "180x180",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/images/gghi%20logo.png",
+            "src": "/images/gghilogoapp.png",
             "sizes": "any",
             "type": "image/png",
             "purpose": "any maskable"
-        },
-        {
-            "src": "/favicon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
-            "purpose": "any"
         }
     ],
     "screenshots": [],
