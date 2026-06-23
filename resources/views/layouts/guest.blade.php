@@ -46,12 +46,8 @@
 
                     {{-- Logo --}}
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shrink-0">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
-                        </div>
+                        <img src="{{ asset('images/gghilogoapp.png') }}" alt="{{ config('app.name') }}"
+                             class="w-10 h-10 object-contain shrink-0" />
                         <div>
                             <p class="text-white font-bold leading-tight">{{ config('app.name', 'HR Portal') }}</p>
                             <p class="text-indigo-400 text-xs">Management System</p>
@@ -95,17 +91,8 @@
 
                 {{-- Mobile logo --}}
                 <div class="lg:hidden mb-8 text-center">
-                    @if (file_exists(public_path('images/gghi logo.png')))
-                        <img src="{{ asset('images/gghi logo.png') }}" alt="{{ config('app.name') }}"
-                             class="h-14 w-auto mx-auto mb-3 dark:brightness-0 dark:invert" />
-                    @else
-                        <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
-                        </div>
-                    @endif
+                    <img src="{{ asset('images/gghilogoapp.png') }}" alt="{{ config('app.name') }}"
+                         class="h-14 w-auto mx-auto mb-3" />
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ config('app.name') }}</h2>
                 </div>
 
