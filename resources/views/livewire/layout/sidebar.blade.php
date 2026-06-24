@@ -12,6 +12,19 @@ new class extends Component
         $this->redirect('/', navigate: true);
     }
 
+    public function sectionIcon(string $section): string
+    {
+        return match ($section) {
+            'Main'           => 'grid',
+            'Payroll'        => 'currency-dollar',
+            'Attendance'     => 'calendar',
+            'Leave'          => 'document-check',
+            'Reports'        => 'chart-bar',
+            'Administration' => 'shield-check',
+            default          => 'dots',
+        };
+    }
+
     public function menuItems(): array
     {
         $role = Auth::user()?->role;
@@ -114,88 +127,58 @@ new class extends Component
 
 <aside
     x-data
-    class="w-64 flex flex-col h-screen bg-[#0a1628] text-white fixed inset-y-0 left-0 z-50
-           border-r border-blue-800/50 transition-all duration-300 ease-in-out"
-    :style="{ width: $store.sidebar.collapsed ? '4rem' : '16rem' }"
+    class="w-64 flex flex-col h-screen bg-[#0d1b2e] text-white fixed inset-y-0 left-0 z-50
+           border-r border-white/5 transition-all duration-300 ease-in-out"
+    :style="{ width: $store.sidebar.collapsed ? '4.5rem' : '16rem' }"
     :class="{
         'translate-x-0':      $store.sidebar.mobileOpen || $store.sidebar.isDesktop,
         '-translate-x-full': !$store.sidebar.mobileOpen && !$store.sidebar.isDesktop,
     }"
+    x-cloak
 >
-    {{-- ── Brand / Toggle row (h-14 matches header) ── --}}
-    <div class="relative flex items-center overflow-hidden border-b h-14 shrink-0 border-blue-800/50">
+    {{-- ── Header: Logo + Toggle ── --}}
+    <div class="flex items-center h-16 shrink-0 px-4 border-b border-white/5"
+         :class="$store.sidebar.collapsed ? 'justify-center px-0' : 'justify-between px-4'">
 
-        {{-- Logo — hides when collapsed --}}
-        <div class="flex items-center justify-center flex-1 px-3 overflow-hidden"
-             x-show="!$store.sidebar.collapsed"
-             x-transition:enter="transition-opacity duration-200 delay-100"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
+        <div x-show="!$store.sidebar.collapsed"
+             x-transition:enter="transition-opacity duration-200 delay-75"
+             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
              x-transition:leave="transition-opacity duration-100"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-        >
-            <img src="{{ asset('images/gghi logo.png') }}"
-                 alt="{{ config('app.name', 'HR Portal') }}"
-                 class="object-contain w-auto h-9" />
+             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             class="overflow-hidden">
+            <img src="{{ asset('images/gghi logo.png') }}" alt="{{ config('app.name') }}"
+                 class="h-8 w-auto object-contain" />
         </div>
 
-        {{-- Collapsed: just an icon placeholder --}}
-        <div class="absolute inset-0 flex items-center justify-center"
-             x-show="$store.sidebar.collapsed"
-             x-transition:enter="transition-opacity duration-200 delay-100"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition-opacity duration-100"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-        >
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/30">
-                <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-            </div>
-        </div>
-
-        {{-- Toggle chevron button — floats on the right edge --}}
-        <button
-            @click="$store.sidebar.toggle()"
-            class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md
-                   text-slate-300 hover:text-white hover:bg-white/10 transition-colors z-10"
-            :title="$store.sidebar.collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-        >
-            <svg class="w-4 h-4 transition-transform duration-300"
+        <button @click="$store.sidebar.toggle()"
+                class="flex items-center justify-center w-9 h-9 rounded-xl transition-colors
+                       text-slate-400 hover:text-white hover:bg-white/10 shrink-0"
+                :title="$store.sidebar.collapsed ? 'Expand' : 'Collapse'">
+            <svg class="w-5 h-5 transition-transform duration-300"
                  :class="$store.sidebar.collapsed ? 'rotate-180' : ''"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
             </svg>
         </button>
     </div>
 
-    {{-- ── User Profile ── --}}
-    <div class="overflow-hidden border-b border-blue-800/50 shrink-0"
-         :class="$store.sidebar.collapsed ? 'py-3 px-2' : 'px-4 py-3'">
+    {{-- ── User Avatar ── --}}
+    <div class="shrink-0 border-b border-white/5"
+         :class="$store.sidebar.collapsed ? 'py-4 flex justify-center' : 'px-4 py-4'">
         <div class="flex items-center gap-3">
-            {{-- Avatar always visible --}}
-            <div class="flex items-center justify-center w-8 h-8 mx-auto border rounded-full bg-blue-600/30 border-blue-500/50 shrink-0"
-                 :class="$store.sidebar.collapsed ? 'mx-auto' : ''">
-                <span class="text-xs font-bold text-blue-300">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg">
+                <span class="text-xs font-bold text-white">
                     {{ strtoupper(substr(Auth::user()?->name ?? 'U', 0, 2)) }}
                 </span>
             </div>
-            {{-- Name + role — hidden when collapsed --}}
-            <div class="flex-1 min-w-0 overflow-hidden"
-                 x-show="!$store.sidebar.collapsed"
+            <div x-show="!$store.sidebar.collapsed"
                  x-transition:enter="transition-opacity duration-200 delay-75"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
+                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  x-transition:leave="transition-opacity duration-100"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-            >
-                <p class="text-sm font-semibold leading-tight text-white truncate">{{ Auth::user()?->name }}</p>
-                <p class="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 class="min-w-0 overflow-hidden">
+                <p class="text-sm font-semibold text-white truncate leading-tight">{{ Auth::user()?->name }}</p>
+                <p class="text-[11px] text-blue-400 capitalize mt-0.5">
                     {{ str_replace('_', ' ', Auth::user()?->role ?? '') }}
                 </p>
             </div>
@@ -203,114 +186,143 @@ new class extends Component
     </div>
 
     {{-- ── Navigation ── --}}
-    <nav class="flex-1 overflow-y-auto py-3 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+    <nav class="flex-1 overflow-y-auto py-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
          :class="$store.sidebar.collapsed ? 'px-2' : 'px-3'">
+
         @foreach ($this->menuItems() as $section => $items)
-            <div>
-                {{-- Section label — hidden when collapsed --}}
-                <p class="px-3 mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500 whitespace-nowrap overflow-hidden"
-                   x-show="!$store.sidebar.collapsed"
-                   x-transition:enter="transition-opacity duration-150"
-                   x-transition:enter-start="opacity-0"
-                   x-transition:enter-end="opacity-100"
-                   x-transition:leave="transition-opacity duration-100"
-                   x-transition:leave-start="opacity-100"
-                   x-transition:leave-end="opacity-0"
-                >{{ $section }}</p>
+            @php
+                $sectionIcon = $this->sectionIcon($section);
+                $isSingleItem = count($items) === 1;
+                $sectionActive = collect($items)->contains(fn($i) => request()->routeIs($i['route']));
+            @endphp
 
-                @foreach ($items as $item)
-                    @php $active = request()->routeIs($item['route']); @endphp
-
-                    <a href="{{ route($item['route']) }}"
-                       wire:navigate
-                       @click="$store.sidebar.closeMobile()"
-                       class="group relative flex items-center gap-3 py-2 mb-0.5 rounded-lg text-sm font-medium transition-all duration-150"
-                       :class="{
-                           'px-3':    !$store.sidebar.collapsed,
-                           'px-0 justify-center': $store.sidebar.collapsed,
-                           'bg-blue-600 text-white shadow-lg shadow-blue-900/40': {{ $active ? 'true' : 'false' }},
-                           'text-slate-400 hover:text-white hover:bg-white/8': {{ !$active ? 'true' : 'false' }},
-                       }"
-                    >
-                        {{-- Icon --}}
-                        <span class="shrink-0 {{ $active ? 'text-blue-200' : 'text-slate-500 group-hover:text-slate-300' }}">
-                            @switch($item['icon'])
-                                @case('home')         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H15.75a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75z"/></svg> @break
-                                @case('users')        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg> @break
-                                @case('calendar')     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg> @break
-                                @case('calendar-x')   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5M9.75 12.75l4.5 4.5m0-4.5l-4.5 4.5"/></svg> @break
-                                @case('currency-dollar') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> @break
-                                @case('banknotes')    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg> @break
-                                @case('minus-circle') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> @break
-                                @case('document-text') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg> @break
-                                @case('document-check') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12.75L11.25 15 15 9.75M7.5 21h9a2.25 2.25 0 002.25-2.25V6.108c0-.6-.237-1.176-.659-1.598l-2.1-2.1A2.25 2.25 0 0013.41 1.5H7.5A2.25 2.25 0 005.25 3.75v15A2.25 2.25 0 007.5 21z"/></svg> @break
-                                @case('chart-bar')    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg> @break
-                                @case('paper-airplane') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg> @break
-                                @case('gift')         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1014.25 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 109.75 7.5H12m0 0H7.5m4.5 0h4.5M12 7.5v13.5m4.5-13.5H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H12"/></svg> @break
-                                @case('clock')        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> @break
-                                @case('finger-print') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 004.5 10.5a7.464 7.464 0 01-1.15 3.993m1.989 3.559A11.209 11.209 0 008.25 10.5a3.75 3.75 0 117.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 01-3.6 9.75m6.633-4.596a18.666 18.666 0 01-2.485 5.33"/></svg> @break
-                                @case('shield-check') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg> @break
-                                @case('office-building') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg> @break
-                                @case('briefcase') <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/></svg> @break
-                                @default              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
-                            @endswitch
-                        </span>
-
-                        {{-- Label — fades out when collapsed --}}
-                        <span class="overflow-hidden truncate transition-all duration-200 whitespace-nowrap"
-                              x-show="!$store.sidebar.collapsed"
-                              x-transition:enter="transition-opacity duration-200 delay-75"
-                              x-transition:enter-start="opacity-0"
-                              x-transition:enter-end="opacity-100"
+            @if ($isSingleItem)
+                {{-- ── Single item: direct link ── --}}
+                @php $item = $items[0]; $active = request()->routeIs($item['route']); @endphp
+                <div class="relative mb-0.5" x-data="{ hover: false }" @mouseenter="hover = true" @mouseleave="hover = false">
+                    <a href="{{ route($item['route']) }}" wire:navigate @click="$store.sidebar.closeMobile()"
+                       class="flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-150 group"
+                       :class="[
+                           $store.sidebar.collapsed ? 'justify-center p-3' : 'px-3 py-2.5',
+                           {{ $active ? 'true' : 'false' }} ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'text-slate-400 hover:text-white hover:bg-white/8'
+                       ]">
+                        @include('livewire.layout._sidebar-icon', ['icon' => $item['icon'], 'active' => $active])
+                        <span x-show="!$store.sidebar.collapsed"
+                              x-transition:enter="transition-opacity duration-150 delay-75"
+                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               x-transition:leave="transition-opacity duration-100"
-                              x-transition:leave-start="opacity-100"
-                              x-transition:leave-end="opacity-0"
-                        >{{ $item['label'] }}</span>
-
+                              x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                              class="truncate font-medium">{{ $item['label'] }}</span>
                         @if ($active)
-                            <span class="ml-auto w-1.5 h-1.5 rounded-full bg-blue-300 shrink-0"
-                                  x-show="!$store.sidebar.collapsed"></span>
+                            <span x-show="!$store.sidebar.collapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
                         @endif
-
-                        {{-- Collapsed tooltip --}}
-                        <div class="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-slate-800 text-xs text-white
-                                    whitespace-nowrap shadow-lg pointer-events-none z-50
-                                    opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-                             x-show="$store.sidebar.collapsed"
-                             style="display:none"
-                        >
-                            {{ $item['label'] }}
-                        </div>
                     </a>
-                @endforeach
-            </div>
+                    {{-- Collapsed tooltip --}}
+                    <div x-show="$store.sidebar.collapsed && hover"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 -translate-x-1"
+                         x-transition:enter-end="opacity-100 translate-x-0"
+                         class="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[200]
+                                bg-[#1a2d4a] border border-white/10 rounded-xl shadow-2xl px-3 py-2 whitespace-nowrap pointer-events-none">
+                        <p class="text-xs font-semibold text-white">{{ $item['label'] }}</p>
+                    </div>
+                </div>
+
+            @else
+                {{-- ── Group: collapsible section ── --}}
+                <div class="mb-1" x-data="{ open: {{ $sectionActive ? 'true' : 'false' }}, hover: false }"
+                     @mouseenter="hover = true" @mouseleave="hover = false">
+
+                    {{-- Group trigger button --}}
+                    <button @click="if (!$store.sidebar.collapsed) open = !open"
+                            class="w-full flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-150 group"
+                            :class="[
+                                $store.sidebar.collapsed ? 'justify-center p-3' : 'px-3 py-2.5',
+                                {{ $sectionActive ? 'true' : 'false' }} && !$store.sidebar.collapsed
+                                    ? 'text-white'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/8'
+                            ]">
+                        @include('livewire.layout._sidebar-icon', ['icon' => $sectionIcon, 'active' => $sectionActive])
+                        <span x-show="!$store.sidebar.collapsed"
+                              x-transition:enter="transition-opacity duration-150 delay-75"
+                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                              x-transition:leave="transition-opacity duration-100"
+                              x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                              class="flex-1 text-left truncate font-medium">{{ $section }}</span>
+                        {{-- Chevron --}}
+                        <svg x-show="!$store.sidebar.collapsed"
+                             :class="open ? 'rotate-180' : ''"
+                             class="w-3.5 h-3.5 shrink-0 text-slate-500 transition-transform duration-200"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    {{-- Expanded: sub-items inline --}}
+                    <div x-show="open && !$store.sidebar.collapsed"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                         class="mt-0.5 ml-3 pl-3 border-l border-white/10 space-y-0.5">
+                        @foreach ($items as $item)
+                            @php $active = request()->routeIs($item['route']); @endphp
+                            <a href="{{ route($item['route']) }}" wire:navigate @click="$store.sidebar.closeMobile()"
+                               class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-all duration-150
+                                      {{ $active
+                                          ? 'text-blue-300 bg-blue-500/15 font-medium'
+                                          : 'text-slate-500 hover:text-slate-200 hover:bg-white/6' }}">
+                                <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ $active ? 'bg-blue-400' : 'bg-slate-600' }}"></span>
+                                <span class="truncate">{{ $item['label'] }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+
+                    {{-- Collapsed: popup tooltip with all sub-items --}}
+                    <div x-show="$store.sidebar.collapsed && hover"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 -translate-x-2"
+                         x-transition:enter-end="opacity-100 translate-x-0"
+                         class="absolute left-[4.5rem] z-[200] pointer-events-none"
+                         style="top: auto; margin-top: -3rem">
+                        <div class="bg-[#1a2d4a] border border-white/10 rounded-2xl shadow-2xl py-2 min-w-[160px]">
+                            <p class="px-4 pt-1 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">
+                                {{ $section }}
+                            </p>
+                            @foreach ($items as $item)
+                                @php $active = request()->routeIs($item['route']); @endphp
+                                <div class="flex items-center gap-2.5 px-4 py-2 text-sm
+                                            {{ $active ? 'text-blue-300 font-medium' : 'text-slate-300' }}">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $active ? 'bg-blue-400' : 'bg-slate-600' }} shrink-0"></span>
+                                    {{ $item['label'] }}
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endforeach
     </nav>
 
-    {{-- ── Footer: logout ── --}}
-    <div class="p-3 border-t shrink-0 border-blue-800/50">
+    {{-- ── Footer: Employee code + Logout ── --}}
+    <div class="shrink-0 border-t border-white/5"
+         :class="$store.sidebar.collapsed ? 'p-3' : 'px-4 py-3'">
         <div class="flex items-center gap-3"
-             :class="$store.sidebar.collapsed ? 'justify-center' : 'px-2'">
-
-            {{-- Employee code — hidden when collapsed --}}
-            <div class="flex-1 min-w-0 overflow-hidden"
-                 x-show="!$store.sidebar.collapsed"
+             :class="$store.sidebar.collapsed ? 'justify-center' : ''">
+            <div x-show="!$store.sidebar.collapsed"
                  x-transition:enter="transition-opacity duration-200 delay-75"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
+                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  x-transition:leave="transition-opacity duration-100"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-            >
-                <p class="text-xs font-medium truncate text-slate-300">{{ Auth::user()?->employee_code }}</p>
-                <p class="text-[10px] text-slate-500 mt-0.5">Logged in</p>
+                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 class="flex-1 min-w-0 overflow-hidden">
+                <p class="text-xs font-medium text-slate-300 truncate">{{ Auth::user()?->employee_code }}</p>
+                <p class="text-[10px] text-slate-600 mt-0.5">Logged in</p>
             </div>
-
-            <button
-                wire:click="logout"
-                wire:confirm="Are you sure you want to log out?"
-                class="p-2 transition-colors rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 shrink-0"
-                title="Log out">
+            <button wire:click="logout" wire:confirm="Are you sure you want to log out?"
+                    class="flex items-center justify-center w-9 h-9 rounded-xl transition-colors
+                           text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                    title="Sign out">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
                           d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>

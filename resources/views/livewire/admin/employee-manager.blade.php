@@ -16,90 +16,172 @@
     </div>
 
     {{-- Filters --}}
-    <div class="flex flex-wrap gap-3 mb-6">
-        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search name or code..." class="rounded-lg border-gray-300 dark:border-gray-600 text-sm w-64" />
-        <select wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+    <div class="grid grid-cols-1 gap-2 mb-4 sm:flex sm:flex-wrap sm:gap-3">
+        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search name or code..."
+               class="w-full sm:w-64 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+        <select wire:model.live="filterDept" class="w-full sm:w-auto rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="">All Departments</option>
             @foreach ($this->departments as $dept)
                 <option value="{{ $dept->id }}">{{ $dept->name }}</option>
             @endforeach
         </select>
-        <select wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+        <select wire:model.live="filterStatus" class="w-full sm:w-auto rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
         </select>
     </div>
 
-    {{-- Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
-        <div wire:loading.delay class="px-6 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-xs font-medium">Loading...</div>
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Code</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Department</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Position</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Account</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                @forelse ($this->employees as $emp)
-                    <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
-                        <td class="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-200">{{ $emp->emp_code }}</td>
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $emp->full_name }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $emp->department ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $emp->position ?? '—' }}</td>
-                        <td class="px-6 py-4">
+    <div wire:loading.delay class="mb-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-xs font-medium rounded-lg">Loading...</div>
+
+    {{-- ── MOBILE: Card layout (hidden on lg+) ── --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->employees as $emp)
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+                <div class="flex items-start justify-between gap-3">
+                    {{-- Avatar + Name --}}
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                            <span class="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                                {{ strtoupper(substr($emp->first_name, 0, 1)) }}{{ strtoupper(substr($emp->last_name, 0, 1)) }}
+                            </span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ $emp->full_name }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $emp->emp_code }}</p>
+                        </div>
+                    </div>
+                    {{-- Status --}}
+                    <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
+                        {{ $emp->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' }}">
+                        {{ $emp->is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                </div>
+
+                {{-- Meta info --}}
+                <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                    <div>
+                        <span class="text-gray-400 dark:text-gray-500">Dept</span>
+                        <p class="text-gray-700 dark:text-gray-300 font-medium truncate">{{ $emp->department ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 dark:text-gray-500">Position</span>
+                        <p class="text-gray-700 dark:text-gray-300 font-medium truncate">{{ $emp->position ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 dark:text-gray-500">Type</span>
+                        <p>
                             @if (($emp->employment_type ?? 'regular') === 'probationary')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Probationary</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Probationary</span>
                             @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Regular</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Regular</span>
                             @endif
-                        </td>
-                        <td class="px-6 py-4">
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 dark:text-gray-500">Account</span>
+                        <p>
                             @if ($emp->user)
-                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium {{ $emp->user->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' }}">
+                                <span class="inline-flex items-center gap-1 rounded text-[10px] font-medium
+                                    {{ $emp->user->is_active ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
                                     <span class="w-1.5 h-1.5 rounded-full {{ $emp->user->is_active ? 'bg-green-500' : 'bg-red-500' }}"></span>
                                     {{ ucfirst($emp->user->role) }}
                                 </span>
                             @else
-                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 Account</span>
+                                <span class="text-gray-400 dark:text-gray-500">No account</span>
                             @endif
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $emp->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-800' : 'bg-red-100 dark:bg-red-900/30 text-red-800' }}">
-                                {{ $emp->is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <button wire:click="openAccountModal({{ $emp->id }})" class="text-sm font-medium {{ $emp->user ? 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-gray-100' : 'text-green-600 dark:text-green-400 hover:text-green-800' }}">
-                                    {{ $emp->user ? 'Account' : 'Create Account' }}
-                                </button>
-                                <button wire:click="openEdit({{ $emp->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Edit</button>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Actions --}}
+                <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex gap-2">
+                    <button wire:click="openAccountModal({{ $emp->id }})"
+                            class="flex-1 py-2 text-xs font-medium rounded-lg text-center transition
+                                   {{ $emp->user ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' }}">
+                        {{ $emp->user ? 'Account' : 'Create Account' }}
+                    </button>
+                    <button wire:click="openEdit({{ $emp->id }})"
+                            class="flex-1 py-2 text-xs font-medium rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 transition">
+                        Edit
+                    </button>
+                </div>
+            </div>
+        @empty
+            <div class="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No employees found.</div>
+        @endforelse
+    </div>
+
+    {{-- ── DESKTOP: Table layout (hidden on mobile) ── --}}
+    <div class="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No employees found.</td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Code</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Department</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Position</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Account</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
                     </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse ($this->employees as $emp)
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                            <td class="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-200">{{ $emp->emp_code }}</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $emp->full_name }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $emp->department ?? '—' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $emp->position ?? '—' }}</td>
+                            <td class="px-6 py-4">
+                                @if (($emp->employment_type ?? 'regular') === 'probationary')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Probationary</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Regular</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4">
+                                @if ($emp->user)
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium {{ $emp->user->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $emp->user->is_active ? 'bg-green-500' : 'bg-red-500' }}"></span>
+                                        {{ ucfirst($emp->user->role) }}
+                                    </span>
+                                @else
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $emp->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
+                                    {{ $emp->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button wire:click="openAccountModal({{ $emp->id }})" class="text-sm font-medium {{ $emp->user ? 'text-gray-600 dark:text-gray-300 hover:text-gray-800' : 'text-green-600 dark:text-green-400 hover:text-green-800' }}">
+                                        {{ $emp->user ? 'Account' : 'Create Account' }}
+                                    </button>
+                                    <button wire:click="openEdit({{ $emp->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Edit</button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No employees found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-4">{{ $this->employees->links() }}</div>
 
     {{-- Edit Modal --}}
     @if ($showEdit)
-    <div wire:click.self="cancelEdit" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data x-on:keydown.escape.window="$wire.cancelEdit()">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6">
+    <div wire:click.self="cancelEdit" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 dark:bg-black/60" x-data x-on:keydown.escape.window="$wire.cancelEdit()">
+        <div class="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-lg p-6 max-h-[90dvh] overflow-y-auto">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Edit Employee</h3>
             <form wire:submit="saveEmployee" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">

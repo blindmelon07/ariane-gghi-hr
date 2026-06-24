@@ -1,80 +1,80 @@
 <div>
     {{-- Welcome --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Welcome, {{ Auth::user()->name }}</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }} · {{ now()->format('l, F j, Y') }}</p>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-100">Welcome, {{ Auth::user()->name }}</h3>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }} · {{ now()->format('l, F j, Y') }}</p>
     </div>
 
-    {{-- Stat Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+    {{-- Stat Cards — 2 cols on mobile, 3 on md, 6 on xl --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {{-- Active Employees --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-5 flex items-center gap-4">
-            <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-3 sm:p-5 flex items-center gap-2 sm:gap-4">
+            <div class="p-2 sm:p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg shrink-0">
+                <svg class="w-4 h-4 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
             </div>
             <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Employees</p>
-                <p class="text-2xl font-bold text-gray-800 dark:text-gray-100" wire:loading.class="opacity-50">{{ $this->totalActiveEmployees }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100" wire:loading.class="opacity-50">{{ $this->totalActiveEmployees }}</p>
             </div>
         </div>
 
         {{-- Present Today --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-5 flex items-center gap-4">
-            <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-3 sm:p-5 flex items-center gap-2 sm:gap-4">
+            <div class="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg shrink-0">
                 <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Present</p>
-                <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $this->presentToday }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{{ $this->presentToday }}</p>
             </div>
         </div>
 
         {{-- Absent Today --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-5 flex items-center gap-4">
-            <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-3 sm:p-5 flex items-center gap-2 sm:gap-4">
+            <div class="p-2 sm:p-3 bg-red-100 dark:bg-red-900/30 rounded-lg shrink-0">
                 <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
             </div>
             <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Absent</p>
-                <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $this->absentToday }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">{{ $this->absentToday }}</p>
             </div>
         </div>
 
         {{-- Late Today --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-5 flex items-center gap-4">
-            <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-3 sm:p-5 flex items-center gap-2 sm:gap-4">
+            <div class="p-2 sm:p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg shrink-0">
                 <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Late</p>
-                <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ $this->lateToday }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ $this->lateToday }}</p>
             </div>
         </div>
 
         {{-- Pending Leaves --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-5 flex items-center gap-4">
-            <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-3 sm:p-5 flex items-center gap-2 sm:gap-4">
+            <div class="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg shrink-0">
                 <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
             </div>
             <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pending Leaves</p>
-                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ $this->pendingLeaves }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{{ $this->pendingLeaves }}</p>
             </div>
         </div>
 
         {{-- Pending Payroll --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-5 flex items-center gap-4">
-            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-3 sm:p-5 flex items-center gap-2 sm:gap-4">
+            <div class="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg shrink-0">
                 <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pending Payroll</p>
-                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $this->pendingPayroll }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $this->pendingPayroll }}</p>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
         {{-- Quick Links --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-6">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Quick Actions</h4>

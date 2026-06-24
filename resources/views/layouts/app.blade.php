@@ -2,7 +2,37 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <style>
+            /* Safe area support for notch / home indicator */
+            :root { --sat: env(safe-area-inset-top,0px); --sab: env(safe-area-inset-bottom,0px); }
+            /* Touch improvements */
+            button, a, [role="button"] { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+            /* Smooth scroll on iOS */
+            .overflow-y-auto, .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+            /* Mobile bottom-nav spacing */
+            @media (max-width: 1023px) { .mobile-content-pb { padding-bottom: calc(4rem + var(--sab)); } }
+            /* All tables scroll horizontally on mobile */
+            @media (max-width: 1023px) {
+                .overflow-x-auto, [class*="overflow-x-auto"] { -webkit-overflow-scrolling: touch; }
+                .bg-white table, .bg-gray-800 table,
+                .rounded-xl table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            }
+            /* Modals full-screen on mobile */
+            @media (max-width: 639px) {
+                .fixed.inset-0.z-50 > div:not([class*="max-w-sm"]) {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-height: 100dvh;
+                    border-radius: 0 !important;
+                    margin: 0 !important;
+                }
+            }
+            /* Admin page containers full-width on mobile */
+            @media (max-width: 1023px) {
+                .max-w-7xl { padding-left: 0; padding-right: 0; }
+            }
+        </style>
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'HR Portal') }}</title>
@@ -42,7 +72,7 @@
                 Alpine.store('sidebar', {
                     collapsed: false,
                     mobileOpen: false,
-                    isDesktop: window.innerWidth >= 640,
+                    isDesktop: window.innerWidth >= 1024,
                     toggle: function () { this.collapsed = !this.collapsed; },
                     openMobile: function () { this.mobileOpen = true; },
                     closeMobile: function () { this.mobileOpen = false; }
@@ -50,8 +80,10 @@
 
                 window.addEventListener('resize', function () {
                     var store = Alpine.store('sidebar');
-                    store.isDesktop = window.innerWidth >= 640;
+                    var wasDesktop = store.isDesktop;
+                    store.isDesktop = window.innerWidth >= 1024;
                     if (store.isDesktop) store.mobileOpen = false;
+                    if (!store.isDesktop && wasDesktop) store.mobileOpen = false;
                 });
             });
         </script>
@@ -68,7 +100,7 @@
             {{-- Mobile backdrop --}}
             <div
                 x-cloak
-                class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm sm:hidden"
+                class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
                 x-show="$store.sidebar.mobileOpen"
                 x-transition:enter="transition-opacity ease-out duration-200"
                 x-transition:enter-start="opacity-0"
@@ -84,8 +116,8 @@
 
             {{-- Main panel: sm:ml-64 is the CSS default (expanded); Alpine style binding overrides on toggle --}}
             <div
-                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out sm:ml-64"
-                :style="$store.sidebar.isDesktop ? { marginLeft: $store.sidebar.collapsed ? '4rem' : '16rem' } : {}"
+                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out lg:ml-64"
+                :style="$store.sidebar.isDesktop ? { marginLeft: $store.sidebar.collapsed ? '4.5rem' : '16rem' } : {}"
             >
                 {{-- ── Top header bar ── --}}
                 @if (isset($header))
@@ -95,10 +127,11 @@
                             {{-- Hamburger (mobile) + Page title --}}
                             <div class="flex items-center gap-3">
                                 {{-- Hamburger — mobile only --}}
+                                {{-- Hamburger: taps to open the full sidebar drawer on mobile --}}
                                 <button
-                                    class="sm:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+                                    class="lg:hidden flex items-center justify-center w-11 h-11 rounded-xl text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition active:scale-95"
                                     @click="$store.sidebar.openMobile()"
-                                    title="Open menu">
+                                    aria-label="Open menu">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                                     </svg>
@@ -139,7 +172,7 @@
                 @endif
 
                 {{-- ── Page content ── --}}
-                <main class="flex-1 p-6">
+                <main class="flex-1 p-4 sm:p-6 mobile-content-pb">
                     {{ $slot }}
                 </main>
 
@@ -151,6 +184,7 @@
             </div>
         </div>
 
+        @include('layouts._mobile-nav')
         @livewireScripts
         <script>
             if ('serviceWorker' in navigator) {
