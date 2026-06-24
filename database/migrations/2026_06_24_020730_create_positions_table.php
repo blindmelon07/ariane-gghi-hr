@@ -20,6 +20,19 @@ return new class extends Migration
 
             $table->unique(['name', 'department_id']);
         });
+
+        // If add_position_id_to_employees ran first (same-timestamp ordering issue),
+        // the column exists but without a FK — wire it now.
+        if (Schema::hasColumn('employees', 'position_id')) {
+            // Check FK not already present before adding
+            try {
+                Schema::table('employees', function (Blueprint $table) {
+                    $table->foreign('position_id')->references('id')->on('positions')->nullOnDelete();
+                });
+            } catch (\Throwable) {
+                // FK already exists — safe to ignore
+            }
+        }
     }
 
     /**
