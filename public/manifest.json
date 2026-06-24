@@ -14,19 +14,19 @@
     "categories": ["business", "productivity"],
     "icons": [
         {
-            "src": "/images/gghilogoapp.png",
+            "src": "/images/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/images/gghilogoapp.png",
+            "src": "/images/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/images/gghilogoapp.png",
+            "src": "/images/icon-maskable.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
@@ -37,19 +37,19 @@
             "name": "Dashboard",
             "short_name": "Dashboard",
             "url": "/admin/dashboard",
-            "icons": [{ "src": "/images/gghilogoapp.png", "sizes": "96x96" }]
+            "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }]
         },
         {
             "name": "Leave Approvals",
             "short_name": "Leave",
             "url": "/admin/leave",
-            "icons": [{ "src": "/images/gghilogoapp.png", "sizes": "96x96" }]
+            "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }]
         },
         {
             "name": "Payroll",
             "short_name": "Payroll",
             "url": "/admin/payroll",
-            "icons": [{ "src": "/images/gghilogoapp.png", "sizes": "96x96" }]
+            "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }]
         }
     ],
     "screenshots": []
