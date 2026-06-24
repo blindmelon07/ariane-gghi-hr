@@ -305,29 +305,17 @@ new class extends Component
         @endforeach
     </nav>
 
-    {{-- ── Footer: Employee code + Logout ── --}}
-    <div class="shrink-0 border-t border-white/5"
-         :class="$store.sidebar.collapsed ? 'p-3' : 'px-4 py-3'">
-        <div class="flex items-center gap-3"
-             :class="$store.sidebar.collapsed ? 'justify-center' : ''">
-            <div x-show="!$store.sidebar.collapsed"
-                 x-transition:enter="transition-opacity duration-200 delay-75"
-                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition-opacity duration-100"
-                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                 class="flex-1 min-w-0 overflow-hidden">
-                <p class="text-xs font-medium text-slate-300 truncate">{{ Auth::user()?->employee_code }}</p>
-                <p class="text-[10px] text-slate-600 mt-0.5">Logged in</p>
-            </div>
-            <button wire:click="logout" wire:confirm="Are you sure you want to log out?"
-                    class="flex items-center justify-center w-9 h-9 rounded-xl transition-colors
-                           text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-                    title="Sign out">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
-                          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-                </svg>
-            </button>
-        </div>
+    {{-- ── Footer: Employee code only ── --}}
+    <div class="shrink-0 border-t border-white/5 px-4 py-3"
+         x-show="!$store.sidebar.collapsed"
+         x-transition:enter="transition-opacity duration-200"
+         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity duration-100"
+         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <p class="text-[11px] text-slate-500 truncate">
+            <span class="font-mono">{{ Auth::user()?->employee_code }}</span>
+            <span class="mx-1">·</span>
+            <span class="text-green-500">●</span> Online
+        </p>
     </div>
 </aside>

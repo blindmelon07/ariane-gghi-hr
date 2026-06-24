@@ -166,6 +166,11 @@
                                     </svg>
                                     {{ now()->format('M d, Y') }}
                                 </span>
+
+                                {{-- User avatar + logout dropdown --}}
+                                @auth
+                                    <livewire:layout.header-user />
+                                @endauth
                             </div>
                         </div>
                     </header>
