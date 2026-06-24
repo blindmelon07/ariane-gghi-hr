@@ -1,12 +1,17 @@
 {
-    "name": "GGHI HRIS",
-    "short_name": "GGHI HRIS",
-    "description": "Human Resource Information System",
+    "id": "/",
+    "name": "GGHI HR Portal",
+    "short_name": "GGHI HR",
+    "description": "GSAC General Hospital Inc. — Human Resource Information System",
     "start_url": "/login",
+    "scope": "/",
     "display": "standalone",
-    "orientation": "portrait",
-    "background_color": "#0f172a",
-    "theme_color": "#4f46e5",
+    "display_override": ["standalone", "minimal-ui"],
+    "orientation": "portrait-primary",
+    "background_color": "#0d1b2e",
+    "theme_color": "#0d1b2e",
+    "lang": "en",
+    "categories": ["business", "productivity"],
     "icons": [
         {
             "src": "/images/gghilogoapp.png",
@@ -18,9 +23,34 @@
             "src": "/images/gghilogoapp.png",
             "sizes": "512x512",
             "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/gghilogoapp.png",
+            "sizes": "512x512",
+            "type": "image/png",
             "purpose": "maskable"
         }
     ],
-    "screenshots": [],
-    "categories": ["business", "productivity"]
+    "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "url": "/admin/dashboard",
+            "icons": [{ "src": "/images/gghilogoapp.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Leave Approvals",
+            "short_name": "Leave",
+            "url": "/admin/leave",
+            "icons": [{ "src": "/images/gghilogoapp.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Payroll",
+            "short_name": "Payroll",
+            "url": "/admin/payroll",
+            "icons": [{ "src": "/images/gghilogoapp.png", "sizes": "96x96" }]
+        }
+    ],
+    "screenshots": []
 }

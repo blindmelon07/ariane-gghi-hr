@@ -1,14 +1,15 @@
-const CACHE_NAME = 'gghi-hr-v2';
+const CACHE_NAME = 'gghi-hr-v3';
+const OFFLINE_URL = '/offline.html';
 
-const STATIC_ASSETS = ['/offline.html'];
-
+// Pre-cache the offline page on install
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+        caches.open(CACHE_NAME).then(cache => cache.addAll([OFFLINE_URL]))
     );
     self.skipWaiting();
 });
 
+// Clean up old caches on activate
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys =>
@@ -25,23 +26,43 @@ self.addEventListener('fetch', event => {
     // Only handle same-origin GET requests
     if (request.method !== 'GET' || url.origin !== location.origin) return;
 
-    // Cache-first for versioned Vite build assets only
+    // Cache-first for Vite compiled assets (JS/CSS with content hashes)
     if (url.pathname.startsWith('/build/')) {
         event.respondWith(
             caches.match(request).then(cached => {
                 if (cached) return cached;
                 return fetch(request).then(response => {
                     if (response.ok) {
-                        const clone = response.clone();
-                        caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
                     }
                     return response;
-                }).catch(() => caches.match('/offline.html'));
+                }).catch(() => caches.match(OFFLINE_URL));
             })
         );
         return;
     }
 
-    // All HTML page navigation is left to the browser — no SW interception.
-    // This prevents the SW from ever forwarding a server 403/redirect error.
+    // Static images: cache with network fallback
+    if (url.pathname.startsWith('/images/')) {
+        event.respondWith(
+            caches.match(request).then(cached => {
+                if (cached) return cached;
+                return fetch(request).then(response => {
+                    if (response.ok) {
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+                    }
+                    return response;
+                });
+            })
+        );
+        return;
+    }
+
+    // All HTML navigation: network-first, show offline page on failure
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request).catch(() => caches.match(OFFLINE_URL))
+        );
+        return;
+    }
 });
