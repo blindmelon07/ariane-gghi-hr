@@ -34,29 +34,28 @@
                 localStorage.setItem('darkMode', isDark);
             }
 
-            // Sidebar pre-init: apply correct width & margin synchronously before Alpine
-            // loads, so there is no layout flash on first paint.
-            // Uses sessionStorage so sidebar is always EXPANDED on a fresh login/tab.
+            // Sidebar: always starts EXPANDED on every page load.
+            // No localStorage/sessionStorage — state lives only in Alpine (resets on load).
+            // Pre-inject expanded width to prevent layout flash before Alpine boots.
             (function () {
-                var collapsed = sessionStorage.getItem('sidebarCollapsed') === 'true';
-                var w = collapsed ? '4rem' : '16rem';
                 var s = document.createElement('style');
                 s.id = '__sb_init';
                 s.textContent =
-                    '.sb-pre{width:' + w + '!important;transition:none!important}' +
-                    '@media(min-width:640px){.main-pre{margin-left:' + w + '!important;transition:none!important}}' +
+                    '.sb-pre{width:16rem!important;transition:none!important}' +
+                    '@media(min-width:640px){.main-pre{margin-left:16rem!important;transition:none!important}}' +
                     '@media(max-width:639px){.sb-pre{transform:translateX(-100%)!important}}';
                 document.head.appendChild(s);
+                // Clean up any old stored values that could interfere
+                try { localStorage.removeItem('sidebarCollapsed'); sessionStorage.removeItem('sidebarCollapsed'); } catch(e) {}
             })();
 
             document.addEventListener('alpine:init', function () {
                 Alpine.store('sidebar', {
-                    collapsed: sessionStorage.getItem('sidebarCollapsed') === 'true',
+                    collapsed: false,
                     mobileOpen: false,
                     isDesktop: window.innerWidth >= 640,
                     toggle: function () {
                         this.collapsed = !this.collapsed;
-                        sessionStorage.setItem('sidebarCollapsed', this.collapsed);
                     },
                     openMobile: function () { this.mobileOpen = true; },
                     closeMobile: function () { this.mobileOpen = false; }
@@ -69,8 +68,6 @@
                 });
             });
 
-            // Once Alpine has painted its initial state, remove the override style
-            // so the normal Tailwind transitions take over for subsequent toggles.
             document.addEventListener('alpine:initialized', function () {
                 requestAnimationFrame(function () {
                     requestAnimationFrame(function () {
