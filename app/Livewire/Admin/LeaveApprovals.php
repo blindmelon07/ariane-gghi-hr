@@ -7,6 +7,7 @@ use App\Services\LeaveService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveApprovals extends Component
 {
@@ -42,10 +43,22 @@ class LeaveApprovals extends Component
     }
 
     #[Computed]
+    public function myStep(): ?int
+    {
+        return app(LeaveService::class)->getStepForUser(Auth::user());
+    }
+
+    #[Computed]
     public function pendingRequests()
     {
-        return LeaveRequest::with(['employee', 'leaveType'])
-            ->when($this->filterStatus !== 'all', fn ($q) => $q->where('status', $this->filterStatus))
+        return LeaveRequest::with(['employee', 'leaveType', 'approvals.approver'])
+            ->when($this->filterStatus === 'pending', function ($q) {
+                // Each approver only sees requests waiting at their step
+                $q->where('status', 'pending')
+                  ->where('approval_step', $this->myStep);
+            })
+            ->when($this->filterStatus !== 'pending' && $this->filterStatus !== 'all',
+                fn ($q) => $q->where('status', $this->filterStatus))
             ->when($this->filterType, fn ($q) => $q->where('leave_type_id', $this->filterType))
             ->when($this->filterDept, fn ($q) => $q->whereHas('employee', fn ($eq) => $eq->where('department', $this->filterDept)))
             ->when($this->search, fn ($q) => $q->whereHas('employee', fn ($eq) => $eq->where('first_name', 'like', "%{$this->search}%")
@@ -66,28 +79,40 @@ class LeaveApprovals extends Component
     public function confirmAction(): void
     {
         $request = LeaveRequest::find($this->selectedRequestId);
-        if (!$request) {
+        if (! $request || $request->status !== 'pending') {
             return;
         }
 
         $leaveService = app(LeaveService::class);
+        $user         = Auth::user();
+
+        // Guard: user can only act on their designated step
+        if ($request->approval_step !== $this->myStep) {
+            $this->addError('remarks', 'This request is not at your approval step.');
+            return;
+        }
 
         if ($this->actionType === 'approve') {
-            $leaveService->approve($request, auth()->user(), $this->remarks ?: null);
-            $this->dispatch('toast', message: 'Leave request approved.');
+            $leaveService->approve($request, $user, $this->remarks ?: null);
+
+            $nextStep = ($request->approval_step ?? 0) + 1;
+            $message  = isset(LeaveService::APPROVAL_STEPS[$nextStep])
+                ? 'Approved — forwarded to ' . LeaveService::APPROVAL_STEPS[$nextStep]['label'] . '.'
+                : 'Leave fully approved.';
+            $this->dispatch('toast', message: $message);
         } else {
             if (empty($this->remarks)) {
                 $this->addError('remarks', 'Reason is required when rejecting.');
                 return;
             }
-            $leaveService->reject($request, auth()->user(), $this->remarks);
+            $leaveService->reject($request, $user, $this->remarks);
             $this->dispatch('toast', message: 'Leave request rejected.');
         }
 
         $this->selectedRequestId = null;
         $this->actionType        = '';
         $this->remarks           = '';
-        unset($this->pendingRequests);
+        unset($this->pendingRequests, $this->myStep);
     }
 
     public function render()

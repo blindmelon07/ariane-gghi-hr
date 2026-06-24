@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'employee_code', 'email', 'password', 'role', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
@@ -37,24 +38,15 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user has a given role.
-     */
-    public function hasRole(string|array $roles): bool
-    {
-        $roles = is_array($roles) ? $roles : explode(',', $roles);
-
-        return in_array($this->role, array_map('trim', $roles));
-    }
-
-    /**
      * Get the redirect path for the user based on their role.
      */
     public function dashboardRoute(): string
     {
         return match ($this->role) {
-            'hr_admin' => '/admin/dashboard',
-            'manager'  => '/manager/dashboard',
-            default    => '/dashboard',
+            'super_admin', 'hr_admin' => '/admin/dashboard',
+            'manager'                 => '/manager/dashboard',
+            'approver'                => '/admin/dashboard',
+            default                   => '/dashboard',
         };
     }
 

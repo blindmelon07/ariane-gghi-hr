@@ -25,6 +25,8 @@ class LeaveRequestForm extends Component
     #[Validate('required|string|min:10|max:1000')]
     public string $reason = '';
 
+    public bool $is_half_day = false;
+
     #[Computed]
     public function leaveBalances(): array
     {
@@ -58,7 +60,15 @@ class LeaveRequestForm extends Component
     #[Computed]
     public function totalDays(): float
     {
-        if (!$this->start_date || !$this->end_date) {
+        if (!$this->start_date) {
+            return 0;
+        }
+
+        if ($this->is_half_day) {
+            return 0.5;
+        }
+
+        if (!$this->end_date) {
             return 0;
         }
 
@@ -86,6 +96,9 @@ class LeaveRequestForm extends Component
 
     public function updatedStartDate(): void
     {
+        if ($this->is_half_day) {
+            $this->end_date = $this->start_date;
+        }
         unset($this->totalDays, $this->remainingCredits);
     }
 
@@ -97,6 +110,14 @@ class LeaveRequestForm extends Component
     public function updatedLeaveTypeId(): void
     {
         unset($this->remainingCredits);
+    }
+
+    public function updatedIsHalfDay(): void
+    {
+        if ($this->is_half_day && $this->start_date) {
+            $this->end_date = $this->start_date;
+        }
+        unset($this->totalDays);
     }
 
     public function submit(): void
@@ -130,15 +151,16 @@ class LeaveRequestForm extends Component
             'employee_id'   => $employee->id,
             'leave_type_id' => $this->leave_type_id,
             'start_date'    => $this->start_date,
-            'end_date'      => $this->end_date,
+            'end_date'      => $this->is_half_day ? $this->start_date : $this->end_date,
             'total_days'    => $totalDays,
+            'is_half_day'   => $this->is_half_day,
             'reason'        => $this->reason,
             'status'        => 'pending',
         ]);
 
         $leaveService->notifyAdmins($request);
 
-        $this->reset(['leave_type_id', 'start_date', 'end_date', 'reason']);
+        $this->reset(['leave_type_id', 'start_date', 'end_date', 'reason', 'is_half_day']);
         unset($this->totalDays, $this->remainingCredits);
 
         $this->dispatch('leave-filed');

@@ -41,7 +41,10 @@
       "PowerShell($serverPhp = \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\vendor\\\\laravel\\\\framework\\\\src\\\\Illuminate\\\\Foundation\\\\resources\\\\server.php\")",
       "PowerShell($publicDir  = \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\public\")",
       "Bash(Get-Content \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\storage\\\\logs\\\\laravel.log\" -Tail 60)",
-      "Bash(dir \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\database\\\\migrations\\\\\" /b /o:n | tail -5)"
+      "Bash(dir \"c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr\\\\database\\\\migrations\\\\\" /b /o:n | tail -5)",
+      "PowerShell(cd c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr; php artisan tinker --execute=\"$u = App\\\\Models\\\\User::where\\('email','superadmin@hrportal.local'\\)->first\\(\\); echo $u->name . ' | role: ' . $u->role . ' | spatie roles: ' . $u->getRoleNames\\(\\)->join\\(', '\\);\")",
+      "PowerShell(cd c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr; php artisan tinker --execute=\"$u = App\\\\Models\\\\User::where\\('employee_code','SUPERADMIN'\\)->firstOrFail\\(\\); echo $u->name . ' | ' . $u->employee_code . ' | role: ' . $u->role . ' | active: ' . \\($u->is_active ? 'yes' : 'no'\\);\" 2>&1)",
+      "PowerShell(cd c:\\\\xampp2\\\\htdocs\\\\ariane-gghi-hr; php artisan tinker --execute=\"echo implode\\(', ', \\\\Schema::getColumnListing\\('departments'\\)\\); echo '\\\\n'; echo implode\\(', ', array_filter\\(\\\\Schema::getColumnListing\\('employees'\\), fn\\(\\\\$c\\) => str_contains\\(\\\\$c, 'dept'\\)\\)\\);\")"
     ]
   }
 }

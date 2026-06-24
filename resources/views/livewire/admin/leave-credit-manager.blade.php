@@ -31,6 +31,57 @@
             </div>
         </div>
 
+        {{-- Monthly Accrual Status --}}
+        <div class="mb-5 p-4 rounded-xl border {{ $this->thisMonthAccrued ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' : 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20' }}">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5">
+                        @if ($this->thisMonthAccrued)
+                            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        @else
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        @endif
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold {{ $this->thisMonthAccrued ? 'text-green-800 dark:text-green-300' : 'text-amber-800 dark:text-amber-300' }}">
+                            Monthly Accrual — {{ now()->format('F Y') }}
+                        </p>
+                        @if ($this->lastAccrual)
+                            <p class="text-xs mt-0.5 {{ $this->thisMonthAccrued ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400' }}">
+                                @if ($this->thisMonthAccrued)
+                                    ✓ This month already processed — {{ $this->lastAccrual->employee_count }} employees received
+                                    +{{ $this->lastAccrual->accrual_days }}d VL &amp; SL
+                                    <span class="opacity-60">({{ \Carbon\Carbon::parse($this->lastAccrual->updated_at)->format('M d, Y g:i A') }}
+                                    · {{ $this->lastAccrual->triggered_by }})</span>
+                                @else
+                                    Last run: {{ \Carbon\Carbon::createFromDate($this->lastAccrual->year, $this->lastAccrual->month, 1)->format('F Y') }}
+                                    · Next auto-run: {{ now()->startOfMonth()->addMonth()->format('M 1, Y') }} at 6:00 AM
+                                @endif
+                            </p>
+                        @else
+                            <p class="text-xs mt-0.5 text-amber-600 dark:text-amber-400">No accrual has been run yet. Click "Run Now" to credit this month.</p>
+                        @endif
+                    </div>
+                </div>
+                <button wire:click="accrueThisMonth"
+                        wire:confirm="This will add 2.5 VL + 2.5 SL to all active employees for {{ now()->format('F Y') }}. Continue?"
+                        wire:loading.attr="disabled"
+                        wire:target="accrueThisMonth"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition
+                               {{ $this->thisMonthAccrued ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-600 hover:bg-green-700' }}
+                               disabled:opacity-60 shrink-0">
+                    <svg wire:loading wire:target="accrueThisMonth" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <svg wire:loading.remove wire:target="accrueThisMonth" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    {{ $this->thisMonthAccrued ? 'Re-run Accrual' : 'Run Now' }}
+                </button>
+            </div>
+        </div>
+
         {{-- Filters --}}
         <div class="flex flex-wrap items-end gap-4 mb-4">
             <div class="flex-1 min-w-[200px]">

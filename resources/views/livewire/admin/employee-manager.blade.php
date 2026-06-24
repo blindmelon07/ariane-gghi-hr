@@ -21,7 +21,7 @@
         <select wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="">All Departments</option>
             @foreach ($this->departments as $dept)
-                <option value="{{ $dept }}">{{ $dept }}</option>
+                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
             @endforeach
         </select>
         <select wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
@@ -90,8 +90,8 @@
 
     {{-- Edit Modal --}}
     @if ($showEdit)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data x-on:keydown.escape.window="$wire.cancelEdit()">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6" @click.outside="$wire.cancelEdit()">
+    <div wire:click.self="cancelEdit" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data x-on:keydown.escape.window="$wire.cancelEdit()">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Edit Employee</h3>
             <form wire:submit="saveEmployee" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -109,11 +109,21 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Department</label>
-                        <input type="text" wire:model.live="editDepartment" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <select wire:model.live="editDepartmentId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                            <option value="">— No Department —</option>
+                            @foreach ($this->departments as $dept)
+                                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Position</label>
-                        <input type="text" wire:model.live="editPosition" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <select wire:model.live="editPositionId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                            <option value="">— No Position —</option>
+                            @foreach ($this->positions as $pos)
+                                <option value="{{ $pos->id }}">{{ $pos->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -142,7 +152,7 @@
 
     {{-- Account Management Modal --}}
     @if ($showAccountModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data @click.self="$wire.closeAccountModal()">
+    <div wire:click.self="closeAccountModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">
                 {{ $hasExistingAccount ? 'Manage Account' : 'Create Account' }}
@@ -152,33 +162,57 @@
             @if ($hasExistingAccount)
                 {{-- Existing account management --}}
                 <div class="space-y-4">
-                    {{-- Role --}}
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
+
+                    {{-- Change Username --}}
+                    <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Change Username (Login Code)</p>
                         <div class="flex gap-2">
-                            <select wire:model.live="accountRole" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                            <input wire:model.live="accountNewUsername" type="text"
+                                placeholder="New employee code"
+                                class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+                            <button wire:click="changeUsername"
+                                wire:confirm="This will change the login code. The employee must use the new code to sign in. Proceed?"
+                                class="px-3 py-2 bg-blue-600 dark:bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition whitespace-nowrap">
+                                Update
+                            </button>
+                        </div>
+                        @error('accountNewUsername') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1.5">Current: <span class="font-mono font-medium">{{ $accountNewUsername }}</span></p>
+                    </div>
+
+                    {{-- Change Password --}}
+                    <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Change Password</p>
+                        <div class="flex gap-2">
+                            <input wire:model.live="accountPassword" type="password"
+                                placeholder="New password (min 6 chars)"
+                                class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+                            <button wire:click="resetPassword"
+                                class="px-3 py-2 bg-amber-600 dark:bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition whitespace-nowrap">
+                                Reset
+                            </button>
+                        </div>
+                        @error('accountPassword') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Role --}}
+                    <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Role</p>
+                        <div class="flex gap-2">
+                            <select wire:model.live="accountRole" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm">
                                 <option value="employee">Employee</option>
                                 <option value="hr_admin">HR Admin</option>
                                 <option value="manager">Manager</option>
+                                <option value="approver">Approver</option>
+                                <option value="super_admin">Super Admin</option>
                             </select>
                             <button wire:click="updateRole" class="px-3 py-2 bg-indigo-600 dark:bg-indigo-500 text-white text-sm rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">Update</button>
                         </div>
                     </div>
 
-                    {{-- Reset Password --}}
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">New Password</label>
-                        <div class="flex gap-2">
-                            <input wire:model.live="accountPassword" type="text" placeholder="Min 6 characters" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-                            <button wire:click="resetPassword" class="px-3 py-2 bg-amber-600 dark:bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition">Reset</button>
-                        </div>
-                        @error('accountPassword') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    {{-- Toggle Active --}}
-                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
-                        <button wire:click="toggleAccountActive" wire:confirm="Are you sure?" class="w-full px-4 py-2 text-sm font-medium rounded-lg transition
-                            {{ $accountRole === 'hr_admin' ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:bg-red-900/30' : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:bg-red-900/30' }}">
+                    {{-- Deactivate --}}
+                    <div class="pt-1">
+                        <button wire:click="toggleAccountActive" wire:confirm="Are you sure you want to deactivate this account?" class="w-full px-4 py-2 text-sm font-medium rounded-lg bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition">
                             Deactivate Account
                         </button>
                     </div>
@@ -203,6 +237,8 @@
                             <option value="employee">Employee</option>
                             <option value="hr_admin">HR Admin</option>
                             <option value="manager">Manager</option>
+                            <option value="approver">Approver</option>
+                            <option value="super_admin">Super Admin</option>
                         </select>
                     </div>
 

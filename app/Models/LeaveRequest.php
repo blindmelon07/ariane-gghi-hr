@@ -13,8 +13,10 @@ class LeaveRequest extends Model
         'start_date',
         'end_date',
         'total_days',
+        'is_half_day',
         'reason',
         'status',
+        'approval_step',
         'approved_by',
         'approved_at',
         'remarks',
@@ -23,10 +25,12 @@ class LeaveRequest extends Model
     protected function casts(): array
     {
         return [
-            'start_date'  => 'date',
-            'end_date'    => 'date',
-            'total_days'  => 'decimal:1',
-            'approved_at' => 'datetime',
+            'start_date'    => 'date',
+            'end_date'      => 'date',
+            'total_days'    => 'decimal:1',
+            'is_half_day'   => 'boolean',
+            'approval_step' => 'integer',
+            'approved_at'   => 'datetime',
         ];
     }
 
@@ -43,5 +47,10 @@ class LeaveRequest extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function approvals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LeaveRequestApproval::class)->orderBy('step');
     }
 }

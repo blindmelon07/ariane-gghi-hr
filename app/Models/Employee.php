@@ -16,13 +16,31 @@ class Employee extends Model
         'first_name',
         'last_name',
         'department',
+        'department_id',
         'position',
+        'position_id',
         'date_of_birth',
         'hire_date',
         'is_active',
         'biotime_id',
         'synced_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $employee) {
+            if ($employee->isDirty('department_id')) {
+                $employee->department = $employee->department_id
+                    ? Department::where('id', $employee->department_id)->value('name')
+                    : null;
+            }
+            if ($employee->isDirty('position_id')) {
+                $employee->position = $employee->position_id
+                    ? Position::where('id', $employee->position_id)->value('name')
+                    : null;
+            }
+        });
+    }
 
     protected function casts(): array
     {
@@ -67,6 +85,16 @@ class Employee extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function dept(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    public function pos(): BelongsTo
+    {
+        return $this->belongsTo(Position::class, 'position_id');
     }
 
     protected function fullName(): Attribute

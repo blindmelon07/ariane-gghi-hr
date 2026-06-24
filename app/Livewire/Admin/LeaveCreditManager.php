@@ -6,6 +6,8 @@ use App\Models\Employee;
 use App\Models\LeaveCredit;
 use App\Models\LeaveType;
 use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -193,6 +195,38 @@ class LeaveCreditManager extends Component
         ActivityLogService::log('leave_credits_reset', "Reset all leave credits for {$this->year}.");
         unset($this->employees);
         session()->flash('success', "Credits reset for {$this->year}.");
+    }
+
+    // ── Monthly Accrual ────────────────────────────────────
+
+    #[Computed]
+    public function lastAccrual()
+    {
+        return DB::table('leave_accrual_logs')
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->first();
+    }
+
+    #[Computed]
+    public function thisMonthAccrued(): bool
+    {
+        return DB::table('leave_accrual_logs')
+            ->where('year', now()->year)
+            ->where('month', now()->month)
+            ->exists();
+    }
+
+    public function accrueThisMonth(): void
+    {
+        Artisan::call('leave:accrue', [
+            '--triggered-by' => 'manual',
+            '--force'        => true,
+        ]);
+
+        ActivityLogService::log('leave_credits_accrued', 'Manual monthly accrual triggered for ' . now()->format('F Y') . '.');
+        unset($this->employees, $this->lastAccrual, $this->thisMonthAccrued);
+        session()->flash('success', 'Monthly accrual complete — 2.5 VL + 2.5 SL added to all active employees.');
     }
 
     public function render()

@@ -12,7 +12,7 @@ Route::view('dashboard', 'dashboard')
 
 // HR Admin dashboard
 Route::view('admin/dashboard', 'admin.dashboard')
-    ->middleware(['auth', 'role:hr_admin,manager'])
+    ->middleware(['auth', 'role:hr_admin,manager,approver'])
     ->name('admin.dashboard');
 
 // Manager dashboard
@@ -47,17 +47,24 @@ Route::view('admin/biometrics', 'admin.biometrics')
     ->middleware(['auth', 'role:hr_admin'])
     ->name('admin.biometrics');
 
-// Admin/Manager Leave Routes
+// Admin/Manager/Approver Leave Routes
 Route::view('admin/leave', 'admin.leave')
-    ->middleware(['auth', 'role:hr_admin,manager'])
+    ->middleware(['auth', 'role:hr_admin,manager,approver'])
     ->name('admin.leave');
 
 Route::view('admin/leave/credits', 'admin.leave-credits')
     ->middleware(['auth', 'role:hr_admin'])
     ->name('admin.leave-credits');
 
+// Roles & Permissions (super_admin only)
+Route::view('admin/roles-permissions', 'admin.roles-permissions')
+    ->middleware(['auth', 'role:super_admin'])
+    ->name('admin.roles-permissions');
+
 // Admin Payroll Routes
-Route::middleware(['auth', 'role:hr_admin'])->group(function () {
+Route::middleware(['auth', 'role:hr_admin,super_admin'])->group(function () {
+    Route::view('admin/departments', 'admin.departments')->name('admin.departments');
+    Route::view('admin/positions', 'admin.positions')->name('admin.positions');
     Route::view('admin/payroll', 'admin.payroll')->name('admin.payroll');
     Route::view('admin/payroll/salary', 'admin.salary')->name('admin.salary');
     Route::view('admin/employees', 'admin.employees')->name('admin.employees');
@@ -68,8 +75,8 @@ Route::middleware(['auth', 'role:hr_admin'])->group(function () {
     Route::view('admin/overtime', 'admin.overtime')->name('admin.overtime');
 });
 
-// Report Routes (HR Admin + Manager)
-Route::middleware(['auth', 'role:hr_admin,manager'])->group(function () {
+// Report Routes (HR Admin + Manager + Approver)
+Route::middleware(['auth', 'role:hr_admin,manager,approver'])->group(function () {
     Route::view('admin/reports/attendance', 'admin.reports.attendance')->name('admin.reports.attendance');
     Route::view('admin/reports/leave', 'admin.reports.leave')->name('admin.reports.leave');
 });

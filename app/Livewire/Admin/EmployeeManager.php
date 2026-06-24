@@ -3,10 +3,13 @@
 namespace App\Livewire\Admin;
 
 use App\Jobs\SyncEmployeesJob;
+use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Position;
 use App\Models\User;
 use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -25,8 +28,8 @@ class EmployeeManager extends Component
     public ?int    $editEmployeeId  = null;
     public string  $editFirstName   = '';
     public string  $editLastName    = '';
-    public string  $editDepartment  = '';
-    public string  $editPosition    = '';
+    public ?int    $editDepartmentId = null;
+    public ?int    $editPositionId   = null;
     public string  $editDob         = '';
     public bool    $editIsActive    = true;
 
@@ -36,6 +39,7 @@ class EmployeeManager extends Component
     public string  $accountEmpCode   = '';
     public string  $accountName      = '';
     public string  $accountPassword  = '';
+    public string  $accountNewUsername = '';
     public string  $accountRole      = 'employee';
     public bool    $hasExistingAccount = false;
 
@@ -49,6 +53,12 @@ class EmployeeManager extends Component
         $this->resetPage();
     }
 
+    public function updatedEditDepartmentId(): void
+    {
+        $this->editPositionId = null;
+        unset($this->positions);
+    }
+
     public function updatedFilterStatus(): void
     {
         $this->resetPage();
@@ -57,10 +67,10 @@ class EmployeeManager extends Component
     #[Computed]
     public function employees()
     {
-        return Employee::with('user')
+        return Employee::with(['user', 'dept', 'pos'])
             ->when($this->filterStatus === 'active', fn ($q) => $q->where('is_active', true))
             ->when($this->filterStatus === 'inactive', fn ($q) => $q->where('is_active', false))
-            ->when($this->filterDept, fn ($q) => $q->where('department', $this->filterDept))
+            ->when($this->filterDept, fn ($q) => $q->where('department_id', $this->filterDept))
             ->when($this->search, fn ($q) => $q->where(function ($q2) {
                 $q2->where('first_name', 'like', "%{$this->search}%")
                    ->orWhere('last_name', 'like', "%{$this->search}%")
@@ -71,25 +81,32 @@ class EmployeeManager extends Component
     }
 
     #[Computed]
-    public function departments(): array
+    public function departments()
     {
-        return Employee::whereNotNull('department')
-            ->distinct()
-            ->pluck('department')
-            ->sort()
-            ->values()
-            ->toArray();
+        return Department::where('is_active', true)->orderBy('name')->get();
+    }
+
+    #[Computed]
+    public function positions()
+    {
+        return Position::where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('department_id')
+                  ->orWhere('department_id', $this->editDepartmentId);
+            })
+            ->orderBy('name')
+            ->get();
     }
 
     public function openEdit(int $id): void
     {
         $emp = Employee::findOrFail($id);
 
-        $this->editEmployeeId = $emp->id;
-        $this->editFirstName  = $emp->first_name;
-        $this->editLastName   = $emp->last_name;
-        $this->editDepartment = $emp->department ?? '';
-        $this->editPosition   = $emp->position ?? '';
+        $this->editEmployeeId   = $emp->id;
+        $this->editFirstName    = $emp->first_name;
+        $this->editLastName     = $emp->last_name;
+        $this->editDepartmentId = $emp->department_id;
+        $this->editPositionId   = $emp->position_id;
         $this->editDob        = $emp->date_of_birth?->format('Y-m-d') ?? '';
         $this->editIsActive   = $emp->is_active;
         $this->showEdit       = true;
@@ -98,19 +115,19 @@ class EmployeeManager extends Component
     public function saveEmployee(): void
     {
         $this->validate([
-            'editFirstName'  => 'required|string|max:255',
-            'editLastName'   => 'required|string|max:255',
-            'editDepartment' => 'nullable|string|max:255',
-            'editPosition'   => 'nullable|string|max:255',
-            'editDob'        => 'nullable|date',
+            'editFirstName'    => 'required|string|max:255',
+            'editLastName'     => 'required|string|max:255',
+            'editDepartmentId' => 'nullable|exists:departments,id',
+            'editPositionId'   => 'nullable|exists:positions,id',
+            'editDob'          => 'nullable|date',
         ]);
 
         $emp = Employee::findOrFail($this->editEmployeeId);
         $emp->update([
             'first_name'    => $this->editFirstName,
             'last_name'     => $this->editLastName,
-            'department'    => $this->editDepartment ?: null,
-            'position'      => $this->editPosition ?: null,
+            'department_id' => $this->editDepartmentId,
+            'position_id'   => $this->editPositionId,
             'date_of_birth' => $this->editDob ?: null,
             'is_active'     => $this->editIsActive,
         ]);
@@ -125,6 +142,7 @@ class EmployeeManager extends Component
     public function cancelEdit(): void
     {
         $this->showEdit = false;
+        $this->resetValidation();
     }
 
     public function syncBioTime(): void
@@ -139,11 +157,12 @@ class EmployeeManager extends Component
     {
         $emp = Employee::with('user')->findOrFail($id);
 
-        $this->accountEmployeeId  = $emp->id;
-        $this->accountEmpCode     = $emp->emp_code;
-        $this->accountName        = $emp->full_name;
-        $this->accountPassword    = '';
-        $this->hasExistingAccount = (bool) $emp->user;
+        $this->accountEmployeeId   = $emp->id;
+        $this->accountEmpCode      = $emp->emp_code;
+        $this->accountName         = $emp->full_name;
+        $this->accountPassword     = '';
+        $this->accountNewUsername  = $emp->user?->employee_code ?? $emp->emp_code;
+        $this->hasExistingAccount  = (bool) $emp->user;
 
         if ($emp->user) {
             $this->accountRole = $emp->user->role;
@@ -158,7 +177,7 @@ class EmployeeManager extends Component
     {
         $this->validate([
             'accountPassword' => 'required|string|min:6',
-            'accountRole'     => 'required|in:employee,hr_admin,manager',
+            'accountRole'     => 'required|in:employee,hr_admin,manager,approver,super_admin',
         ]);
 
         $emp = Employee::findOrFail($this->accountEmployeeId);
@@ -207,10 +226,31 @@ class EmployeeManager extends Component
         }
     }
 
+    public function changeUsername(): void
+    {
+        $emp = Employee::with('user')->findOrFail($this->accountEmployeeId);
+
+        $this->validate([
+            'accountNewUsername' => [
+                'required', 'string', 'max:50',
+                Rule::unique('users', 'employee_code')->ignore($emp->user->id),
+            ],
+        ]);
+
+        if ($emp->user) {
+            $old = $emp->user->employee_code;
+            $emp->user->update(['employee_code' => $this->accountNewUsername]);
+            ActivityLogService::log('username_changed', "Changed username from {$old} to {$this->accountNewUsername} for {$emp->full_name}", $emp);
+            $this->showAccountModal = false;
+            unset($this->employees);
+            session()->flash('success', "Username updated for {$emp->full_name}. New login code: {$this->accountNewUsername}");
+        }
+    }
+
     public function updateRole(): void
     {
         $this->validate([
-            'accountRole' => 'required|in:employee,hr_admin,manager',
+            'accountRole' => 'required|in:employee,hr_admin,manager,approver,super_admin',
         ]);
 
         $emp = Employee::with('user')->findOrFail($this->accountEmployeeId);
@@ -241,6 +281,7 @@ class EmployeeManager extends Component
     public function closeAccountModal(): void
     {
         $this->showAccountModal = false;
+        $this->resetValidation();
     }
 
     public function render()

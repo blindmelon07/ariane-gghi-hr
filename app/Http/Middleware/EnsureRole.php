@@ -30,7 +30,7 @@ class EnsureRole
                 ->withErrors(['employee_code' => 'Your account has been deactivated.']);
         }
 
-        if (! $user->hasRole($roles)) {
+        if (! $user->hasRole('super_admin') && ! $user->hasRole($roles)) {
             abort(403, 'Unauthorized.');
         }
 
