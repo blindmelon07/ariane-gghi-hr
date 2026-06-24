@@ -189,9 +189,10 @@ class EmployeeManager extends Component
         // Check if user already exists with this emp code
         $existingUser = User::where('employee_code', $emp->emp_code)->first();
         if ($existingUser) {
-            // Link existing user
+            // Link existing user and sync Spatie role
             $emp->update(['user_id' => $existingUser->id]);
             $existingUser->update(['role' => $this->accountRole, 'is_active' => true]);
+            $existingUser->syncRoles($this->accountRole);
         } else {
             $user = User::create([
                 'name'          => $emp->full_name,
@@ -201,6 +202,7 @@ class EmployeeManager extends Component
                 'is_active'     => true,
             ]);
 
+            $user->syncRoles($this->accountRole);  // ← assign Spatie role
             $emp->update(['user_id' => $user->id]);
         }
 
@@ -261,6 +263,7 @@ class EmployeeManager extends Component
 
         if ($emp->user) {
             $emp->user->update(['role' => $this->accountRole]);
+            $emp->user->syncRoles($this->accountRole);  // ← sync Spatie role
             ActivityLogService::log('role_changed', "Changed role to {$this->accountRole} for {$emp->full_name}", $emp);
             $this->showAccountModal = false;
             unset($this->employees);

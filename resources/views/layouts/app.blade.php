@@ -40,14 +40,43 @@
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="/images/gghilogoapp.png">
 
-        <!-- PWA -->
+        <!-- PWA Manifest -->
         <link rel="manifest" href="/manifest.json">
-        <meta name="theme-color" content="#4f46e5">
+
+        <!-- Android / Chrome -->
         <meta name="mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#0d1b2e">
+
+        <!-- iOS Safari PWA -->
         <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="GGHI HR">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="{{ config('app.name', 'GGHI HR') }}">
-        <link rel="apple-touch-icon" href="/images/gghilogoapp.png">
+
+        <!-- iOS Home Screen Icon (180×180 with background) -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
+        <!-- iOS Splash Screens — one per device -->
+        {{-- iPhone SE / 8 / 7 / 6s --}}
+        <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/images/splash/iphone-se.png">
+        {{-- iPhone X / XS / 11 Pro --}}
+        <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/images/splash/iphone-x.png">
+        {{-- iPhone XR / 11 --}}
+        <link rel="apple-touch-startup-image" media="(device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/images/splash/iphone-xr.png">
+        {{-- iPhone 12 / 13 / 14 --}}
+        <link rel="apple-touch-startup-image" media="(device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/images/splash/iphone-12.png">
+        {{-- iPhone 12 Pro Max / 13 Pro Max / 14 Plus --}}
+        <link rel="apple-touch-startup-image" media="(device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/images/splash/iphone-12-max.png">
+        {{-- iPhone 14 Pro --}}
+        <link rel="apple-touch-startup-image" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/images/splash/iphone-14-pro.png">
+        {{-- iPhone 14 Pro Max --}}
+        <link rel="apple-touch-startup-image" media="(device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/images/splash/iphone-14-max.png">
+        {{-- iPad --}}
+        <link rel="apple-touch-startup-image" media="(device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/images/splash/ipad.png">
+        {{-- iPad Pro 11" --}}
+        <link rel="apple-touch-startup-image" media="(device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/images/splash/ipad-pro-11.png">
+        {{-- iPad Pro 12.9" --}}
+        <link rel="apple-touch-startup-image" media="(device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/images/splash/ipad-pro-129.png">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
