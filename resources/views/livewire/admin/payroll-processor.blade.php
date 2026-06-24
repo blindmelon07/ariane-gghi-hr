@@ -29,38 +29,128 @@
 
     {{-- Create Period Modal --}}
     @if ($showCreate)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data x-on:keydown.escape.window="$wire.set('showCreate', false)">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6" @click.outside="$wire.set('showCreate', false)">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Create Payroll Period</h3>
+    <div wire:click.self="$set('showCreate', false)"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+         x-data x-on:keydown.escape.window="$wire.set('showCreate', false)">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Create Payroll Period</h3>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">Dates are auto-filled from the cutoff type but you can change them to any custom range.</p>
+
             <form wire:submit="createPeriod" class="space-y-4">
+                {{-- Period Name --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Period Name</label>
-                    <input type="text" wire:model.live="periodName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <input type="text" wire:model.live="periodName"
+                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"
+                           placeholder="e.g. June 2026 - 1st Half" />
                     @error('periodName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
+
+                {{-- Cutoff Type --}}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Cutoff Type</label>
-                    <select wire:model.live="cutoffType" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
-                        <option value="semi_monthly_1">1st Half (1-15)</option>
-                        <option value="semi_monthly_2">2nd Half (16-end)</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Start Date</label>
-                        <input type="date" wire:model.live="startDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-                        @error('startDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Cutoff Type</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        {{-- 1st Cutoff --}}
+                        <button type="button" wire:click="setCutoffType('semi_monthly_1')"
+                                class="flex flex-col items-center gap-0.5 py-3 px-2 rounded-xl border-2 transition-colors
+                                       {{ $cutoffType === 'semi_monthly_1'
+                                           ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $cutoffType === 'semi_monthly_1' ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300' }}">
+                                1st Cutoff
+                            </span>
+                            <span class="text-[11px] {{ $cutoffType === 'semi_monthly_1' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">
+                                SSS + PhilHealth
+                            </span>
+                        </button>
+
+                        {{-- 2nd Cutoff --}}
+                        <button type="button" wire:click="setCutoffType('semi_monthly_2')"
+                                class="flex flex-col items-center gap-0.5 py-3 px-2 rounded-xl border-2 transition-colors
+                                       {{ $cutoffType === 'semi_monthly_2'
+                                           ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $cutoffType === 'semi_monthly_2' ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300' }}">
+                                2nd Cutoff
+                            </span>
+                            <span class="text-[11px] {{ $cutoffType === 'semi_monthly_2' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">
+                                Pag-IBIG
+                            </span>
+                        </button>
+
+                        {{-- Monthly --}}
+                        <button type="button" wire:click="setCutoffType('monthly')"
+                                class="flex flex-col items-center gap-0.5 py-3 px-2 rounded-xl border-2 transition-colors
+                                       {{ $cutoffType === 'monthly'
+                                           ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $cutoffType === 'monthly' ? 'text-green-700 dark:text-green-300' : 'text-gray-700 dark:text-gray-300' }}">
+                                Monthly
+                            </span>
+                            <span class="text-[11px] {{ $cutoffType === 'monthly' ? 'text-green-500 dark:text-green-400' : 'text-gray-400 dark:text-gray-500' }}">
+                                All deductions
+                            </span>
+                        </button>
+
+                        {{-- Custom --}}
+                        <button type="button" wire:click="setCutoffType('custom')"
+                                class="flex flex-col items-center gap-0.5 py-3 px-2 rounded-xl border-2 transition-colors
+                                       {{ $cutoffType === 'custom'
+                                           ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $cutoffType === 'custom' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300' }}">
+                                Custom
+                            </span>
+                            <span class="text-[11px] {{ $cutoffType === 'custom' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">
+                                Set own dates
+                            </span>
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">End Date</label>
-                        <input type="date" wire:model.live="endDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-                        @error('endDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
                 </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" wire:click="$set('showCreate', false)" class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
-                    <button type="submit" class="rounded-lg bg-indigo-600 dark:bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:hover:bg-indigo-600">Create</button>
+
+                {{-- Date Range --}}
+                <div class="rounded-xl border p-4
+                            {{ $cutoffType === 'custom'
+                                ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20'
+                                : 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20' }}">
+                    <p class="text-xs font-semibold mb-3 uppercase tracking-wide
+                              {{ $cutoffType === 'custom' ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400' }}">
+                        {{ $cutoffType === 'custom' ? 'Custom Cut-off Dates — enter any range' : 'Cut-off Dates — auto filled, adjust if needed' }}
+                    </p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Start Date</label>
+                            <input type="date" wire:model.live="startDate"
+                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
+                            @error('startDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">End Date</label>
+                            <input type="date" wire:model.live="endDate"
+                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
+                            @error('endDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                    @if ($cutoffType !== 'custom')
+                        <p class="text-[11px] text-indigo-500 dark:text-indigo-400 mt-2">
+                            Dates auto-filled from cutoff type. Change them if your actual cut-off dates differ.
+                        </p>
+                    @else
+                        <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-2">
+                            Enter your exact cut-off start and end dates. All deductions set to "Both Cutoffs" will apply.
+                        </p>
+                    @endif
+                </div>
+
+                <div class="flex justify-end gap-3 pt-1">
+                    <button type="button" wire:click="$set('showCreate', false)"
+                            class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="rounded-lg bg-indigo-600 dark:bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:hover:bg-indigo-600">
+                        Create
+                    </button>
                 </div>
             </form>
         </div>

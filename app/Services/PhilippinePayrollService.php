@@ -165,7 +165,7 @@ class PhilippinePayrollService
             ->whereBetween('punch_date', [$period->start_date, $period->end_date])
             ->distinct()
             ->pluck('punch_date')
-            ->map(fn ($d) => is_string($d) ? $d : $d->toDateString())
+            ->map(fn ($d) => \is_string($d) ? $d : $d->toDateString())
             ->unique()
             ->values();
 
@@ -220,35 +220,37 @@ class PhilippinePayrollService
 
         $grossPay = round($basicPay + $overtimePay - $lateDeduction - $undertimeDeduction, 2);
 
-        // Load all active other deductions with their type
+        // Load active deductions filtered by the period's cutoff schedule:
+        // semi_monthly_1 → apply 'both' and '1st' deductions
+        // semi_monthly_2 → apply 'both' and '2nd' deductions
+        // monthly        → apply all deductions
+        $applicableCutoffs = match ($period->cutoff_type) {
+            'semi_monthly_1' => ['both', '1st'],
+            'semi_monthly_2' => ['both', '2nd'],
+            'monthly'        => ['both', '1st', '2nd'],
+            default          => ['both'],   // custom period: apply only "Both Cutoffs" deductions
+        };
+
         $activeDeductions = OtherDeduction::with('deductionType')
             ->where('employee_id', $employee->id)
             ->where('is_active', true)
+            ->whereIn('cutoff_schedule', $applicableCutoffs)
             ->get();
 
-        // Identify government contribution overrides by code prefix (case-insensitive).
-        // Matched deductions override the auto-computed value and are excluded from "other deductions".
-        $isSss  = fn ($d) => preg_match('/^SSS/i', $d->deductionType?->code ?? '');
-        $isPhc  = fn ($d) => preg_match('/^PHC|^PHIL/i', $d->deductionType?->code ?? '');
-        $isPag  = fn ($d) => preg_match('/^PAG/i', $d->deductionType?->code ?? '');
+        // Group manual deductions by type for payslip breakdown.
+        // All amounts come from manually entered deduction records — no auto-calculation.
+        $isSss = fn ($d) => preg_match('/^SSS/i',          $d->deductionType?->code ?? '');
+        $isPhc = fn ($d) => preg_match('/^PHC|^PHIL/i',    $d->deductionType?->code ?? '');
+        $isPag = fn ($d) => preg_match('/^PAG/i',           $d->deductionType?->code ?? '');
+        $isTax = fn ($d) => preg_match('/^TAX|^WHT|^WTAX/i', $d->deductionType?->code ?? '');
 
-        $sssOverride = $activeDeductions->filter($isSss)->sum('amount_per_cutoff');
-        $phcOverride = $activeDeductions->filter($isPhc)->sum('amount_per_cutoff');
-        $pagOverride = $activeDeductions->filter($isPag)->sum('amount_per_cutoff');
+        $sss        = round((float) $activeDeductions->filter($isSss)->sum('amount_per_cutoff'), 2);
+        $philhealth = round((float) $activeDeductions->filter($isPhc)->sum('amount_per_cutoff'), 2);
+        $pagibig    = round((float) $activeDeductions->filter($isPag)->sum('amount_per_cutoff'), 2);
+        $tax        = round((float) $activeDeductions->filter($isTax)->sum('amount_per_cutoff'), 2);
 
-        $otherDeductions = $activeDeductions->reject(fn ($d) => $isSss($d) || $isPhc($d) || $isPag($d));
-
-        // Use manual override if set, otherwise fall back to auto-computed bracket
-        $sss        = $sssOverride > 0 ? round((float) $sssOverride, 2) : round($this->computeSSS($basicSalary) / 2, 2);
-        $philhealth = $phcOverride > 0 ? round((float) $phcOverride, 2) : round($this->computePhilHealth($basicSalary) / 2, 2);
-        $pagibig    = $pagOverride > 0 ? round((float) $pagOverride, 2) : round($this->computePagIBIG($basicSalary) / 2, 2);
-
-        // Taxable income (semi-monthly)
-        $taxableIncome = $grossPay - $sss - $philhealth - $pagibig;
-        $tax           = $this->computeTax(max(0, $taxableIncome));
-
-        // Other deductions (non-government-contribution items only)
-        $otherDeductionsAmount = (float) $otherDeductions->sum('amount_per_cutoff');
+        $otherDeductions       = $activeDeductions->reject(fn ($d) => $isSss($d) || $isPhc($d) || $isPag($d) || $isTax($d));
+        $otherDeductionsAmount = round((float) $otherDeductions->sum('amount_per_cutoff'), 2);
 
         $totalDeductions = round($sss + $philhealth + $pagibig + $tax + $otherDeductionsAmount, 2);
         $netPay          = round($grossPay - $totalDeductions, 2);

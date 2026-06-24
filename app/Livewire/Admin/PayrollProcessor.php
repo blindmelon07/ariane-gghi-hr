@@ -21,7 +21,7 @@ class PayrollProcessor extends Component
 
     // Create period form
     public bool   $showCreate    = false;
-    public string $cutoffType    = 'semi_monthly_1';
+    public string $cutoffType    = 'custom';
     public string $startDate     = '';
     public string $endDate       = '';
     public string $periodName    = '';
@@ -51,6 +51,44 @@ class PayrollProcessor extends Component
         $this->periodName = $now->format('F Y') . ' - ' . ($this->cutoffType === 'semi_monthly_1' ? '1st Half' : '2nd Half');
     }
 
+    public function setCutoffType(string $type): void
+    {
+        $this->cutoffType = $type;
+        $this->updatedCutoffType();
+    }
+
+    public function updatedCutoffType(): void
+    {
+        // Custom: clear dates and let the user pick freely — no auto-fill
+        if ($this->cutoffType === 'custom') {
+            $this->startDate  = '';
+            $this->endDate    = '';
+            $this->periodName = '';
+            return;
+        }
+
+        $now = now();
+
+        match ($this->cutoffType) {
+            'semi_monthly_1' => [
+                $this->startDate  = $now->copy()->startOfMonth()->toDateString(),
+                $this->endDate    = $now->copy()->startOfMonth()->addDays(14)->toDateString(),
+                $this->periodName = $now->format('F Y') . ' - 1st Half',
+            ],
+            'semi_monthly_2' => [
+                $this->startDate  = $now->copy()->startOfMonth()->addDays(15)->toDateString(),
+                $this->endDate    = $now->copy()->endOfMonth()->toDateString(),
+                $this->periodName = $now->format('F Y') . ' - 2nd Half',
+            ],
+            'monthly' => [
+                $this->startDate  = $now->copy()->startOfMonth()->toDateString(),
+                $this->endDate    = $now->copy()->endOfMonth()->toDateString(),
+                $this->periodName = $now->format('F Y') . ' - Monthly',
+            ],
+            default => null,
+        };
+    }
+
     #[Computed]
     public function periods()
     {
@@ -64,7 +102,7 @@ class PayrollProcessor extends Component
     {
         $this->validate([
             'periodName' => 'required|string|max:255',
-            'cutoffType' => 'required|in:semi_monthly_1,semi_monthly_2,monthly',
+            'cutoffType' => 'required|in:semi_monthly_1,semi_monthly_2,monthly,custom',
             'startDate'  => 'required|date',
             'endDate'    => 'required|date|after_or_equal:startDate',
         ]);
