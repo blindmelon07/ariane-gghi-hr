@@ -37,6 +37,9 @@ class RolesAndPermissionsSeeder extends Seeder
         $approver = Role::firstOrCreate(['name' => 'approver']);
         $approver->syncPermissions(['approve leaves', 'approve overtime', 'view reports']);
 
+        $super_admin = Role::firstOrCreate(['name' => 'super_admin']);
+        $super_admin->syncPermissions(Permission::all());
+
         Role::firstOrCreate(['name' => 'employee']);
 
         // Sync existing users to their Spatie role based on the users.role column
