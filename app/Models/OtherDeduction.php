@@ -12,6 +12,7 @@ class OtherDeduction extends Model
         'deduction_type_id',
         'description',
         'amount_per_cutoff',
+        'cutoff_schedule',
         'remaining_balance',
         'is_active',
     ];

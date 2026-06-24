@@ -28,6 +28,7 @@ class DeductionManager extends Component
     public string $selectedTypeCategory  = '';
     public string $description           = '';
     public string $amountPerCutoff       = '';
+    public string $cutoffSchedule        = 'both';
     public string $remainingBalance      = '';
     public bool   $isActive              = true;
 
@@ -149,6 +150,7 @@ class DeductionManager extends Component
         $this->selectedTypeCategory = $deduction->deductionType?->category ?? '';
         $this->description          = $deduction->description;
         $this->amountPerCutoff      = (string) $deduction->amount_per_cutoff;
+        $this->cutoffSchedule       = $deduction->cutoff_schedule ?? 'both';
         $this->remainingBalance     = (string) $deduction->remaining_balance;
         $this->isActive             = $deduction->is_active;
         $this->showModal            = true;
@@ -163,6 +165,7 @@ class DeductionManager extends Component
             'deductionTypeId'  => 'required|exists:deduction_types,id',
             'description'      => 'required|string|max:255',
             'amountPerCutoff'  => 'required|numeric|min:0',
+            'cutoffSchedule'   => 'required|in:both,1st,2nd',
             'remainingBalance' => $isLoan ? 'required|numeric|min:0' : 'nullable|numeric|min:0',
         ]);
 
@@ -171,6 +174,7 @@ class DeductionManager extends Component
             'deduction_type_id' => $this->deductionTypeId,
             'description'       => $this->description,
             'amount_per_cutoff' => $this->amountPerCutoff,
+            'cutoff_schedule'   => $this->cutoffSchedule,
             'remaining_balance' => $this->remainingBalance !== '' ? $this->remainingBalance : 0,
             'is_active'         => $this->isActive,
         ];
@@ -214,6 +218,7 @@ class DeductionManager extends Component
         $this->selectedTypeCategory = '';
         $this->description          = '';
         $this->amountPerCutoff      = '';
+        $this->cutoffSchedule       = 'both';
         $this->remainingBalance     = '';
         $this->isActive             = true;
         $this->resetValidation();

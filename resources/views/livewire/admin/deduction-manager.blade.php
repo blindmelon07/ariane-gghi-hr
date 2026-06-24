@@ -94,7 +94,13 @@
                             @endif
                         </td>
                         <td class="px-4 py-2.5">{{ $d->description }}</td>
-                        <td class="px-4 py-2.5 text-right font-mono">{{ number_format($d->amount_per_cutoff, 2) }}</td>
+                        <td class="px-4 py-2.5 text-right">
+                            <span class="font-mono">{{ number_format($d->amount_per_cutoff, 2) }}</span>
+                            <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold
+                                {{ $d->cutoff_schedule === 'both' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
+                                {{ $d->cutoff_schedule === 'both' ? '1st & 2nd' : $d->cutoff_schedule }}
+                            </span>
+                        </td>
                         <td class="px-4 py-2.5 text-right font-mono">{{ number_format($d->remaining_balance, 2) }}</td>
                         <td class="px-4 py-2.5 text-center">
                             @php
@@ -196,6 +202,29 @@
                     <input wire:model.live="amountPerCutoff" type="number" step="0.01" min="0" placeholder="0.00"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('amountPerCutoff') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Cutoff Schedule --}}
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Auto-Deduct On</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        @foreach (['both' => ['label' => 'Both Cutoffs', 'sub' => '1st & 2nd'], '1st' => ['label' => '1st Cutoff', 'sub' => '1st–15th'], '2nd' => ['label' => '2nd Cutoff', 'sub' => '16th–31st']] as $val => $opt)
+                        <label wire:key="cs-{{ $val }}"
+                               class="flex flex-col items-center gap-1 p-3 rounded-lg border-2 cursor-pointer transition-colors
+                                      {{ $cutoffSchedule === $val
+                                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500' }}">
+                            <input type="radio" wire:model.live="cutoffSchedule" value="{{ $val }}" class="sr-only" />
+                            <span class="text-xs font-semibold {{ $cutoffSchedule === $val ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300' }}">
+                                {{ $opt['label'] }}
+                            </span>
+                            <span class="text-[10px] {{ $cutoffSchedule === $val ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">
+                                {{ $opt['sub'] }}
+                            </span>
+                        </label>
+                        @endforeach
+                    </div>
+                    @error('cutoffSchedule') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Remaining balance (loans only) --}}
