@@ -41,6 +41,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Department</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Position</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Account</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
@@ -53,6 +54,13 @@
                         <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $emp->full_name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $emp->department ?? '—' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $emp->position ?? '—' }}</td>
+                        <td class="px-6 py-4">
+                            @if (($emp->employment_type ?? 'regular') === 'probationary')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Probationary</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Regular</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">
                             @if ($emp->user)
                                 <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium {{ $emp->user->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' }}">
@@ -126,6 +134,29 @@
                         </select>
                     </div>
                 </div>
+                {{-- Employment Type --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Employment Type</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
+                                      {{ $editEmploymentType === 'regular' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <input type="radio" wire:model.live="editEmploymentType" value="regular" class="sr-only" />
+                            <div>
+                                <p class="text-sm font-semibold {{ $editEmploymentType === 'regular' ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-200' }}">Regular</p>
+                                <p class="text-xs {{ $editEmploymentType === 'regular' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">Mon – Fri</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
+                                      {{ $editEmploymentType === 'probationary' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <input type="radio" wire:model.live="editEmploymentType" value="probationary" class="sr-only" />
+                            <div>
+                                <p class="text-sm font-semibold {{ $editEmploymentType === 'probationary' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-200' }}">Probationary</p>
+                                <p class="text-xs {{ $editEmploymentType === 'probationary' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">Mon – Sat</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date of Birth</label>

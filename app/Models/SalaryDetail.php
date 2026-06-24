@@ -13,6 +13,11 @@ class SalaryDetail extends Model
         'basic_salary',
         'daily_rate',
         'hourly_rate',
+        'hazard_pay',
+        'rice_allowance',
+        'medical_allowance',
+        'commodity_allowance',
+        'other_allowance',
         'effective_date',
         'is_active',
     ];
@@ -20,11 +25,16 @@ class SalaryDetail extends Model
     protected function casts(): array
     {
         return [
-            'basic_salary'   => 'decimal:2',
-            'daily_rate'     => 'decimal:2',
-            'hourly_rate'    => 'decimal:2',
-            'effective_date' => 'date',
-            'is_active'      => 'boolean',
+            'basic_salary'        => 'decimal:2',
+            'daily_rate'          => 'decimal:2',
+            'hourly_rate'         => 'decimal:2',
+            'hazard_pay'          => 'decimal:2',
+            'rice_allowance'      => 'decimal:2',
+            'medical_allowance'   => 'decimal:2',
+            'commodity_allowance' => 'decimal:2',
+            'other_allowance'     => 'decimal:2',
+            'effective_date'      => 'date',
+            'is_active'           => 'boolean',
         ];
     }
 

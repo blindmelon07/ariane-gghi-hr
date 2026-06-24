@@ -147,17 +147,31 @@ class PhilippinePayrollService
             return $this->emptyPayslip();
         }
 
-        $dailyRate  = (float) $salary->daily_rate;
-        $hourlyRate = (float) $salary->hourly_rate;
+        $dailyRate   = (float) $salary->daily_rate;
+        $hourlyRate  = (float) $salary->hourly_rate;
         $basicSalary = (float) $salary->basic_salary;
 
-        // Count working days in period (Mon-Sat, exclude Sunday)
-        // Use Carbon::parse to get a mutable instance — CarbonImmutable::addDay() returns a new object
-        $workingDays = 0;
+        // Allowances (semi-monthly amounts)
+        $hazardPay         = round((float) ($salary->hazard_pay ?? 0), 2);
+        $riceAllowance     = round((float) ($salary->rice_allowance ?? 0), 2);
+        $medicalAllowance  = round((float) ($salary->medical_allowance ?? 0), 2);
+        $commodityAllowance = round((float) ($salary->commodity_allowance ?? 0), 2);
+        $otherAllowanceAmt = round((float) ($salary->other_allowance ?? 0), 2);
+        $totalAllowances   = round($hazardPay + $riceAllowance + $medicalAllowance + $commodityAllowance + $otherAllowanceAmt, 2);
+
+        // Count working days in period based on employment type:
+        // probationary = Mon–Sat (exclude Sundays only)
+        // regular      = Mon–Fri (exclude Saturdays and Sundays)
+        $isProbationary = ($employee->employment_type ?? 'regular') === 'probationary';
+        $workingDays    = 0;
         for ($d = Carbon::parse($period->start_date); $d->lte($period->end_date); $d->addDay()) {
-            if (!$d->isSunday()) {
-                $workingDays++;
+            if ($d->isSunday()) {
+                continue;
             }
+            if (! $isProbationary && $d->isSaturday()) {
+                continue;
+            }
+            $workingDays++;
         }
 
         // Distinct dates with at least one punch in the period
@@ -199,13 +213,15 @@ class PhilippinePayrollService
             }
 
             $daysPresent++;
-            $basicPay              += $dailyRate;
             $totalLateMinutes      += $day['minutes_late'];
             $totalUndertimeMinutes += $day['minutes_undertime'];
         }
 
-        $basicPay    = round($basicPay, 2);
-        $daysAbsent  = max(0, $workingDays - $daysPresent - $approvedLeaveDays);
+        // Basic pay = FULL period pay (working days × daily rate)
+        // Absent deduction = absent days × 8 hrs × hourly rate (hours-based, matches HR payslip)
+        $basicPay   = round($workingDays * $dailyRate, 2);
+        $daysAbsent = max(0, $workingDays - $daysPresent - $approvedLeaveDays);
+        $absentDeduction = round($daysAbsent * 8 * $hourlyRate, 2);
 
         // Overtime: only approved OT requests count — not raw attendance
         $approvedOt    = OvertimeRequest::where('employee_id', $employee->id)
@@ -215,10 +231,14 @@ class PhilippinePayrollService
         $overtimeHours = round($approvedOt->sum(fn ($r) => (float) ($r->approved_hours ?? $r->requested_hours)), 2);
         $overtimePay   = round($overtimeHours * $hourlyRate * 1.25, 2);
 
-        $lateDeduction      = round($totalLateMinutes * ($hourlyRate / 60), 2);
-        $undertimeDeduction = round($totalUndertimeMinutes * ($hourlyRate / 60), 2);
+        // Round to 2-decimal hours FIRST (matches HR department's lookup table)
+        // e.g. 25 min → 0.42 hrs (table value) → 0.42 × hourlyRate = exact HR result
+        $lateHours          = round($totalLateMinutes / 60, 2);
+        $undertimeHours     = round($totalUndertimeMinutes / 60, 2);
+        $lateDeduction      = round($lateHours * $hourlyRate, 2);
+        $undertimeDeduction = round($undertimeHours * $hourlyRate, 2);
 
-        $grossPay = round($basicPay + $overtimePay - $lateDeduction - $undertimeDeduction, 2);
+        $grossPay = round($basicPay - $absentDeduction + $overtimePay - $lateDeduction - $undertimeDeduction, 2);
 
         // Load active deductions filtered by the period's cutoff schedule:
         // semi_monthly_1 → apply 'both' and '1st' deductions
@@ -253,12 +273,15 @@ class PhilippinePayrollService
         $otherDeductionsAmount = round((float) $otherDeductions->sum('amount_per_cutoff'), 2);
 
         $totalDeductions = round($sss + $philhealth + $pagibig + $tax + $otherDeductionsAmount, 2);
-        $netPay          = round($grossPay - $totalDeductions, 2);
+
+        // Net pay = basic salary (gross pay after attendance deductions) + allowances - statutory deductions
+        $netPay = round($grossPay + $totalAllowances - $totalDeductions, 2);
 
         return [
             'working_days'         => $workingDays,
             'days_present'         => $daysPresent,
             'days_absent'          => $daysAbsent,
+            'absent_deduction'     => $absentDeduction,
             'basic_pay'            => $basicPay,
             'overtime_hours'       => $overtimeHours,
             'overtime_pay'         => $overtimePay,
@@ -267,6 +290,12 @@ class PhilippinePayrollService
             'undertime_minutes'    => $totalUndertimeMinutes,
             'undertime_deduction'  => $undertimeDeduction,
             'gross_pay'            => $grossPay,
+            'hazard_pay'           => $hazardPay,
+            'rice_allowance'       => $riceAllowance,
+            'medical_allowance'    => $medicalAllowance,
+            'commodity_allowance'  => $commodityAllowance,
+            'other_allowance'      => $otherAllowanceAmt,
+            'total_allowances'     => $totalAllowances,
             'sss_deduction'        => $sss,
             'philhealth_deduction' => $philhealth,
             'pagibig_deduction'    => $pagibig,
@@ -308,10 +337,14 @@ class PhilippinePayrollService
     {
         return [
             'working_days' => 0, 'days_present' => 0, 'days_absent' => 0,
+            'absent_deduction' => 0,
             'basic_pay' => 0, 'overtime_hours' => 0, 'overtime_pay' => 0,
             'late_minutes' => 0, 'late_deduction' => 0,
             'undertime_minutes' => 0, 'undertime_deduction' => 0,
-            'gross_pay' => 0, 'sss_deduction' => 0, 'philhealth_deduction' => 0,
+            'gross_pay' => 0,
+            'hazard_pay' => 0, 'rice_allowance' => 0, 'medical_allowance' => 0,
+            'commodity_allowance' => 0, 'other_allowance' => 0, 'total_allowances' => 0,
+            'sss_deduction' => 0, 'philhealth_deduction' => 0,
             'pagibig_deduction' => 0, 'tax_deduction' => 0, 'other_deductions' => 0,
             'total_deductions' => 0, 'net_pay' => 0,
         ];

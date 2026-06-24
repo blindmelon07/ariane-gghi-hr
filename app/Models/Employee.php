@@ -22,6 +22,7 @@ class Employee extends Model
         'date_of_birth',
         'hire_date',
         'is_active',
+        'employment_type',
         'biotime_id',
         'synced_at',
     ];

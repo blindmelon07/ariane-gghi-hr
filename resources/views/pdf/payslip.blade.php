@@ -80,15 +80,38 @@
             <div class="col">
                 <div class="section-title">Earnings</div>
                 <table>
-                    <tr><td>Basic Pay ({{ $payslip->days_present }} days)</td><td>{{ number_format($payslip->basic_pay, 2) }}</td></tr>
-                    <tr><td>Overtime Pay ({{ $payslip->overtime_hours }} hrs)</td><td>{{ number_format($payslip->overtime_pay, 2) }}</td></tr>
+                    <tr><td>Regular Shift ({{ $payslip->working_days }} days)</td><td>{{ number_format($payslip->basic_pay, 2) }}</td></tr>
+                    @if ($payslip->absent_deduction > 0)
+                        <tr><td>Absent ({{ $payslip->days_absent }} day{{ $payslip->days_absent != 1 ? 's' : '' }})</td><td>({{ number_format($payslip->absent_deduction, 2) }})</td></tr>
+                    @endif
                     @if ($payslip->late_deduction > 0)
-                        <tr><td>Late Deduction ({{ $payslip->late_minutes }} min)</td><td>({{ number_format($payslip->late_deduction, 2) }})</td></tr>
+                        <tr><td>Late ({{ $payslip->late_minutes }} min)</td><td>({{ number_format($payslip->late_deduction, 2) }})</td></tr>
                     @endif
                     @if ($payslip->undertime_deduction > 0)
-                        <tr><td>Undertime Deduction ({{ $payslip->undertime_minutes }} min)</td><td>({{ number_format($payslip->undertime_deduction, 2) }})</td></tr>
+                        <tr><td>Undertime ({{ $payslip->undertime_minutes }} min)</td><td>({{ number_format($payslip->undertime_deduction, 2) }})</td></tr>
                     @endif
-                    <tr class="total"><td>Gross Pay</td><td>{{ number_format($payslip->gross_pay, 2) }}</td></tr>
+                    @if ($payslip->overtime_pay > 0)
+                        <tr><td>Overtime ({{ $payslip->overtime_hours }} hrs)</td><td>{{ number_format($payslip->overtime_pay, 2) }}</td></tr>
+                    @endif
+                    <tr class="total"><td>Basic Salary</td><td>{{ number_format($payslip->gross_pay, 2) }}</td></tr>
+                    @if ($payslip->hazard_pay > 0)
+                        <tr><td>Hazard Pay</td><td>{{ number_format($payslip->hazard_pay, 2) }}</td></tr>
+                    @endif
+                    @if ($payslip->rice_allowance > 0)
+                        <tr><td>Rice Allowance</td><td>{{ number_format($payslip->rice_allowance, 2) }}</td></tr>
+                    @endif
+                    @if ($payslip->medical_allowance > 0)
+                        <tr><td>Laundry/Medical Allowance</td><td>{{ number_format($payslip->medical_allowance, 2) }}</td></tr>
+                    @endif
+                    @if ($payslip->commodity_allowance > 0)
+                        <tr><td>Commodity Allowance</td><td>{{ number_format($payslip->commodity_allowance, 2) }}</td></tr>
+                    @endif
+                    @if ($payslip->other_allowance > 0)
+                        <tr><td>Other Allowances</td><td>{{ number_format($payslip->other_allowance, 2) }}</td></tr>
+                    @endif
+                    @if ($payslip->total_allowances > 0)
+                        <tr class="total"><td>Gross Pay</td><td>{{ number_format($payslip->gross_pay + $payslip->total_allowances, 2) }}</td></tr>
+                    @endif
                 </table>
             </div>
             <div class="col">

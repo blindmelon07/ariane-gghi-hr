@@ -29,28 +29,55 @@
                     @if ($editingId === $employee->id)
                         {{-- Inline Edit Row --}}
                         <tr class="bg-indigo-50 dark:bg-indigo-950/30">
-                            <td class="px-6 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                <div>{{ $employee->full_name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $employee->emp_code }}</div>
-                            </td>
-                            <td class="px-6 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $employee->department }}</td>
-                            <td class="px-6 py-3 text-sm text-gray-600 dark:text-gray-300">{{ $employee->position }}</td>
-                            <td class="px-6 py-3">
-                                <input type="number" step="0.01" wire:model.live.debounce.500ms="basicSalary"
-                                       class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
-                                @error('basicSalary') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
-                            </td>
-                            <td class="px-6 py-3">
-                                <input type="number" step="0.01" wire:model.live="dailyRate"
-                                       class="w-28 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
-                            </td>
-                            <td class="px-6 py-3">
-                                <input type="number" step="0.01" wire:model.live="hourlyRate"
-                                       class="w-28 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
-                            </td>
-                            <td class="px-6 py-3 text-right space-x-2">
-                                <button wire:click="save" class="text-sm text-green-600 dark:text-green-400 hover:text-green-800 font-medium">Save</button>
-                                <button wire:click="cancelEdit" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200 font-medium">Cancel</button>
+                            <td class="px-6 py-3 text-sm font-medium text-gray-900 dark:text-gray-100" colspan="7">
+                                <div class="font-semibold mb-3">{{ $employee->full_name }} <span class="font-mono text-gray-500 text-xs">({{ $employee->emp_code }})</span></div>
+
+                                <div class="grid grid-cols-2 gap-x-8 gap-y-3">
+                                    {{-- Left: Rate fields --}}
+                                    <div class="space-y-2">
+                                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Salary Rates</p>
+                                        <div class="flex items-center gap-2">
+                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">Basic Salary</label>
+                                            <input type="number" step="0.01" wire:model="basicSalary"
+                                                   class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
+                                            <button wire:click="autoComputeRates" title="Auto-compute daily & hourly"
+                                                    class="px-2 py-1 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-xs font-bold hover:bg-indigo-200">↻ Auto</button>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">Daily Rate</label>
+                                            <input type="number" step="0.01" wire:model="dailyRate"
+                                                   class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">Hourly Rate <span class="text-amber-500">(deductions)</span></label>
+                                            <input type="number" step="0.01" wire:model="hourlyRate"
+                                                   class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
+                                        </div>
+                                    </div>
+
+                                    {{-- Right: Allowances --}}
+                                    <div class="space-y-2">
+                                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Allowances <span class="text-gray-400 font-normal">(semi-monthly)</span></p>
+                                        @foreach ([
+                                            'hazardPay'          => 'Hazard Pay',
+                                            'riceAllowance'      => 'Rice Allowance',
+                                            'medicalAllowance'   => 'Laundry/Medical',
+                                            'commodityAllowance' => 'Commodity',
+                                            'otherAllowance'     => 'Other Allowance',
+                                        ] as $field => $label)
+                                        <div class="flex items-center gap-2">
+                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">{{ $label }}</label>
+                                            <input type="number" step="0.01" wire:model="{{ $field }}"
+                                                   class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-3 mt-4">
+                                    <button wire:click="save" class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">Save</button>
+                                    <button wire:click="cancelEdit" class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+                                </div>
                             </td>
                         </tr>
                     @else

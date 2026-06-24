@@ -29,9 +29,10 @@ class EmployeeManager extends Component
     public string  $editFirstName   = '';
     public string  $editLastName    = '';
     public ?int    $editDepartmentId = null;
-    public ?int    $editPositionId   = null;
-    public string  $editDob         = '';
-    public bool    $editIsActive    = true;
+    public ?int    $editPositionId      = null;
+    public string  $editEmploymentType  = 'regular';
+    public string  $editDob            = '';
+    public bool    $editIsActive       = true;
 
     // Account modal state
     public bool    $showAccountModal = false;
@@ -102,11 +103,12 @@ class EmployeeManager extends Component
     {
         $emp = Employee::findOrFail($id);
 
-        $this->editEmployeeId   = $emp->id;
-        $this->editFirstName    = $emp->first_name;
-        $this->editLastName     = $emp->last_name;
-        $this->editDepartmentId = $emp->department_id;
-        $this->editPositionId   = $emp->position_id;
+        $this->editEmployeeId      = $emp->id;
+        $this->editFirstName       = $emp->first_name;
+        $this->editLastName        = $emp->last_name;
+        $this->editDepartmentId    = $emp->department_id;
+        $this->editPositionId      = $emp->position_id;
+        $this->editEmploymentType  = $emp->employment_type ?? 'regular';
         $this->editDob        = $emp->date_of_birth?->format('Y-m-d') ?? '';
         $this->editIsActive   = $emp->is_active;
         $this->showEdit       = true;
@@ -115,21 +117,23 @@ class EmployeeManager extends Component
     public function saveEmployee(): void
     {
         $this->validate([
-            'editFirstName'    => 'required|string|max:255',
-            'editLastName'     => 'required|string|max:255',
-            'editDepartmentId' => 'nullable|exists:departments,id',
-            'editPositionId'   => 'nullable|exists:positions,id',
-            'editDob'          => 'nullable|date',
+            'editFirstName'       => 'required|string|max:255',
+            'editLastName'        => 'required|string|max:255',
+            'editDepartmentId'    => 'nullable|exists:departments,id',
+            'editPositionId'      => 'nullable|exists:positions,id',
+            'editEmploymentType'  => 'required|in:probationary,regular',
+            'editDob'             => 'nullable|date',
         ]);
 
         $emp = Employee::findOrFail($this->editEmployeeId);
         $emp->update([
-            'first_name'    => $this->editFirstName,
-            'last_name'     => $this->editLastName,
-            'department_id' => $this->editDepartmentId,
-            'position_id'   => $this->editPositionId,
-            'date_of_birth' => $this->editDob ?: null,
-            'is_active'     => $this->editIsActive,
+            'first_name'      => $this->editFirstName,
+            'last_name'       => $this->editLastName,
+            'department_id'   => $this->editDepartmentId,
+            'position_id'     => $this->editPositionId,
+            'employment_type' => $this->editEmploymentType,
+            'date_of_birth'   => $this->editDob ?: null,
+            'is_active'       => $this->editIsActive,
         ]);
 
         ActivityLogService::log('employee_updated', "Updated employee: {$emp->full_name} ({$emp->emp_code})", $emp);

@@ -16,10 +16,15 @@ class SalaryManager extends Component
 
     // Inline edit
     public ?int   $editingId      = null;
-    public string $rateType       = 'monthly';
-    public string $basicSalary    = '';
-    public string $dailyRate      = '';
-    public string $hourlyRate     = '';
+    public string $rateType            = 'monthly';
+    public string $basicSalary         = '';
+    public string $dailyRate           = '';
+    public string $hourlyRate          = '';
+    public string $hazardPay           = '0';
+    public string $riceAllowance       = '0';
+    public string $medicalAllowance    = '0';
+    public string $commodityAllowance  = '0';
+    public string $otherAllowance      = '0';
 
     public function updatedSearch(): void
     {
@@ -46,21 +51,26 @@ class SalaryManager extends Component
         $salary = SalaryDetail::where('employee_id', $employeeId)->first();
 
         if ($salary) {
-            $this->rateType    = $salary->rate_type;
-            $this->basicSalary = (string) $salary->basic_salary;
-            $this->dailyRate   = (string) $salary->daily_rate;
-            $this->hourlyRate  = (string) $salary->hourly_rate;
+            $this->rateType           = $salary->rate_type;
+            $this->basicSalary        = (string) $salary->basic_salary;
+            $this->dailyRate          = (string) $salary->daily_rate;
+            $this->hourlyRate         = (string) $salary->hourly_rate;
+            $this->hazardPay          = (string) ($salary->hazard_pay ?? 0);
+            $this->riceAllowance      = (string) ($salary->rice_allowance ?? 0);
+            $this->medicalAllowance   = (string) ($salary->medical_allowance ?? 0);
+            $this->commodityAllowance = (string) ($salary->commodity_allowance ?? 0);
+            $this->otherAllowance     = (string) ($salary->other_allowance ?? 0);
         } else {
-            $this->rateType    = 'monthly';
-            $this->basicSalary = '';
-            $this->dailyRate   = '';
-            $this->hourlyRate  = '';
+            $this->rateType           = 'monthly';
+            $this->basicSalary        = '';
+            $this->dailyRate          = '';
+            $this->hourlyRate         = '';
+            $this->hazardPay          = '0';
+            $this->riceAllowance      = '0';
+            $this->medicalAllowance   = '0';
+            $this->commodityAllowance = '0';
+            $this->otherAllowance     = '0';
         }
-    }
-
-    public function updatedBasicSalary(): void
-    {
-        $this->autoComputeRates();
     }
 
     public function autoComputeRates(): void
@@ -68,7 +78,7 @@ class SalaryManager extends Component
         $basic = (float) $this->basicSalary;
 
         if ($basic > 0) {
-            // Assuming 26 working days/month (Mon-Sat), 8 hours/day
+            // 26 working days/month, 8 hours/day — click "Auto-Compute" to apply
             $this->dailyRate  = (string) round($basic / 26, 2);
             $this->hourlyRate = (string) round($basic / 26 / 8, 2);
         }
@@ -86,10 +96,15 @@ class SalaryManager extends Component
         SalaryDetail::updateOrCreate(
             ['employee_id' => $this->editingId],
             [
-                'rate_type'    => $this->rateType,
-                'basic_salary' => $this->basicSalary,
-                'daily_rate'   => $this->dailyRate,
-                'hourly_rate'  => $this->hourlyRate,
+                'rate_type'           => $this->rateType,
+                'basic_salary'        => $this->basicSalary,
+                'daily_rate'          => $this->dailyRate,
+                'hourly_rate'         => $this->hourlyRate,
+                'hazard_pay'          => $this->hazardPay ?: 0,
+                'rice_allowance'      => $this->riceAllowance ?: 0,
+                'medical_allowance'   => $this->medicalAllowance ?: 0,
+                'commodity_allowance' => $this->commodityAllowance ?: 0,
+                'other_allowance'     => $this->otherAllowance ?: 0,
             ],
         );
 
