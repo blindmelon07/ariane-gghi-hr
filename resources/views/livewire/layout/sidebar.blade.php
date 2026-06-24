@@ -114,13 +114,10 @@ new class extends Component
 
 <aside
     x-data
-    x-init="$el.removeAttribute('style')"
-    style="width:16rem"
-    class="flex flex-col h-screen bg-[#0a1628] text-white fixed inset-y-0 left-0 z-50
+    class="w-64 flex flex-col h-screen bg-[#0a1628] text-white fixed inset-y-0 left-0 z-50
            border-r border-blue-800/50 transition-all duration-300 ease-in-out"
+    :style="{ width: $store.sidebar.collapsed ? '4rem' : '16rem' }"
     :class="{
-        'w-64':           !$store.sidebar.collapsed,
-        'w-16':            $store.sidebar.collapsed,
         'translate-x-0':      $store.sidebar.mobileOpen || $store.sidebar.isDesktop,
         '-translate-x-full': !$store.sidebar.mobileOpen && !$store.sidebar.isDesktop,
     }"

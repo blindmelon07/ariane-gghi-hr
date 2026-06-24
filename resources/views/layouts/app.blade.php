@@ -82,12 +82,10 @@
             {{-- Sidebar --}}
             <livewire:layout.sidebar />
 
-            {{-- Main panel — inline style fallback ensures correct margin before Alpine loads --}}
+            {{-- Main panel: sm:ml-64 is the CSS default (expanded); Alpine style binding overrides on toggle --}}
             <div
-                x-init="$el.removeAttribute('style')"
-                style="margin-left:16rem"
-                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out"
-                :class="$store.sidebar.collapsed ? 'sm:ml-16' : 'sm:ml-64'"
+                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out sm:ml-64"
+                :style="$store.sidebar.isDesktop ? { marginLeft: $store.sidebar.collapsed ? '4rem' : '16rem' } : {}"
             >
                 {{-- ── Top header bar ── --}}
                 @if (isset($header))
