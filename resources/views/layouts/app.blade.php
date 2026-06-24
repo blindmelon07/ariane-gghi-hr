@@ -36,8 +36,9 @@
 
             // Sidebar pre-init: apply correct width & margin synchronously before Alpine
             // loads, so there is no layout flash on first paint.
+            // Uses sessionStorage so sidebar is always EXPANDED on a fresh login/tab.
             (function () {
-                var collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                var collapsed = sessionStorage.getItem('sidebarCollapsed') === 'true';
                 var w = collapsed ? '4rem' : '16rem';
                 var s = document.createElement('style');
                 s.id = '__sb_init';
@@ -50,12 +51,12 @@
 
             document.addEventListener('alpine:init', function () {
                 Alpine.store('sidebar', {
-                    collapsed: localStorage.getItem('sidebarCollapsed') === 'true',
+                    collapsed: sessionStorage.getItem('sidebarCollapsed') === 'true',
                     mobileOpen: false,
                     isDesktop: window.innerWidth >= 640,
                     toggle: function () {
                         this.collapsed = !this.collapsed;
-                        localStorage.setItem('sidebarCollapsed', this.collapsed);
+                        sessionStorage.setItem('sidebarCollapsed', this.collapsed);
                     },
                     openMobile: function () { this.mobileOpen = true; },
                     closeMobile: function () { this.mobileOpen = false; }

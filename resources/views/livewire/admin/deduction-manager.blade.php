@@ -135,7 +135,7 @@
 
     {{-- Add / Edit Deduction Modal --}}
     @if ($showModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data @click.self="$wire.set('showModal', false)">
+    <div wire:click.self="closeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg mx-4 p-6">
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{{ $editDeductionId ? 'Edit' : 'Add' }} Deduction</h3>
 
@@ -217,7 +217,7 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
-                <button wire:click="$set('showModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancel</button>
+                <button wire:click="closeModal" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancel</button>
                 <button wire:click="save" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-500 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
                     {{ $editDeductionId ? 'Update' : 'Create' }}
                 </button>
@@ -228,7 +228,7 @@
 
     {{-- Manage Deduction Types Modal --}}
     @if ($showTypeModal && !$editTypeId)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data @click.self="$wire.set('showTypeModal', false)">
+    <div wire:click.self="closeTypeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Deduction Types</h3>
@@ -265,7 +265,7 @@
             @endforeach
 
             <div class="flex justify-end mt-4">
-                <button wire:click="$set('showTypeModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Close</button>
+                <button wire:click="closeTypeModal" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Close</button>
             </div>
         </div>
     </div>
@@ -273,7 +273,7 @@
 
     {{-- Add / Edit Deduction Type Form Modal --}}
     @if ($showTypeModal && $editTypeId)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data @click.self="$wire.set('showTypeModal', false)">
+    <div wire:click.self="closeTypeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{{ $editTypeId === -1 ? 'New' : 'Edit' }} Deduction Type</h3>
 
@@ -301,7 +301,7 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
-                <button wire:click="$set('editTypeId', null)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Back</button>
+                <button wire:click="backToTypeList" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Back</button>
                 <button wire:click="saveType" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-500 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
                     {{ $editTypeId === -1 ? 'Create' : 'Update' }}
                 </button>

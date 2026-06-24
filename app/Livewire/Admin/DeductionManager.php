@@ -221,6 +221,24 @@ class DeductionManager extends Component
 
     // ── Deduction Type CRUD ────────────────────────────────
 
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->resetModal();
+    }
+
+    public function closeTypeModal(): void
+    {
+        $this->showTypeModal = false;
+        $this->resetTypeModal();
+    }
+
+    public function backToTypeList(): void
+    {
+        $this->editTypeId = null;
+        $this->resetValidation();
+    }
+
     public function openAddType(): void
     {
         $this->resetTypeModal();
