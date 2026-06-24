@@ -114,7 +114,9 @@ new class extends Component
 
 <aside
     x-data
-    class="sb-pre flex flex-col h-screen bg-[#0a1628] text-white fixed inset-y-0 left-0 z-50
+    x-init="$el.removeAttribute('style')"
+    style="width:16rem"
+    class="flex flex-col h-screen bg-[#0a1628] text-white fixed inset-y-0 left-0 z-50
            border-r border-blue-800/50 transition-all duration-300 ease-in-out"
     :class="{
         'w-64':           !$store.sidebar.collapsed,

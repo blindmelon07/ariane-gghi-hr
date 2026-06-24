@@ -34,29 +34,16 @@
                 localStorage.setItem('darkMode', isDark);
             }
 
-            // Sidebar: always starts EXPANDED on every page load.
-            // No localStorage/sessionStorage — state lives only in Alpine (resets on load).
-            // Pre-inject expanded width to prevent layout flash before Alpine boots.
-            (function () {
-                var s = document.createElement('style');
-                s.id = '__sb_init';
-                s.textContent =
-                    '.sb-pre{width:16rem!important;transition:none!important}' +
-                    '@media(min-width:640px){.main-pre{margin-left:16rem!important;transition:none!important}}' +
-                    '@media(max-width:639px){.sb-pre{transform:translateX(-100%)!important}}';
-                document.head.appendChild(s);
-                // Clean up any old stored values that could interfere
-                try { localStorage.removeItem('sidebarCollapsed'); sessionStorage.removeItem('sidebarCollapsed'); } catch(e) {}
-            })();
+            // Clean up any old sidebar storage that could cause issues
+            try { localStorage.removeItem('sidebarCollapsed'); sessionStorage.removeItem('sidebarCollapsed'); } catch(e) {}
 
+            // Sidebar store — collapsed is always false on load (inline style handles pre-Alpine width)
             document.addEventListener('alpine:init', function () {
                 Alpine.store('sidebar', {
                     collapsed: false,
                     mobileOpen: false,
                     isDesktop: window.innerWidth >= 640,
-                    toggle: function () {
-                        this.collapsed = !this.collapsed;
-                    },
+                    toggle: function () { this.collapsed = !this.collapsed; },
                     openMobile: function () { this.mobileOpen = true; },
                     closeMobile: function () { this.mobileOpen = false; }
                 });
@@ -65,15 +52,6 @@
                     var store = Alpine.store('sidebar');
                     store.isDesktop = window.innerWidth >= 640;
                     if (store.isDesktop) store.mobileOpen = false;
-                });
-            });
-
-            document.addEventListener('alpine:initialized', function () {
-                requestAnimationFrame(function () {
-                    requestAnimationFrame(function () {
-                        var s = document.getElementById('__sb_init');
-                        if (s) s.remove();
-                    });
                 });
             });
         </script>
@@ -104,9 +82,11 @@
             {{-- Sidebar --}}
             <livewire:layout.sidebar />
 
-            {{-- Main panel — margin tracks sidebar width via store --}}
+            {{-- Main panel — inline style fallback ensures correct margin before Alpine loads --}}
             <div
-                class="main-pre flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out"
+                x-init="$el.removeAttribute('style')"
+                style="margin-left:16rem"
+                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out"
                 :class="$store.sidebar.collapsed ? 'sm:ml-16' : 'sm:ml-64'"
             >
                 {{-- ── Top header bar ── --}}
