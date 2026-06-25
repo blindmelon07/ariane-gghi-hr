@@ -5,26 +5,29 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login')->name('home');
 
-// Employee dashboard
+/*
+|--------------------------------------------------------------------------
+| Role Reference
+|--------------------------------------------------------------------------
+| employee       – Regular staff (leave filing, payslips)
+| department_head – Step-1 leave approver (same menu as manager)
+| manager        – Step-1 leave approver
+| hr_admin       – Step-2 leave approver + full HR access
+| approver       – Step-3 leave approver (Medical Director)
+| super_admin    – Step-3 leave approver (CEO) + all access
+|
+| NOTE: Two role layers exist:
+|   1. users.role column  – drives sidebar menu & dashboardRoute()
+|   2. Spatie role        – drives route middleware (role:xxx)
+|   Both must match. The UserFactory and createAccount() keep them in sync.
+*/
+
+// ── Employee routes ───────────────────────────────────────────────────────────
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'role:employee'])
     ->name('dashboard');
 
-// HR Admin dashboard
-Route::view('admin/dashboard', 'admin.dashboard')
-    ->middleware(['auth', 'role:hr_admin,manager,department_head,approver'])
-    ->name('admin.dashboard');
-
-// Manager dashboard
-Route::view('manager/dashboard', 'manager.dashboard')
-    ->middleware(['auth', 'role:manager'])
-    ->name('manager.dashboard');
-
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
-
-// Employee Leave Routes
 Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::view('leave/request', 'leave.request')->name('leave.request');
     Route::view('leave/my-requests', 'leave.my-requests')->name('leave.my-requests');
@@ -33,52 +36,51 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::view('overtime/request', 'overtime.request')->name('overtime.request');
 });
 
-// Payslip download (any authenticated user — controller checks ownership)
+// ── Shared ────────────────────────────────────────────────────────────────────
+
+Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
+
 Route::get('payslips/{payslip}/download', [PayslipController::class, 'download'])
     ->middleware(['auth'])
     ->name('payslips.download');
 
-// Admin: generate & download single employee payslip on demand
-Route::get('admin/payslips/{employee}/{period}/download', [PayslipController::class, 'adminDownload'])
-    ->middleware(['auth', 'role:hr_admin'])
-    ->name('admin.payslips.download');
+// ── Admin dashboard (all non-employee roles) ──────────────────────────────────
 
-Route::view('admin/biometrics', 'admin.biometrics')
-    ->middleware(['auth', 'role:hr_admin'])
-    ->name('admin.biometrics');
+Route::view('admin/dashboard', 'admin.dashboard')
+    ->middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,approver'])
+    ->name('admin.dashboard');
 
-// Admin/Manager/Approver Leave Routes
-Route::view('admin/leave', 'admin.leave')
-    ->middleware(['auth', 'role:hr_admin,manager,department_head,approver'])
-    ->name('admin.leave');
+// ── Leave approvals + reports (all approver roles) ───────────────────────────
 
-Route::view('admin/leave/credits', 'admin.leave-credits')
-    ->middleware(['auth', 'role:hr_admin'])
-    ->name('admin.leave-credits');
+Route::middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,approver'])->group(function () {
+    Route::view('admin/leave', 'admin.leave')->name('admin.leave');
+    Route::view('admin/reports/attendance', 'admin.reports.attendance')->name('admin.reports.attendance');
+    Route::view('admin/reports/leave', 'admin.reports.leave')->name('admin.reports.leave');
+});
 
-// Roles & Permissions (super_admin only)
-Route::view('admin/roles-permissions', 'admin.roles-permissions')
-    ->middleware(['auth', 'role:super_admin'])
-    ->name('admin.roles-permissions');
+// ── HR Admin + Super Admin routes ─────────────────────────────────────────────
 
-// Admin Payroll Routes
-Route::middleware(['auth', 'role:hr_admin,super_admin'])->group(function () {
+Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
+    Route::view('admin/employees', 'admin.employees')->name('admin.employees');
     Route::view('admin/departments', 'admin.departments')->name('admin.departments');
     Route::view('admin/positions', 'admin.positions')->name('admin.positions');
     Route::view('admin/payroll', 'admin.payroll')->name('admin.payroll');
     Route::view('admin/payroll/salary', 'admin.salary')->name('admin.salary');
-    Route::view('admin/employees', 'admin.employees')->name('admin.employees');
     Route::view('admin/deductions', 'admin.deductions')->name('admin.deductions');
     Route::view('admin/day-offs', 'admin.day-offs')->name('admin.day-offs');
     Route::view('admin/schedules', 'admin.schedules')->name('admin.schedules');
-    Route::view('admin/reports/payroll', 'admin.reports.payroll')->name('admin.reports.payroll');
+    Route::view('admin/biometrics', 'admin.biometrics')->name('admin.biometrics');
+    Route::view('admin/leave/credits', 'admin.leave-credits')->name('admin.leave-credits');
     Route::view('admin/overtime', 'admin.overtime')->name('admin.overtime');
+    Route::view('admin/reports/payroll', 'admin.reports.payroll')->name('admin.reports.payroll');
+    Route::get('admin/payslips/{employee}/{period}/download', [PayslipController::class, 'adminDownload'])
+        ->name('admin.payslips.download');
 });
 
-// Report Routes (HR Admin + Manager + Approver)
-Route::middleware(['auth', 'role:hr_admin,manager,department_head,approver'])->group(function () {
-    Route::view('admin/reports/attendance', 'admin.reports.attendance')->name('admin.reports.attendance');
-    Route::view('admin/reports/leave', 'admin.reports.leave')->name('admin.reports.leave');
-});
+// ── Super Admin only ──────────────────────────────────────────────────────────
+
+Route::view('admin/roles-permissions', 'admin.roles-permissions')
+    ->middleware(['auth', 'role:super_admin'])
+    ->name('admin.roles-permissions');
 
 require __DIR__.'/auth.php';
