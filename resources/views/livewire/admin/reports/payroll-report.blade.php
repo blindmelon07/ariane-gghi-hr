@@ -86,7 +86,7 @@
 
         <div wire:loading.remove class="overflow-x-auto">
             @if ($this->payslips->isNotEmpty())
-            <table class="w-full text-sm text-left">
+            <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>
                         <th class="px-4 py-3">Emp Code</th>

@@ -32,11 +32,9 @@
                 .app-main { margin-left: 16rem; transition: margin-left 0.3s ease; }
                 .app-main.sidebar-collapsed-main { margin-left: 4.5rem; }
             }
-            /* All tables scroll horizontally on mobile */
+            /* Smooth horizontal scroll on overflow-x-auto wrappers */
             @media (max-width: 1023px) {
-                .overflow-x-auto, [class*="overflow-x-auto"] { -webkit-overflow-scrolling: touch; }
-                .bg-white table, .bg-gray-800 table,
-                .rounded-xl table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+                .overflow-x-auto { -webkit-overflow-scrolling: touch; }
             }
             /* Modals full-screen on mobile */
             @media (max-width: 639px) {
