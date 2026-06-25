@@ -12,6 +12,26 @@
             .overflow-y-auto, .overflow-x-auto { -webkit-overflow-scrolling: touch; }
             /* Mobile bottom-nav spacing */
             @media (max-width: 1023px) { .mobile-content-pb { padding-bottom: calc(4rem + var(--sab)); } }
+
+            /* ── Sidebar: CSS-first show/hide (no JS timing issues) ── */
+            /* Mobile default: ALWAYS hidden off-screen */
+            .app-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease, width 0.3s ease;
+            }
+            /* Mobile open (JS adds this class) */
+            .app-sidebar.sidebar-open {
+                transform: translateX(0);
+            }
+            /* Desktop (lg+): ALWAYS visible */
+            @media (min-width: 1024px) {
+                .app-sidebar { transform: translateX(0) !important; }
+            }
+            /* Main content margin on desktop */
+            @media (min-width: 1024px) {
+                .app-main { margin-left: 16rem; transition: margin-left 0.3s ease; }
+                .app-main.sidebar-collapsed-main { margin-left: 4.5rem; }
+            }
             /* All tables scroll horizontally on mobile */
             @media (max-width: 1023px) {
                 .overflow-x-auto, [class*="overflow-x-auto"] { -webkit-overflow-scrolling: touch; }
@@ -98,21 +118,23 @@
 
             // Sidebar store — collapsed is always false on load (inline style handles pre-Alpine width)
             document.addEventListener('alpine:init', function () {
+                var isDesktopNow = window.innerWidth >= 1024;
+
                 Alpine.store('sidebar', {
-                    collapsed: false,
+                    collapsed:  false,
                     mobileOpen: false,
-                    isDesktop: window.innerWidth >= 1024,
+                    isDesktop:  isDesktopNow,
                     toggle: function () { this.collapsed = !this.collapsed; },
-                    openMobile: function () { this.mobileOpen = true; },
+                    openMobile: function () {
+                        if (!this.isDesktop) { this.mobileOpen = true; }
+                    },
                     closeMobile: function () { this.mobileOpen = false; }
                 });
 
                 window.addEventListener('resize', function () {
-                    var store = Alpine.store('sidebar');
-                    var wasDesktop = store.isDesktop;
+                    var store     = Alpine.store('sidebar');
                     store.isDesktop = window.innerWidth >= 1024;
                     if (store.isDesktop) store.mobileOpen = false;
-                    if (!store.isDesktop && wasDesktop) store.mobileOpen = false;
                 });
             });
         </script>
@@ -129,7 +151,7 @@
             {{-- Mobile backdrop --}}
             <div
                 x-cloak
-                class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+                class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
                 x-show="$store.sidebar.mobileOpen"
                 x-transition:enter="transition-opacity ease-out duration-200"
                 x-transition:enter-start="opacity-0"
@@ -145,9 +167,8 @@
 
             {{-- Main panel: sm:ml-64 is the CSS default (expanded); Alpine style binding overrides on toggle --}}
             <div
-                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out"
-                style="margin-left:0"
-                :style="{ marginLeft: $store.sidebar.isDesktop ? ($store.sidebar.collapsed ? '4.5rem' : '16rem') : '0' }"
+                class="app-main flex-1 flex flex-col min-h-screen"
+                :class="{ 'sidebar-collapsed-main': $store.sidebar.collapsed }"
             >
                 {{-- ── Top header bar ── --}}
                 @if (isset($header))
