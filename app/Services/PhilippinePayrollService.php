@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\AttendanceLog;
+use App\Models\DayOff;
 use App\Models\Employee;
+use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\OtherDeduction;
 use App\Models\OvertimeRequest;
@@ -162,13 +164,33 @@ class PhilippinePayrollService
         // Count working days in period based on employment type:
         // probationary = Mon–Sat (exclude Sundays only)
         // regular      = Mon–Fri (exclude Saturdays and Sundays)
+        // Also exclude individual day-offs and company holidays — those are paid
+        // non-working days that should not cause an absent deduction.
         $isProbationary = ($employee->employment_type ?? 'regular') === 'probationary';
-        $workingDays    = 0;
+
+        // Preload day-off dates for this employee in the period
+        $dayOffDates = DayOff::where('employee_id', $employee->id)
+            ->whereDate('date', '>=', $period->start_date)
+            ->whereDate('date', '<=', $period->end_date)
+            ->pluck('date')
+            ->map(fn ($d) => is_string($d) ? substr($d, 0, 10) : $d->format('Y-m-d'))
+            ->toArray();
+
+        // Preload holiday dates (one-time + recurring) in the period
+        $holidayDates = $this->getHolidayDates($period->start_date, $period->end_date);
+
+        $workingDays = 0;
         for ($d = Carbon::parse($period->start_date); $d->lte($period->end_date); $d->addDay()) {
             if ($d->isSunday()) {
                 continue;
             }
             if (! $isProbationary && $d->isSaturday()) {
+                continue;
+            }
+            if (in_array($d->toDateString(), $dayOffDates, true)) {
+                continue;
+            }
+            if (in_array($d->toDateString(), $holidayDates, true)) {
                 continue;
             }
             $workingDays++;
@@ -307,14 +329,44 @@ class PhilippinePayrollService
     }
 
     /**
+     * Holiday dates (one-time + recurring) that fall within a date range.
+     */
+    protected function getHolidayDates($startDate, $endDate): array
+    {
+        $start = Carbon::parse($startDate);
+        $end   = Carbon::parse($endDate);
+
+        // One-time holidays in range
+        $dates = Holiday::where('is_recurring', false)
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
+            ->pluck('date')
+            ->map(fn ($d) => is_string($d) ? substr($d, 0, 10) : $d->format('Y-m-d'))
+            ->toArray();
+
+        // Recurring holidays — match same month+day in any year within range
+        $recurring = Holiday::where('is_recurring', true)->get();
+        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+            foreach ($recurring as $h) {
+                if ($h->date->month === $d->month && $h->date->day === $d->day) {
+                    $dates[] = $d->toDateString();
+                    break;
+                }
+            }
+        }
+
+        return array_unique($dates);
+    }
+
+    /**
      * Count approved leave days within a date range (excludes Sundays).
      */
     protected function getApprovedLeaveDays(int $employeeId, $startDate, $endDate): float
     {
         $leaves = LeaveRequest::where('employee_id', $employeeId)
             ->where('status', 'approved')
-            ->where('start_date', '<=', $endDate)
-            ->where('end_date', '>=', $startDate)
+            ->whereDate('start_date', '<=', $endDate)
+            ->whereDate('end_date', '>=', $startDate)
             ->get();
 
         $totalDays = 0;
