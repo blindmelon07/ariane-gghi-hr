@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:employee,manager,department_head'])->group(func
     Route::view('leave/request', 'leave.request')->name('leave.request');
     Route::view('leave/my-requests', 'leave.my-requests')->name('leave.my-requests');
     Route::view('leave/balance', 'leave.balance')->name('leave.balance');
+    Route::view('time-correction', 'time-correction')->name('time-correction.request');
 });
 
 // ── Shared ────────────────────────────────────────────────────────────────────
@@ -54,10 +55,11 @@ Route::view('admin/dashboard', 'admin.dashboard')
     ->middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,approver'])
     ->name('admin.dashboard');
 
-// ── Leave approvals + reports (all approver roles) ───────────────────────────
+// ── Leave approvals + time corrections + reports (all approver roles) ────────
 
 Route::middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,approver'])->group(function () {
     Route::view('admin/leave', 'admin.leave')->name('admin.leave');
+    Route::view('admin/time-corrections', 'admin.time-corrections')->name('admin.time-corrections');
     Route::view('admin/reports/attendance', 'admin.reports.attendance')->name('admin.reports.attendance');
     Route::view('admin/reports/leave', 'admin.reports.leave')->name('admin.reports.leave');
 });

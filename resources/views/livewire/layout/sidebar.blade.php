@@ -49,8 +49,9 @@ new class extends Component
                     ['label' => 'Biometrics',        'route' => 'admin.biometrics',         'icon' => 'finger-print'],
                 ],
                 'Leave' => [
-                    ['label' => 'Leave Approvals',   'route' => 'admin.leave',              'icon' => 'document-check'],
-                    ['label' => 'Leave Credits',     'route' => 'admin.leave-credits',      'icon' => 'gift'],
+                    ['label' => 'Leave Approvals',      'route' => 'admin.leave',              'icon' => 'document-check'],
+                    ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
+                    ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
@@ -80,8 +81,9 @@ new class extends Component
                     ['label' => 'Biometrics',        'route' => 'admin.biometrics',         'icon' => 'finger-print'],
                 ],
                 'Leave' => [
-                    ['label' => 'Leave Approvals',   'route' => 'admin.leave',              'icon' => 'document-check'],
-                    ['label' => 'Leave Credits',     'route' => 'admin.leave-credits',      'icon' => 'gift'],
+                    ['label' => 'Leave Approvals',      'route' => 'admin.leave',              'icon' => 'document-check'],
+                    ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
+                    ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
@@ -98,6 +100,7 @@ new class extends Component
                     ['label' => 'File a Leave',      'route' => 'leave.request',            'icon' => 'paper-airplane'],
                     ['label' => 'My Requests',       'route' => 'leave.my-requests',        'icon' => 'document-text'],
                     ['label' => 'Leave Balance',     'route' => 'leave.balance',            'icon' => 'gift'],
+                    ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
@@ -106,12 +109,13 @@ new class extends Component
             ],
             'approver' => [
                 'Main' => [
-                    ['label' => 'Dashboard',         'route' => 'admin.dashboard',          'icon' => 'home'],
-                    ['label' => 'Leave Approvals',   'route' => 'admin.leave',              'icon' => 'document-check'],
+                    ['label' => 'Dashboard',           'route' => 'admin.dashboard',          'icon' => 'home'],
+                    ['label' => 'Leave Approvals',     'route' => 'admin.leave',              'icon' => 'document-check'],
+                    ['label' => 'Time Corrections',    'route' => 'admin.time-corrections',   'icon' => 'clock'],
                 ],
                 'Reports' => [
-                    ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
-                    ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
+                    ['label' => 'Attendance',          'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
+                    ['label' => 'Leave',               'route' => 'admin.reports.leave',      'icon' => 'document-text'],
                 ],
             ],
             default => [
@@ -126,6 +130,9 @@ new class extends Component
                     ['label' => 'File a Leave',      'route' => 'leave.request',            'icon' => 'paper-airplane'],
                     ['label' => 'My Requests',       'route' => 'leave.my-requests',        'icon' => 'document-text'],
                     ['label' => 'Leave Balance',     'route' => 'leave.balance',            'icon' => 'gift'],
+                ],
+                'Attendance' => [
+                    ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
                 ],
             ],
         };

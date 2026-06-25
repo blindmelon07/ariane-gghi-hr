@@ -7,6 +7,7 @@ use App\Models\DayOff;
 use App\Models\Employee;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
+use App\Models\TimeCorrection;
 use Illuminate\Support\Carbon;
 
 class AttendanceProcessorService
@@ -66,7 +67,14 @@ class AttendanceProcessorService
             ->orderBy('punch_time')
             ->get();
 
-        if ($logs->isEmpty()) {
+        // 4. Approved time correction — may supplement or replace biometric punches
+        $correction = TimeCorrection::where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereDate('date', $date)
+            ->latest()
+            ->first();
+
+        if ($logs->isEmpty() && ! $correction) {
             return $this->emptyResult('Absent');
         }
 
@@ -75,10 +83,19 @@ class AttendanceProcessorService
         $amLogs = $logs->filter(fn ($l) => $l->punch_time->lt($boundary))->values();
         $pmLogs = $logs->filter(fn ($l) => $l->punch_time->gte($boundary))->values();
 
+        // Base times from biometric
         $amIn  = $amLogs->first()?->punch_time;
         $amOut = $amLogs->count() > 1 ? $amLogs->last()->punch_time : null;
         $pmIn  = $pmLogs->first()?->punch_time;
         $pmOut = $pmLogs->count() > 1 ? $pmLogs->last()->punch_time : null;
+
+        // Override with approved correction where provided
+        if ($correction) {
+            if ($correction->am_time_in)  $amIn  = Carbon::parse($date . ' ' . $correction->am_time_in);
+            if ($correction->am_time_out) $amOut = Carbon::parse($date . ' ' . $correction->am_time_out);
+            if ($correction->pm_time_in)  $pmIn  = Carbon::parse($date . ' ' . $correction->pm_time_in);
+            if ($correction->pm_time_out) $pmOut = Carbon::parse($date . ' ' . $correction->pm_time_out);
+        }
 
         // Lookup schedule (falls back to 08:00–17:00)
         $scheduleIn  = Carbon::parse($date)->setTime(8, 0, 0);
