@@ -127,14 +127,15 @@ new class extends Component
 
 <aside
     x-data
-    class="w-64 flex flex-col h-screen bg-[#0d1b2e] text-white fixed inset-y-0 left-0 z-50
+    class="flex flex-col h-screen bg-[#0d1b2e] text-white fixed inset-y-0 left-0 z-50
            border-r border-white/5 transition-all duration-300 ease-in-out"
-    :style="{ width: $store.sidebar.collapsed ? '4.5rem' : '16rem' }"
-    :class="{
-        'translate-x-0':      $store.sidebar.mobileOpen || $store.sidebar.isDesktop,
-        '-translate-x-full': !$store.sidebar.mobileOpen && !$store.sidebar.isDesktop,
+    style="width:16rem; transform:translateX(-100%)"
+    :style="{
+        width:     $store.sidebar.collapsed ? '4.5rem' : '16rem',
+        transform: ($store.sidebar.isDesktop || $store.sidebar.mobileOpen)
+                   ? 'translateX(0)'
+                   : 'translateX(-100%)'
     }"
-    x-cloak
 >
     {{-- ── Header: Logo + Toggle ── --}}
     <div class="flex items-center h-16 shrink-0 px-4 border-b border-white/5"

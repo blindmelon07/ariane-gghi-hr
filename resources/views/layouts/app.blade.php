@@ -129,7 +129,7 @@
             {{-- Mobile backdrop --}}
             <div
                 x-cloak
-                class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+                class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
                 x-show="$store.sidebar.mobileOpen"
                 x-transition:enter="transition-opacity ease-out duration-200"
                 x-transition:enter-start="opacity-0"
@@ -145,8 +145,9 @@
 
             {{-- Main panel: sm:ml-64 is the CSS default (expanded); Alpine style binding overrides on toggle --}}
             <div
-                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out lg:ml-64"
-                :style="$store.sidebar.isDesktop ? { marginLeft: $store.sidebar.collapsed ? '4.5rem' : '16rem' } : {}"
+                class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out"
+                style="margin-left:0"
+                :style="{ marginLeft: $store.sidebar.isDesktop ? ($store.sidebar.collapsed ? '4.5rem' : '16rem') : '0' }"
             >
                 {{-- ── Top header bar ── --}}
                 @if (isset($header))
