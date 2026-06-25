@@ -23,37 +23,37 @@
     </div>
 
     {{-- Filters --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6">
-        <div class="flex flex-wrap items-end gap-4">
-            <div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 mb-6">
+        <div class="flex flex-wrap items-end gap-3">
+            <div class="w-full sm:w-auto">
                 <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Year</label>
-                <select wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <select wire:model.live="year" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     @for ($y = now()->year; $y >= now()->year - 3; $y--)
                         <option value="{{ $y }}">{{ $y }}</option>
                     @endfor
                 </select>
             </div>
-            <div>
+            <div class="w-full sm:w-auto">
                 <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Leave Type</label>
-                <select wire:model.live="leaveTypeId" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <select wire:model.live="leaveTypeId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     @foreach ($this->leaveTypes as $lt)
                         <option value="{{ $lt->id }}">{{ $lt->name }}</option>
                     @endforeach
                 </select>
             </div>
-            <div>
+            <div class="w-full sm:w-auto">
                 <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                <select wire:model.live="department" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <select wire:model.live="department" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     @foreach ($this->departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
                     @endforeach
                 </select>
             </div>
-            <div>
+            <div class="w-full sm:w-auto">
                 <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
-                <select wire:model.live="status" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <select wire:model.live="status" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -61,12 +61,12 @@
                     <option value="cancelled">Cancelled</option>
                 </select>
             </div>
-            <div class="flex gap-2 ml-auto">
-                <button wire:click="exportExcel" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:bg-gray-800/50">
+            <div class="flex gap-2 w-full sm:w-auto sm:ml-auto">
+                <button wire:click="exportExcel" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:bg-gray-800/50">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Excel
                 </button>
-                <button onclick="window.print()" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:bg-gray-800/50">
+                <button onclick="window.print()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:bg-gray-800/50">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"/></svg>
                     Print
                 </button>
@@ -77,6 +77,7 @@
     {{-- Table --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden print:shadow-none">
         <div wire:loading.delay class="px-6 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-xs font-medium print:hidden">Loading...</div>
+        <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50">
                 <tr>
@@ -116,6 +117,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
     <div class="mt-4 print:hidden">{{ $this->reportData->links() }}</div>
 </div>
