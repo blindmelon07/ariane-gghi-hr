@@ -19,6 +19,7 @@ new class extends Component
             'Payroll'        => 'currency-dollar',
             'Attendance'     => 'calendar',
             'Leave'          => 'document-check',
+            'Fleet'          => 'truck',
             'Reports'        => 'chart-bar',
             'Administration' => 'shield-check',
             default          => 'dots',
@@ -53,6 +54,12 @@ new class extends Component
                     ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
                     ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
+                'Fleet' => [
+                    ['label' => 'Trip Requests',     'route' => 'admin.fleet-requests',     'icon' => 'document-text'],
+                    ['label' => 'Vehicle Returns',   'route' => 'security.fleet-return',    'icon' => 'check-circle'],
+                    ['label' => 'Vehicles',          'route' => 'admin.fleet-vehicles',     'icon' => 'truck'],
+                    ['label' => 'Drivers',           'route' => 'admin.fleet-drivers',      'icon' => 'identification'],
+                ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
@@ -85,6 +92,12 @@ new class extends Component
                     ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
                     ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
+                'Fleet' => [
+                    ['label' => 'Trip Requests',     'route' => 'admin.fleet-requests',     'icon' => 'document-text'],
+                    ['label' => 'Vehicle Returns',   'route' => 'security.fleet-return',    'icon' => 'check-circle'],
+                    ['label' => 'Vehicles',          'route' => 'admin.fleet-vehicles',     'icon' => 'truck'],
+                    ['label' => 'Drivers',           'route' => 'admin.fleet-drivers',      'icon' => 'identification'],
+                ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
@@ -95,12 +108,17 @@ new class extends Component
                 'Main' => [
                     ['label' => 'Dashboard',         'route' => 'admin.dashboard',          'icon' => 'home'],
                     ['label' => 'Leave Approvals',   'route' => 'admin.leave',              'icon' => 'document-check'],
+                    ['label' => 'Trip Requests',     'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                 ],
                 'My Leave' => [
                     ['label' => 'File a Leave',      'route' => 'leave.request',            'icon' => 'paper-airplane'],
                     ['label' => 'My Requests',       'route' => 'leave.my-requests',        'icon' => 'document-text'],
                     ['label' => 'Leave Balance',     'route' => 'leave.balance',            'icon' => 'gift'],
                     ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
+                ],
+                'Fleet' => [
+                    ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
+                    ['label' => 'My Tickets',        'route' => 'trip-ticket.list',         'icon' => 'document-text'],
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
@@ -112,10 +130,16 @@ new class extends Component
                     ['label' => 'Dashboard',           'route' => 'admin.dashboard',          'icon' => 'home'],
                     ['label' => 'Leave Approvals',     'route' => 'admin.leave',              'icon' => 'document-check'],
                     ['label' => 'Time Corrections',    'route' => 'admin.time-corrections',   'icon' => 'clock'],
+                    ['label' => 'Trip Requests',       'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',          'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
                     ['label' => 'Leave',               'route' => 'admin.reports.leave',      'icon' => 'document-text'],
+                ],
+            ],
+            'security_guard' => [
+                'Main' => [
+                    ['label' => 'Vehicle Returns',   'route' => 'security.fleet-return',    'icon' => 'check-circle'],
                 ],
             ],
             default => [
@@ -133,6 +157,10 @@ new class extends Component
                 ],
                 'Attendance' => [
                     ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
+                ],
+                'Fleet' => [
+                    ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
+                    ['label' => 'My Tickets',        'route' => 'trip-ticket.list',         'icon' => 'document-text'],
                 ],
             ],
         };

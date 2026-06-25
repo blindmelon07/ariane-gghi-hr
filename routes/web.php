@@ -41,6 +41,12 @@ Route::middleware(['auth', 'role:employee,manager,department_head'])->group(func
     Route::view('time-correction', 'time-correction')->name('time-correction.request');
 });
 
+// Fleet — Trip ticket filing (all roles except pure approvers)
+Route::middleware(['auth', 'role:employee,manager,department_head,hr_admin,super_admin'])->group(function () {
+    Route::view('trip-ticket', 'trip-ticket')->name('trip-ticket.request');
+    Route::view('trip-ticket/my-tickets', 'trip-ticket-list')->name('trip-ticket.list');
+});
+
 // ── Shared ────────────────────────────────────────────────────────────────────
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
@@ -62,11 +68,14 @@ Route::middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,ap
     Route::view('admin/time-corrections', 'admin.time-corrections')->name('admin.time-corrections');
     Route::view('admin/reports/attendance', 'admin.reports.attendance')->name('admin.reports.attendance');
     Route::view('admin/reports/leave', 'admin.reports.leave')->name('admin.reports.leave');
+    Route::view('admin/fleet/requests', 'admin.fleet-requests')->name('admin.fleet-requests');
 });
 
 // ── HR Admin + Super Admin routes ─────────────────────────────────────────────
 
 Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
+    Route::view('admin/fleet/vehicles', 'admin.fleet-vehicles')->name('admin.fleet-vehicles');
+    Route::view('admin/fleet/drivers', 'admin.fleet-drivers')->name('admin.fleet-drivers');
     Route::view('admin/holidays', 'admin.holidays')->name('admin.holidays');
     Route::view('admin/employees', 'admin.employees')->name('admin.employees');
     Route::view('admin/departments', 'admin.departments')->name('admin.departments');
@@ -83,6 +92,12 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::get('admin/payslips/{employee}/{period}/download', [PayslipController::class, 'adminDownload'])
         ->name('admin.payslips.download');
 });
+
+// ── Security Guard ────────────────────────────────────────────────────────────
+
+Route::view('security/fleet-return', 'security.fleet-return')
+    ->middleware(['auth', 'role:security_guard,hr_admin,super_admin'])
+    ->name('security.fleet-return');
 
 // ── Super Admin only ──────────────────────────────────────────────────────────
 

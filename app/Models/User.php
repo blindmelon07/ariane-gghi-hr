@@ -46,6 +46,7 @@ class User extends Authenticatable
             'super_admin', 'hr_admin'            => '/admin/dashboard',
             'manager', 'department_head'         => '/admin/dashboard',
             'approver'                           => '/admin/dashboard',
+            'security_guard'                     => '/security/fleet-return',
             default                              => '/dashboard',
         };
     }
