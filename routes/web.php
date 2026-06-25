@@ -29,11 +29,15 @@ Route::view('dashboard', 'dashboard')
     ->name('dashboard');
 
 Route::middleware(['auth', 'role:employee'])->group(function () {
+    Route::view('payslips', 'payslips.index')->name('payslips.index');
+    Route::view('overtime/request', 'overtime.request')->name('overtime.request');
+});
+
+// Leave filing — employees + managers/dept heads (managers skip to step 3 automatically)
+Route::middleware(['auth', 'role:employee,manager,department_head'])->group(function () {
     Route::view('leave/request', 'leave.request')->name('leave.request');
     Route::view('leave/my-requests', 'leave.my-requests')->name('leave.my-requests');
     Route::view('leave/balance', 'leave.balance')->name('leave.balance');
-    Route::view('payslips', 'payslips.index')->name('payslips.index');
-    Route::view('overtime/request', 'overtime.request')->name('overtime.request');
 });
 
 // ── Shared ────────────────────────────────────────────────────────────────────

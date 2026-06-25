@@ -156,6 +156,7 @@ class LeaveRequestForm extends Component
             'is_half_day'   => $this->is_half_day,
             'reason'        => $this->reason,
             'status'        => 'pending',
+            'approval_step' => $leaveService->getInitialStep(auth()->user()),
         ]);
 
         $leaveService->notifyAdmins($request);

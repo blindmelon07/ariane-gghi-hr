@@ -35,6 +35,20 @@ class LeaveService
     }
 
     /**
+     * Determine the initial approval step when a leave is filed.
+     * Managers and department heads skip step 1 & 2 — their leaves
+     * go directly to CEO / Medical Director (step 3).
+     */
+    public function getInitialStep(User $filer): int
+    {
+        return match ($filer->role) {
+            'manager'         => 3, // CEO / MD only
+            'department_head' => 2, // HR → CEO / MD
+            default           => 1, // Full chain: Dept Head → HR → CEO / MD
+        };
+    }
+
+    /**
      * Compute working days between two dates (excludes Sundays only).
      */
     public function computeTotalDays(string $startDate, string $endDate): float

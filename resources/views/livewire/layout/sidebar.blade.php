@@ -92,6 +92,11 @@ new class extends Component
                     ['label' => 'Dashboard',         'route' => 'admin.dashboard',          'icon' => 'home'],
                     ['label' => 'Leave Approvals',   'route' => 'admin.leave',              'icon' => 'document-check'],
                 ],
+                'My Leave' => [
+                    ['label' => 'File a Leave',      'route' => 'leave.request',            'icon' => 'paper-airplane'],
+                    ['label' => 'My Requests',       'route' => 'leave.my-requests',        'icon' => 'document-text'],
+                    ['label' => 'Leave Balance',     'route' => 'leave.balance',            'icon' => 'gift'],
+                ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],

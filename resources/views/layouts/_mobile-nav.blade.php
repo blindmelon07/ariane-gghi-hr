@@ -9,7 +9,13 @@
             ['route' => 'admin.payroll',    'label' => 'Payroll', 'icon' => 'payroll'],
             ['route' => 'profile',          'label' => 'Profile', 'icon' => 'profile'],
         ],
-        in_array($role, ['manager', 'department_head', 'approver']) => [
+        in_array($role, ['manager', 'department_head']) => [
+            ['route' => 'admin.dashboard',           'label' => 'Home',     'icon' => 'home'],
+            ['route' => 'admin.leave',               'label' => 'Approvals','icon' => 'leave'],
+            ['route' => 'leave.request',             'label' => 'My Leave', 'icon' => 'requests'],
+            ['route' => 'profile',                   'label' => 'Profile',  'icon' => 'profile'],
+        ],
+        in_array($role, ['approver']) => [
             ['route' => 'admin.dashboard',           'label' => 'Home',    'icon' => 'home'],
             ['route' => 'admin.leave',               'label' => 'Leave',   'icon' => 'leave'],
             ['route' => 'admin.reports.attendance',  'label' => 'Reports', 'icon' => 'chart'],
