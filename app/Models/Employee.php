@@ -24,6 +24,7 @@ class Employee extends Model
         'hire_date',
         'is_active',
         'employment_type',
+        'weekday_off',
         'biotime_id',
         'synced_at',
     ];

@@ -45,6 +45,7 @@ new class extends Component
                 'Attendance' => [
                     ['label' => 'Schedules',         'route' => 'admin.schedules',          'icon' => 'clock'],
                     ['label' => 'Day Offs',          'route' => 'admin.day-offs',           'icon' => 'calendar-x'],
+                    ['label' => 'Holidays',          'route' => 'admin.holidays',           'icon' => 'calendar'],
                     ['label' => 'Biometrics',        'route' => 'admin.biometrics',         'icon' => 'finger-print'],
                 ],
                 'Leave' => [
@@ -75,6 +76,7 @@ new class extends Component
                 'Attendance' => [
                     ['label' => 'Schedules',         'route' => 'admin.schedules',          'icon' => 'clock'],
                     ['label' => 'Day Offs',          'route' => 'admin.day-offs',           'icon' => 'calendar-x'],
+                    ['label' => 'Holidays',          'route' => 'admin.holidays',           'icon' => 'calendar'],
                     ['label' => 'Biometrics',        'route' => 'admin.biometrics',         'icon' => 'finger-print'],
                 ],
                 'Leave' => [

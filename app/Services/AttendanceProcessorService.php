@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\AttendanceLog;
 use App\Models\DayOff;
 use App\Models\Employee;
+use App\Models\Holiday;
+use App\Models\LeaveRequest;
 use Illuminate\Support\Carbon;
 
 class AttendanceProcessorService
@@ -22,12 +24,41 @@ class AttendanceProcessorService
      */
     public function processDay(Employee $employee, string $date): array
     {
+        // 1. Company-wide holiday (highest priority)
+        $holiday = Holiday::whereDate('date', $date)->first();
+
+        // Also check recurring holidays (same month+day, any year)
+        if (! $holiday) {
+            $parsed = Carbon::parse($date);
+            $holiday = Holiday::where('is_recurring', true)
+                ->whereMonth('date', $parsed->month)
+                ->whereDay('date', $parsed->day)
+                ->first();
+        }
+
+        if ($holiday) {
+            return $this->emptyResult($holiday->name);
+        }
+
+        // 2. Individual day-off
         $hasDayOff = DayOff::where('employee_id', $employee->id)
             ->whereDate('date', $date)
             ->exists();
 
         if ($hasDayOff) {
             return $this->emptyResult('Day-off');
+        }
+
+        // 3. Approved leave
+        $leave = LeaveRequest::with('leaveType')
+            ->where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->first();
+
+        if ($leave) {
+            return $this->emptyResult($leave->leaveType->name);
         }
 
         $logs = AttendanceLog::where('employee_id', $employee->id)
@@ -129,7 +160,7 @@ class AttendanceProcessorService
             'pm_time_out'       => null,
             'time_in'           => null,
             'time_out'          => null,
-            'hours_worked'      => 0,
+            'hours_worked'      => 0.0,
             'minutes_late'      => 0,
             'minutes_undertime' => 0,
             'status'            => $status,

@@ -234,7 +234,7 @@
                             <input type="radio" wire:model.live="editEmploymentType" value="regular" class="sr-only" />
                             <div>
                                 <p class="text-sm font-semibold {{ $editEmploymentType === 'regular' ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-200' }}">Regular</p>
-                                <p class="text-xs {{ $editEmploymentType === 'regular' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">Mon – Fri</p>
+                                <p class="text-xs {{ $editEmploymentType === 'regular' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">2 days off / week</p>
                             </div>
                         </label>
                         <label class="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
@@ -242,11 +242,40 @@
                             <input type="radio" wire:model.live="editEmploymentType" value="probationary" class="sr-only" />
                             <div>
                                 <p class="text-sm font-semibold {{ $editEmploymentType === 'probationary' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-200' }}">Probationary</p>
-                                <p class="text-xs {{ $editEmploymentType === 'probationary' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">Mon – Sat</p>
+                                <p class="text-xs {{ $editEmploymentType === 'probationary' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">Sunday off only</p>
                             </div>
                         </label>
                     </div>
                 </div>
+
+                {{-- Weekday Off (Regular only) --}}
+                @if ($editEmploymentType === 'regular')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        Weekly Rest Day
+                        <span class="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">(Sunday is always off)</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
+                                      {{ $editWeekdayOff == 6 ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <input type="radio" wire:model.live="editWeekdayOff" value="6" class="sr-only" />
+                            <div>
+                                <p class="text-sm font-semibold {{ $editWeekdayOff == 6 ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-200' }}">Saturday</p>
+                                <p class="text-xs {{ $editWeekdayOff == 6 ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">Mon – Fri work week</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors
+                                      {{ $editWeekdayOff == 1 ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <input type="radio" wire:model.live="editWeekdayOff" value="1" class="sr-only" />
+                            <div>
+                                <p class="text-sm font-semibold {{ $editWeekdayOff == 1 ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-200' }}">Monday</p>
+                                <p class="text-xs {{ $editWeekdayOff == 1 ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">Tue – Sat work week</p>
+                            </div>
+                        </label>
+                    </div>
+                    @error('editWeekdayOff') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+                @endif
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>

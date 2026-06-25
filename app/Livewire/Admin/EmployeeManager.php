@@ -31,9 +31,10 @@ class EmployeeManager extends Component
     public string  $editCellNumber  = '';
     public ?int    $editDepartmentId = null;
     public ?int    $editPositionId      = null;
-    public string  $editEmploymentType  = 'regular';
-    public string  $editDob            = '';
-    public bool    $editIsActive       = true;
+    public string   $editEmploymentType  = 'regular';
+    public ?int     $editWeekdayOff      = 6; // 1=Monday, 6=Saturday, null=none (Probationary)
+    public string   $editDob            = '';
+    public bool     $editIsActive       = true;
 
     // Account modal state
     public bool    $showAccountModal = false;
@@ -59,6 +60,16 @@ class EmployeeManager extends Component
     {
         $this->editPositionId = null;
         unset($this->positions);
+    }
+
+    public function updatedEditEmploymentType(): void
+    {
+        // Auto-set sensible weekday_off default when type changes
+        if ($this->editEmploymentType === 'probationary') {
+            $this->editWeekdayOff = null;
+        } elseif ($this->editWeekdayOff === null) {
+            $this->editWeekdayOff = 6; // Saturday
+        }
     }
 
     public function updatedFilterStatus(): void
@@ -111,6 +122,7 @@ class EmployeeManager extends Component
         $this->editDepartmentId    = $emp->department_id;
         $this->editPositionId      = $emp->position_id;
         $this->editEmploymentType  = $emp->employment_type ?? 'regular';
+        $this->editWeekdayOff      = $emp->weekday_off;
         $this->editDob        = $emp->date_of_birth?->format('Y-m-d') ?? '';
         $this->editIsActive   = $emp->is_active;
         $this->showEdit       = true;
@@ -119,13 +131,14 @@ class EmployeeManager extends Component
     public function saveEmployee(): void
     {
         $this->validate([
-            'editFirstName'       => 'required|string|max:255',
-            'editLastName'        => 'required|string|max:255',
-            'editCellNumber'      => 'nullable|string|max:20',
-            'editDepartmentId'    => 'nullable|exists:departments,id',
-            'editPositionId'      => 'nullable|exists:positions,id',
-            'editEmploymentType'  => 'required|in:probationary,regular',
-            'editDob'             => 'nullable|date',
+            'editFirstName'      => 'required|string|max:255',
+            'editLastName'       => 'required|string|max:255',
+            'editCellNumber'     => 'nullable|string|max:20',
+            'editDepartmentId'   => 'nullable|exists:departments,id',
+            'editPositionId'     => 'nullable|exists:positions,id',
+            'editEmploymentType' => 'required|in:probationary,regular',
+            'editWeekdayOff'     => 'nullable|integer|in:1,6',
+            'editDob'            => 'nullable|date',
         ]);
 
         $emp = Employee::findOrFail($this->editEmployeeId);
@@ -136,6 +149,7 @@ class EmployeeManager extends Component
             'department_id'   => $this->editDepartmentId,
             'position_id'     => $this->editPositionId,
             'employment_type' => $this->editEmploymentType,
+            'weekday_off'     => $this->editEmploymentType === 'probationary' ? null : $this->editWeekdayOff,
             'date_of_birth'   => $this->editDob ?: null,
             'is_active'       => $this->editIsActive,
         ]);

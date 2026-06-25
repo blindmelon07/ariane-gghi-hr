@@ -11,7 +11,11 @@
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Day Off Management</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">Assign rest days, holidays, and special day offs to employees.</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
+            <button wire:click="openGenerate" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+                Auto-generate
+            </button>
             <button wire:click="openBulk" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
                 Bulk Assign
@@ -334,6 +338,54 @@
                 <button wire:click="$set('showBulkModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancel</button>
                 <button wire:click="bulkAssign" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-500 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
                     Generate Day Offs
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- Auto-generate by Schedule Modal --}}
+    @if ($showGenerateModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" wire:click.self="$set('showGenerateModal', false)">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">Auto-generate Standard Day Offs</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">
+                Applies each employee's schedule to the selected period:
+            </p>
+
+            <div class="rounded-lg bg-gray-50 dark:bg-gray-700/40 p-3 mb-5 space-y-1.5 text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">Regular (Sat off)</span>
+                    <span class="text-gray-600 dark:text-gray-300">Saturday + Sunday</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">Regular (Mon off)</span>
+                    <span class="text-gray-600 dark:text-gray-300">Monday + Sunday</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Probationary</span>
+                    <span class="text-gray-600 dark:text-gray-300">Sunday only</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">From</label>
+                    <input wire:model.live="genDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    @error('genDateFrom') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To</label>
+                    <input wire:model.live="genDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    @error('genDateTo') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button wire:click="$set('showGenerateModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancel</button>
+                <button wire:click="generateStandard" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 dark:bg-emerald-500 rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 transition">
+                    <span wire:loading.remove wire:target="generateStandard">Generate</span>
+                    <span wire:loading wire:target="generateStandard">Generating...</span>
                 </button>
             </div>
         </div>

@@ -107,16 +107,19 @@
                         <td class="px-4 py-3 text-sm text-right {{ $row['late_min'] > 0 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-600 dark:text-gray-300' }}">{{ $row['late_min'] }}</td>
                         <td class="px-4 py-3 text-sm">
                             @php
-                                $c = match($row['status']) {
-                                    'Present'    => 'green',
-                                    'Late'       => 'yellow',
-                                    'Absent'     => 'red',
-                                    'Half-day'   => 'orange',
-                                    'Incomplete' => 'purple',
-                                    default      => 'gray',
+                                $isLeave = !in_array($row['status'], ['Present','Late','Absent','Half-day','Incomplete','Day-off']);
+                                $c = match(true) {
+                                    $row['status'] === 'Present'    => 'green',
+                                    $row['status'] === 'Late'       => 'yellow',
+                                    $row['status'] === 'Absent'     => 'red',
+                                    $row['status'] === 'Half-day'   => 'orange',
+                                    $row['status'] === 'Incomplete' => 'purple',
+                                    $row['status'] === 'Day-off'    => 'gray',
+                                    $isLeave                        => 'blue',
+                                    default                         => 'gray',
                                 };
                             @endphp
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800">{{ $row['status'] }}</span>
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800 dark:bg-{{ $c }}-900/30 dark:text-{{ $c }}-300">{{ $row['status'] }}</span>
                         </td>
                     </tr>
                 @empty

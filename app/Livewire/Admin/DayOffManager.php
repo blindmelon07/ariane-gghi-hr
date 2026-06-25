@@ -42,6 +42,11 @@ class DayOffManager extends Component
     public string $bulkDateTo       = '';
     public array  $bulkSelectedDays = [];
 
+    // Auto-generate by schedule modal
+    public bool   $showGenerateModal = false;
+    public string $genDateFrom       = '';
+    public string $genDateTo         = '';
+
     public function mount(): void
     {
         $this->filterMonth = now()->format('Y-m');
@@ -167,22 +172,28 @@ class DayOffManager extends Component
             return;
         }
 
-        // Create mode
-        $this->validate([
+        // Create mode — validate all fields upfront based on mode
+        $baseRules = [
             'modalEmployeeId' => 'required|exists:employees,id',
             'type'            => 'required|in:rest_day,holiday,special,other',
             'description'     => 'nullable|string|max:255',
-        ]);
+        ];
+
+        if ($this->mode === 'recurring') {
+            $this->validate(array_merge($baseRules, [
+                'selectedDays' => 'required|array|min:1',
+                'dateFrom'     => 'required|date',
+                'dateTo'       => 'required|date|after_or_equal:dateFrom',
+            ]));
+        } else {
+            $this->validate(array_merge($baseRules, [
+                'date' => 'required|date',
+            ]));
+        }
 
         $emp = Employee::find($this->modalEmployeeId);
 
         if ($this->mode === 'recurring') {
-            $this->validate([
-                'selectedDays' => 'required|array|min:1',
-                'dateFrom'     => 'required|date',
-                'dateTo'       => 'required|date|after_or_equal:dateFrom',
-            ]);
-
             $start = Carbon::parse($this->dateFrom);
             $end   = Carbon::parse($this->dateTo);
             $count = 0;
@@ -194,7 +205,7 @@ class DayOffManager extends Component
                 }
 
                 $exists = DayOff::where('employee_id', $this->modalEmployeeId)
-                    ->where('date', $d->format('Y-m-d'))
+                    ->whereDate('date', $d->format('Y-m-d'))
                     ->exists();
 
                 if (!$exists) {
@@ -216,13 +227,8 @@ class DayOffManager extends Component
             unset($this->dayOffs);
             session()->flash('success', "{$count} day off(s) created for {$emp->full_name}.");
         } else {
-            // Single date
-            $this->validate([
-                'date' => 'required|date',
-            ]);
-
             $exists = DayOff::where('employee_id', $this->modalEmployeeId)
-                ->where('date', $this->date)
+                ->whereDate('date', $this->date)
                 ->exists();
 
             if ($exists) {
@@ -292,7 +298,7 @@ class DayOffManager extends Component
 
             foreach ($employees as $emp) {
                 $exists = DayOff::where('employee_id', $emp->id)
-                    ->where('date', $d->format('Y-m-d'))
+                    ->whereDate('date', $d->format('Y-m-d'))
                     ->exists();
 
                 if (!$exists) {
@@ -315,6 +321,65 @@ class DayOffManager extends Component
         $this->showBulkModal = false;
         unset($this->dayOffs);
         session()->flash('success', "{$count} day off(s) assigned to {$employees->count()} employees in {$this->bulkDept}.");
+    }
+
+    // ── Auto-generate by Schedule ─────────────────────
+
+    public function openGenerate(): void
+    {
+        $this->genDateFrom = now()->startOfMonth()->toDateString();
+        $this->genDateTo   = now()->endOfMonth()->toDateString();
+        $this->showGenerateModal = true;
+    }
+
+    public function generateStandard(): void
+    {
+        $this->validate([
+            'genDateFrom' => 'required|date',
+            'genDateTo'   => 'required|date|after_or_equal:genDateFrom',
+        ]);
+
+        $employees = Employee::where('is_active', true)->get(['id', 'employment_type', 'weekday_off']);
+        $start     = Carbon::parse($this->genDateFrom);
+        $end       = Carbon::parse($this->genDateTo);
+        $count     = 0;
+
+        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+            $dow = $d->dayOfWeek; // 0=Sun, 1=Mon … 6=Sat
+
+            foreach ($employees as $emp) {
+                // Determine if this day is a rest day for this employee
+                $isSunday     = $dow === 0;
+                $isWeekdayOff = $emp->weekday_off !== null && $dow === (int) $emp->weekday_off;
+
+                if (! $isSunday && ! $isWeekdayOff) {
+                    continue;
+                }
+
+                $exists = DayOff::where('employee_id', $emp->id)
+                    ->whereDate('date', $d->format('Y-m-d'))
+                    ->exists();
+
+                if (! $exists) {
+                    DayOff::create([
+                        'employee_id'           => $emp->id,
+                        'date'                  => $d->format('Y-m-d'),
+                        'type'                  => 'rest_day',
+                        'description'           => $isSunday ? 'Sunday rest' : 'Weekly rest day',
+                        'is_recurring'          => true,
+                        'recurring_day_of_week' => $dow,
+                        'created_by'            => auth()->id(),
+                    ]);
+                    $count++;
+                }
+            }
+        }
+
+        ActivityLogService::log('generate_day_offs', "Auto-generated {$count} standard day offs from {$this->genDateFrom} to {$this->genDateTo}");
+
+        $this->showGenerateModal = false;
+        unset($this->dayOffs);
+        session()->flash('success', "{$count} standard day off(s) generated for all active employees.");
     }
 
     public function render()

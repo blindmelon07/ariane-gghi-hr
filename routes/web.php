@@ -65,6 +65,7 @@ Route::middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,ap
 // ── HR Admin + Super Admin routes ─────────────────────────────────────────────
 
 Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
+    Route::view('admin/holidays', 'admin.holidays')->name('admin.holidays');
     Route::view('admin/employees', 'admin.employees')->name('admin.employees');
     Route::view('admin/departments', 'admin.departments')->name('admin.departments');
     Route::view('admin/positions', 'admin.positions')->name('admin.positions');
