@@ -196,6 +196,15 @@
                         @error('editLastName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                        Cell Number
+                        <span class="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">for SMS notifications</span>
+                    </label>
+                    <input type="text" wire:model.live="editCellNumber" placeholder="e.g. 09171234567"
+                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    @error('editCellNumber') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Department</label>

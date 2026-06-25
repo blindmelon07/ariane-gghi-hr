@@ -30,7 +30,7 @@ class RolesPermissions extends Component
     public function saveRolePermissions(): void
     {
         $role = Role::findOrFail($this->selectedRoleId);
-        $role->syncPermissions($this->rolePermissions);
+        $role->syncPermissions(array_map('intval', $this->rolePermissions));
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
         session()->flash('success', "Permissions for \"{$role->name}\" saved.");
     }

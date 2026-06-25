@@ -9,7 +9,7 @@
             ['route' => 'admin.payroll',    'label' => 'Payroll', 'icon' => 'payroll'],
             ['route' => 'profile',          'label' => 'Profile', 'icon' => 'profile'],
         ],
-        in_array($role, ['manager', 'approver']) => [
+        in_array($role, ['manager', 'department_head', 'approver']) => [
             ['route' => 'admin.dashboard',           'label' => 'Home',    'icon' => 'home'],
             ['route' => 'admin.leave',               'label' => 'Leave',   'icon' => 'leave'],
             ['route' => 'admin.reports.attendance',  'label' => 'Reports', 'icon' => 'chart'],

@@ -87,7 +87,7 @@ new class extends Component
                     ['label' => 'Payroll',           'route' => 'admin.reports.payroll',    'icon' => 'banknotes'],
                 ],
             ],
-            'manager' => [
+            'manager', 'department_head' => [
                 'Main' => [
                     ['label' => 'Dashboard',         'route' => 'admin.dashboard',          'icon' => 'home'],
                     ['label' => 'Leave Approvals',   'route' => 'admin.leave',              'icon' => 'document-check'],

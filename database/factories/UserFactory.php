@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 /**
  * @extends Factory<User>
@@ -34,6 +35,15 @@ class UserFactory extends Factory
             'is_active'     => true,
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            // Ensure Spatie role exists and is assigned to match the role column
+            Role::firstOrCreate(['name' => $user->role, 'guard_name' => 'web']);
+            $user->syncRoles($user->role);
+        });
     }
 
     /**

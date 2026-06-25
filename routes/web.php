@@ -12,7 +12,7 @@ Route::view('dashboard', 'dashboard')
 
 // HR Admin dashboard
 Route::view('admin/dashboard', 'admin.dashboard')
-    ->middleware(['auth', 'role:hr_admin,manager,approver'])
+    ->middleware(['auth', 'role:hr_admin,manager,department_head,approver'])
     ->name('admin.dashboard');
 
 // Manager dashboard
@@ -49,7 +49,7 @@ Route::view('admin/biometrics', 'admin.biometrics')
 
 // Admin/Manager/Approver Leave Routes
 Route::view('admin/leave', 'admin.leave')
-    ->middleware(['auth', 'role:hr_admin,manager,approver'])
+    ->middleware(['auth', 'role:hr_admin,manager,department_head,approver'])
     ->name('admin.leave');
 
 Route::view('admin/leave/credits', 'admin.leave-credits')
@@ -76,7 +76,7 @@ Route::middleware(['auth', 'role:hr_admin,super_admin'])->group(function () {
 });
 
 // Report Routes (HR Admin + Manager + Approver)
-Route::middleware(['auth', 'role:hr_admin,manager,approver'])->group(function () {
+Route::middleware(['auth', 'role:hr_admin,manager,department_head,approver'])->group(function () {
     Route::view('admin/reports/attendance', 'admin.reports.attendance')->name('admin.reports.attendance');
     Route::view('admin/reports/leave', 'admin.reports.leave')->name('admin.reports.leave');
 });

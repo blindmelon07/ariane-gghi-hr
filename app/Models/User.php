@@ -43,10 +43,10 @@ class User extends Authenticatable
     public function dashboardRoute(): string
     {
         return match ($this->role) {
-            'super_admin', 'hr_admin' => '/admin/dashboard',
-            'manager'                 => '/manager/dashboard',
-            'approver'                => '/admin/dashboard',
-            default                   => '/dashboard',
+            'super_admin', 'hr_admin'            => '/admin/dashboard',
+            'manager', 'department_head'         => '/admin/dashboard',
+            'approver'                           => '/admin/dashboard',
+            default                              => '/dashboard',
         };
     }
 

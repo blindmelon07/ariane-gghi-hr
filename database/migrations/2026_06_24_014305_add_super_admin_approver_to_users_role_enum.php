@@ -7,11 +7,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('employee','hr_admin','manager','approver','super_admin') DEFAULT 'employee'");
+        // MySQL-only: expand the role ENUM. SQLite uses a plain string column, no change needed.
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('employee','hr_admin','manager','approver','super_admin') DEFAULT 'employee'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('employee','hr_admin','manager') DEFAULT 'employee'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('employee','hr_admin','manager') DEFAULT 'employee'");
+        }
     }
 };

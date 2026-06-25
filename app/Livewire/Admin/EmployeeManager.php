@@ -28,6 +28,7 @@ class EmployeeManager extends Component
     public ?int    $editEmployeeId  = null;
     public string  $editFirstName   = '';
     public string  $editLastName    = '';
+    public string  $editCellNumber  = '';
     public ?int    $editDepartmentId = null;
     public ?int    $editPositionId      = null;
     public string  $editEmploymentType  = 'regular';
@@ -106,6 +107,7 @@ class EmployeeManager extends Component
         $this->editEmployeeId      = $emp->id;
         $this->editFirstName       = $emp->first_name;
         $this->editLastName        = $emp->last_name;
+        $this->editCellNumber      = $emp->cell_number ?? '';
         $this->editDepartmentId    = $emp->department_id;
         $this->editPositionId      = $emp->position_id;
         $this->editEmploymentType  = $emp->employment_type ?? 'regular';
@@ -119,6 +121,7 @@ class EmployeeManager extends Component
         $this->validate([
             'editFirstName'       => 'required|string|max:255',
             'editLastName'        => 'required|string|max:255',
+            'editCellNumber'      => 'nullable|string|max:20',
             'editDepartmentId'    => 'nullable|exists:departments,id',
             'editPositionId'      => 'nullable|exists:positions,id',
             'editEmploymentType'  => 'required|in:probationary,regular',
@@ -129,6 +132,7 @@ class EmployeeManager extends Component
         $emp->update([
             'first_name'      => $this->editFirstName,
             'last_name'       => $this->editLastName,
+            'cell_number'     => $this->editCellNumber ?: null,
             'department_id'   => $this->editDepartmentId,
             'position_id'     => $this->editPositionId,
             'employment_type' => $this->editEmploymentType,

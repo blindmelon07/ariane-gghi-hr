@@ -14,17 +14,20 @@ use Illuminate\Support\Facades\Notification;
 class LeaveService
 {
     // Role → step mapping for sequential approval
+    // 'role' may be a string or array of strings (any match grants the step)
     public const APPROVAL_STEPS = [
-        1 => ['role' => 'hr_admin',    'label' => 'HR'],
-        2 => ['role' => 'approver',    'label' => 'Medical Director'],
-        3 => ['role' => 'super_admin', 'label' => 'CEO'],
+        1 => ['role' => ['manager', 'department_head'], 'label' => 'Department Head'],
+        2 => ['role' => 'hr_admin',                     'label' => 'HR'],
+        3 => ['role' => ['super_admin', 'approver'],    'label' => 'CEO / Medical Director'],
     ];
 
     public function getStepForUser(User $user): ?int
     {
         foreach (self::APPROVAL_STEPS as $step => $config) {
-            if ($user->hasRole($config['role'])) {
-                return $step;
+            foreach ((array) $config['role'] as $role) {
+                if ($user->role === $role) {
+                    return $step;
+                }
             }
         }
 
@@ -56,8 +59,8 @@ class LeaveService
     {
         return LeaveRequest::where('employee_id', $employeeId)
             ->whereIn('status', ['pending', 'approved'])
-            ->where('start_date', '<=', $endDate)
-            ->where('end_date', '>=', $startDate)
+            ->whereDate('start_date', '<=', $endDate)
+            ->whereDate('end_date', '>=', $startDate)
             ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
             ->exists();
     }
@@ -92,7 +95,7 @@ class LeaveService
         LeaveRequestApproval::updateOrCreate(
             ['leave_request_id' => $request->id, 'step' => $step],
             [
-                'role'        => $config['role'],
+                'role'        => $approver->role,
                 'label'       => $config['label'],
                 'approver_id' => $approver->id,
                 'action'      => 'approved',
@@ -129,7 +132,16 @@ class LeaveService
             $user = User::where('employee_code', $employee->emp_code)->first();
             $user?->notify(new LeaveStatusUpdated($request));
 
-            ActivityLogService::log('leave_approved', "Final approval (CEO) for leave #{$request->id} — {$employee->full_name}", $request);
+            // SMS notification
+            if ($employee->cell_number) {
+                $leaveType = $request->leaveType->name;
+                $start     = $request->start_date->format('M d, Y');
+                $end       = $request->end_date->format('M d, Y');
+                $msg = "GGHI HR: Hi {$employee->first_name}, your {$leaveType} request ({$start} - {$end}) has been APPROVED. Thank you.";
+                app(SmsService::class)->send($employee->cell_number, $msg);
+            }
+
+            ActivityLogService::log('leave_approved', "Final approval ({$config['label']}) for leave #{$request->id} — {$employee->full_name}", $request);
         } else {
             // Advance to next step
             $request->update(['approval_step' => $nextStep]);
@@ -147,12 +159,12 @@ class LeaveService
     public function reject(LeaveRequest $request, User $approver, ?string $remarks = null): void
     {
         $step   = $request->approval_step ?? 1;
-        $config = self::APPROVAL_STEPS[$step] ?? ['role' => $approver->role, 'label' => 'Approver'];
+        $config = self::APPROVAL_STEPS[$step] ?? ['label' => 'Approver'];
 
         LeaveRequestApproval::updateOrCreate(
             ['leave_request_id' => $request->id, 'step' => $step],
             [
-                'role'        => $config['role'],
+                'role'        => $approver->role,
                 'label'       => $config['label'],
                 'approver_id' => $approver->id,
                 'action'      => 'rejected',
@@ -169,10 +181,21 @@ class LeaveService
             'remarks'       => $remarks,
         ]);
 
-        $user = User::where('employee_code', $request->employee->emp_code)->first();
+        $employee = $request->employee;
+        $user = User::where('employee_code', $employee->emp_code)->first();
         $user?->notify(new LeaveStatusUpdated($request));
 
-        ActivityLogService::log('leave_rejected', "Step {$step} ({$config['label']}) rejected leave #{$request->id} for {$request->employee->full_name}", $request);
+        // SMS notification
+        if ($employee->cell_number) {
+            $leaveType = $request->leaveType->name;
+            $start     = $request->start_date->format('M d, Y');
+            $end       = $request->end_date->format('M d, Y');
+            $remarksNote = $remarks ? " Reason: {$remarks}" : '';
+            $msg = "GGHI HR: Hi {$employee->first_name}, your {$leaveType} request ({$start} - {$end}) has been REJECTED.{$remarksNote}";
+            app(SmsService::class)->send($employee->cell_number, $msg);
+        }
+
+        ActivityLogService::log('leave_rejected', "Step {$step} ({$config['label']}) rejected leave #{$request->id} for {$employee->full_name}", $request);
     }
 
     /**

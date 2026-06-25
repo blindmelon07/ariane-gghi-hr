@@ -15,6 +15,7 @@ class Employee extends Model
         'emp_code',
         'first_name',
         'last_name',
+        'cell_number',
         'department',
         'department_id',
         'position',

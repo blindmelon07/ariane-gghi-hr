@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'pinassms' => [
+        'api_key' => env('PINASSMS_API_KEY'),
+    ],
+
 ];
