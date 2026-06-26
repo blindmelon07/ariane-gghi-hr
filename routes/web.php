@@ -90,6 +90,7 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::view('admin/overtime', 'admin.overtime')->name('admin.overtime');
     Route::view('admin/reports/payroll', 'admin.reports.payroll')->name('admin.reports.payroll');
     Route::view('admin/reports/overtime', 'admin.reports.overtime')->name('admin.reports.overtime');
+    Route::view('admin/reports/late', 'admin.reports.late')->name('admin.reports.late');
     Route::get('admin/payslips/{employee}/{period}/download', [PayslipController::class, 'adminDownload'])
         ->name('admin.payslips.download');
 });

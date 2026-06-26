@@ -62,6 +62,7 @@ new class extends Component
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
+                    ['label' => 'Late',              'route' => 'admin.reports.late',       'icon' => 'clock'],
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
                     ['label' => 'Payroll',           'route' => 'admin.reports.payroll',    'icon' => 'banknotes'],
                     ['label' => 'Overtime',          'route' => 'admin.reports.overtime',   'icon' => 'clock'],
@@ -102,6 +103,7 @@ new class extends Component
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
+                    ['label' => 'Late',              'route' => 'admin.reports.late',       'icon' => 'clock'],
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
                     ['label' => 'Payroll',           'route' => 'admin.reports.payroll',    'icon' => 'banknotes'],
                     ['label' => 'Overtime',          'route' => 'admin.reports.overtime',   'icon' => 'clock'],
