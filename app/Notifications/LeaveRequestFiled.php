@@ -27,6 +27,7 @@ class LeaveRequestFiled extends Notification
             'end_date'         => $this->leaveRequest->end_date->toDateString(),
             'total_days'       => $this->leaveRequest->total_days,
             'message'          => $this->leaveRequest->employee->full_name . ' filed a ' . $this->leaveRequest->leaveType->name . ' request.',
+            'url'              => route('admin.leave'),
         ];
     }
 }

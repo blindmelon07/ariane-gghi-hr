@@ -28,8 +28,31 @@ class NotificationBell extends Component
     public function markAsRead(string $id): void
     {
         $notification = auth()->user()->notifications()->where('id', $id)->first();
-        $notification?->markAsRead();
+        if (! $notification) {
+            return;
+        }
+
+        $notification->markAsRead();
         unset($this->unreadCount, $this->notifications);
+
+        $url = $notification->data['url'] ?? $this->resolveUrl($notification);
+        if ($url) {
+            $this->redirect($url, navigate: true);
+        }
+    }
+
+    private function resolveUrl(object $notification): ?string
+    {
+        $role = auth()->user()?->role;
+        $type = class_basename($notification->type);
+
+        return match ($type) {
+            'LeaveRequestFiled'  => in_array($role, ['hr_admin', 'approver', 'super_admin', 'manager', 'department_head'])
+                                        ? route('admin.leave')
+                                        : null,
+            'LeaveStatusUpdated' => route('leave.my-requests'),
+            default              => null,
+        };
     }
 
     public function render()

@@ -74,6 +74,87 @@
         </div>
     </div>
 
+    {{-- Charts --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+
+        {{-- Weekly Attendance Bar Chart --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-4 sm:p-6"
+             x-data="{
+                chart: null,
+                init() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const gridColor  = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+                    const labelColor = isDark ? '#94a3b8' : '#6b7280';
+                    const data = @js($this->weeklyAttendanceChart);
+                    this.chart = new Chart(this.$refs.canvas, {
+                        type: 'bar',
+                        data: {
+                            labels: data.map(d => d.label),
+                            datasets: [
+                                {
+                                    label: 'On Time',
+                                    data: data.map(d => d.onTime),
+                                    backgroundColor: 'rgba(99,102,241,0.8)',
+                                    borderRadius: 4,
+                                },
+                                {
+                                    label: 'Late',
+                                    data: data.map(d => d.late),
+                                    backgroundColor: 'rgba(234,179,8,0.8)',
+                                    borderRadius: 4,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { labels: { color: labelColor, font: { size: 11 } } } },
+                            scales: {
+                                x: { stacked: true, ticks: { color: labelColor }, grid: { color: gridColor } },
+                                y: { stacked: true, ticks: { color: labelColor, precision: 0 }, grid: { color: gridColor } },
+                            },
+                        },
+                    });
+                }
+             }">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Weekly Attendance (Last 7 Days)</h4>
+            <canvas x-ref="canvas" height="180"></canvas>
+        </div>
+
+        {{-- Leave Status Donut Chart --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-4 sm:p-6"
+             x-data="{
+                chart: null,
+                init() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const labelColor = isDark ? '#94a3b8' : '#6b7280';
+                    const raw = @js($this->leaveStatusChart);
+                    const colorMap = { approved: '#22c55e', pending: '#eab308', rejected: '#ef4444' };
+                    const labels = Object.keys(raw).map(k => k.charAt(0).toUpperCase() + k.slice(1));
+                    const values = Object.values(raw);
+                    const colors = Object.keys(raw).map(k => colorMap[k] ?? '#94a3b8');
+                    this.chart = new Chart(this.$refs.canvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{ data: values, backgroundColor: colors, borderWidth: 2 }],
+                        },
+                        options: {
+                            responsive: true,
+                            cutout: '65%',
+                            plugins: {
+                                legend: { position: 'bottom', labels: { color: labelColor, font: { size: 11 }, padding: 16 } },
+                            },
+                        },
+                    });
+                }
+             }">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Leave Requests {{ now()->year }}</h4>
+            <div class="flex justify-center">
+                <canvas x-ref="canvas" height="180" style="max-width:260px"></canvas>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
         {{-- Quick Links --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-6">

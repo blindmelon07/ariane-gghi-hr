@@ -26,6 +26,7 @@ class LeaveStatusUpdated extends Notification
             'start_date'       => $this->leaveRequest->start_date->toDateString(),
             'end_date'         => $this->leaveRequest->end_date->toDateString(),
             'message'          => 'Your ' . $this->leaveRequest->leaveType->name . ' request has been ' . $this->leaveRequest->status . '.',
+            'url'              => route('leave.my-requests'),
         ];
     }
 }

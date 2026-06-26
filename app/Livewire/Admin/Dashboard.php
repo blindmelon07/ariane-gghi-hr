@@ -60,6 +60,39 @@ class Dashboard extends Component
         return PayrollPeriod::whereIn('status', ['draft', 'processing'])->count();
     }
 
+    #[Computed(cache: true, seconds: 300)]
+    public function weeklyAttendanceChart(): array
+    {
+        return collect(range(6, 0))->map(function ($i) {
+            $date    = today()->subDays($i);
+            $present = AttendanceLog::whereDate('punch_date', $date)
+                ->where('punch_state', 0)
+                ->distinct('emp_code')
+                ->count('emp_code');
+            $late = AttendanceLog::whereDate('punch_date', $date)
+                ->where('punch_state', 0)
+                ->whereTime('punch_time', '>', '08:00:00')
+                ->distinct('emp_code')
+                ->count('emp_code');
+            return [
+                'label'   => $date->format('D M j'),
+                'present' => $present,
+                'late'    => $late,
+                'onTime'  => max(0, $present - $late),
+            ];
+        })->values()->toArray();
+    }
+
+    #[Computed(cache: true, seconds: 300)]
+    public function leaveStatusChart(): array
+    {
+        return LeaveRequest::selectRaw('status, COUNT(*) as count')
+            ->whereYear('created_at', now()->year)
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+    }
+
     #[Computed]
     public function recentActivity()
     {

@@ -64,6 +64,7 @@ new class extends Component
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
                     ['label' => 'Payroll',           'route' => 'admin.reports.payroll',    'icon' => 'banknotes'],
+                    ['label' => 'Overtime',          'route' => 'admin.reports.overtime',   'icon' => 'clock'],
                 ],
                 'Administration' => [
                     ['label' => 'User Accounts',       'route' => 'admin.accounts',          'icon' => 'users'],
@@ -103,6 +104,7 @@ new class extends Component
                     ['label' => 'Attendance',        'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
                     ['label' => 'Payroll',           'route' => 'admin.reports.payroll',    'icon' => 'banknotes'],
+                    ['label' => 'Overtime',          'route' => 'admin.reports.overtime',   'icon' => 'clock'],
                 ],
             ],
             'manager', 'department_head' => [
