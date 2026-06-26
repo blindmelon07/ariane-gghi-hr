@@ -66,6 +66,7 @@ new class extends Component
                     ['label' => 'Payroll',           'route' => 'admin.reports.payroll',    'icon' => 'banknotes'],
                 ],
                 'Administration' => [
+                    ['label' => 'User Accounts',       'route' => 'admin.accounts',          'icon' => 'users'],
                     ['label' => 'Roles & Permissions', 'route' => 'admin.roles-permissions', 'icon' => 'shield-check'],
                 ],
             ],
