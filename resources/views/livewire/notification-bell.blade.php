@@ -1,4 +1,4 @@
-<div wire:poll.30s x-data="{ open: false }" class="relative">
+<div x-data="{ open: false }" class="relative">
     {{-- Bell Button --}}
     <button @click="open = !open" class="relative p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:text-gray-300 transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
