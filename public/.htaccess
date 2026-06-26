@@ -6,7 +6,7 @@
     RewriteEngine On
 
     # Exclude Livewire endpoints from LiteSpeed Cache
-    RewriteRule ^livewire/ - [E=Cache-Control:no-store,L]
+    RewriteRule ^livewire/ - [E=Cache-Control:no-store]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
