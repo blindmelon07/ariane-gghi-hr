@@ -30,6 +30,36 @@
             }
         </script>
 
+        <!--
+            Reset the sidebar's collapsed state at the login screen.
+            Login redirects via wire:navigate, which keeps Alpine's JS runtime (and its
+            'sidebar' store) alive across the transition instead of a hard reload. If a
+            previous session in this tab left the sidebar collapsed, that state would
+            otherwise carry straight into the next login. livewire:navigated fires on
+            every page transition — including the very first load — so this always runs
+            right before the user reaches the dashboard.
+        -->
+        <script>
+            document.addEventListener('livewire:navigated', function () {
+                if (!window.Alpine) return;
+                var store = Alpine.store('sidebar');
+                if (store) {
+                    store.collapsed = false;
+                } else {
+                    Alpine.store('sidebar', {
+                        collapsed:  false,
+                        mobileOpen: false,
+                        isDesktop:  window.innerWidth >= 1024,
+                        toggle: function () { this.collapsed = !this.collapsed; },
+                        openMobile: function () {
+                            if (!this.isDesktop) { this.mobileOpen = true; }
+                        },
+                        closeMobile: function () { this.mobileOpen = false; },
+                    });
+                }
+            });
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 dark:text-gray-100 antialiased min-h-screen">
