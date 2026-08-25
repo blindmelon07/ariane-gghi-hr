@@ -76,7 +76,7 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             @if ($sched->break_start)
-                                <span class="text-xs text-gray-500 dark:text-gray-400 substr($sched->break_start, 0, 5) }}-{{ substr($sched->break_end, 0, 5) }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ substr($sched->break_start, 0, 5) }}-{{ substr($sched->break_end, 0, 5) }}</span>
                             @else
                                 <span class="text-gray-300">—</span>
                             @endif
