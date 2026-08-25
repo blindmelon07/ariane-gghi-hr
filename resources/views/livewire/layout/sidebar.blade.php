@@ -52,6 +52,7 @@ new class extends Component
                 'Leave' => [
                     ['label' => 'Leave Approvals',      'route' => 'admin.leave',              'icon' => 'document-check'],
                     ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
+                    ['label' => 'Overtime Approvals',   'route' => 'admin.overtime',           'icon' => 'clock'],
                     ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
                 'Fleet' => [
@@ -93,6 +94,7 @@ new class extends Component
                 'Leave' => [
                     ['label' => 'Leave Approvals',      'route' => 'admin.leave',              'icon' => 'document-check'],
                     ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
+                    ['label' => 'Overtime Approvals',   'route' => 'admin.overtime',           'icon' => 'clock'],
                     ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
                 'Fleet' => [
