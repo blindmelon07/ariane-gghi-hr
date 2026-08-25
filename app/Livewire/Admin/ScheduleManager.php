@@ -141,11 +141,15 @@ class ScheduleManager extends Component
     #[Computed]
     public function deptSchedules()
     {
-        $dept = $this->bulkDept;
+        $dept = trim($this->bulkDept);
         if (!$dept) return collect();
 
+        // Department names are free-typed on both the Employee record and the
+        // Schedule template form, so a case or whitespace difference (e.g.
+        // "Accounting" vs "accounting ") would otherwise silently match nothing
+        // here even though a template clearly exists for that department.
         return Schedule::where('is_active', true)
-            ->where('department', $dept)
+            ->whereRaw('LOWER(TRIM(department)) = ?', [mb_strtolower($dept)])
             ->orderBy('name')
             ->get();
     }
