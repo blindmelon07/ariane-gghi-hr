@@ -97,7 +97,7 @@ class GghiEmployeeImportSeeder extends Seeder
 
         $path = __DIR__ . '/data/gghi_employees.json';
         if (! file_exists($path)) {
-            $this->command->error("Data file not found: {$path}");
+            $this->command?->error("Data file not found: {$path}");
             return;
         }
 
@@ -152,30 +152,51 @@ class GghiEmployeeImportSeeder extends Seeder
             $created++;
         }
 
-        $this->command->info("GGHI employee import: {$created} created, {$updated} matched/updated.");
+        $this->command?->info("GGHI employee import: {$created} created, {$updated} matched/updated.");
 
         if ($skipped) {
-            $this->command->warn('Skipped (needs manual review): ' . implode(', ', $skipped));
+            $this->command?->warn('Skipped (needs manual review): ' . implode(', ', $skipped));
         }
     }
 
     /**
-     * @return array<string,int> department name => id
+     * @return array<string,int> our canonical department name => id
      */
     private function ensureDepartments(): array
     {
+        $deptIds = [];
+
         foreach (self::DEPARTMENTS as $name => $code) {
-            Department::firstOrCreate(['name' => $name], ['code' => $code, 'is_active' => true]);
+            // Match by name OR code: a department created ad hoc through the
+            // admin UI before this seeder existed (e.g. "IT Department") may
+            // already occupy that code under a different display name.
+            // firstOrCreate() alone only checks name, so it would try to
+            // insert a second row with the same code and hit the unique
+            // constraint — look it up manually and only create if truly new.
+            $dept = Department::where('name', $name)
+                ->orWhere('code', $code)
+                ->first();
+
+            if (! $dept) {
+                $dept = Department::create(['name' => $name, 'code' => $code, 'is_active' => true]);
+            } elseif (! $dept->is_active) {
+                $dept->update(['is_active' => true]);
+            }
+
+            // Keep our canonical label as the lookup key regardless of
+            // whatever the department is actually named in the database.
+            $deptIds[$name] = $dept->id;
         }
 
         // Earlier ad-hoc setup may have created a bare "HD" placeholder before
         // its meaning (Housekeeping Department) was confirmed — fold it in.
         $hd = Department::where('name', 'HD')->first();
-        if ($hd) {
+        if ($hd && $hd->name !== 'Housekeeping Department') {
             $hd->update(['name' => 'Housekeeping Department']);
+            $deptIds['Housekeeping Department'] = $hd->id;
         }
 
-        return Department::pluck('id', 'name')->toArray();
+        return $deptIds;
     }
 
     private function resolveDeptName(array $row): string
