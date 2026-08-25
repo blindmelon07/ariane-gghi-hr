@@ -167,6 +167,7 @@ class PhilippinePayrollService
         // Also exclude individual day-offs and company holidays — those are paid
         // non-working days that should not cause an absent deduction.
         $isProbationary = ($employee->employment_type ?? 'regular') === 'probationary';
+        $isNurse        = $this->isNurse($employee);
 
         // Preload day-off dates for this employee in the period
         $dayOffDates = DayOff::where('employee_id', $employee->id)
@@ -179,21 +180,32 @@ class PhilippinePayrollService
         // Preload holiday dates (one-time + recurring) in the period
         $holidayDates = $this->getHolidayDates($period->start_date, $period->end_date);
 
+        // Nursing staff rotate across 8/9/12/13-hour shifts (see ScheduleSeeder),
+        // so a calendar weekday count doesn't apply to them. Instead they're held
+        // to a fixed required-hours quota per cutoff (see getNurseRequiredHours()),
+        // expressed here in 8-hour "day equivalents" so it flows through the same
+        // basic-pay / absent-deduction formulas as everyone else.
+        $requiredHours = $isNurse ? $this->getNurseRequiredHours($employee, $period) : null;
+
         $workingDays = 0;
-        for ($d = Carbon::parse($period->start_date); $d->lte($period->end_date); $d->addDay()) {
-            if ($d->isSunday()) {
-                continue;
+        if ($isNurse) {
+            $workingDays = round($requiredHours / 8, 2);
+        } else {
+            for ($d = Carbon::parse($period->start_date); $d->lte($period->end_date); $d->addDay()) {
+                if ($d->isSunday()) {
+                    continue;
+                }
+                if (! $isProbationary && $d->isSaturday()) {
+                    continue;
+                }
+                if (in_array($d->toDateString(), $dayOffDates, true)) {
+                    continue;
+                }
+                if (in_array($d->toDateString(), $holidayDates, true)) {
+                    continue;
+                }
+                $workingDays++;
             }
-            if (! $isProbationary && $d->isSaturday()) {
-                continue;
-            }
-            if (in_array($d->toDateString(), $dayOffDates, true)) {
-                continue;
-            }
-            if (in_array($d->toDateString(), $holidayDates, true)) {
-                continue;
-            }
-            $workingDays++;
         }
 
         // Distinct dates with at least one punch in the period
@@ -215,6 +227,7 @@ class PhilippinePayrollService
         $basicPay              = 0.0;
         $totalLateMinutes      = 0;
         $totalUndertimeMinutes = 0;
+        $renderedHours         = 0.0;
 
         foreach ($punchDates as $dateStr) {
             $day = $processor->processDay($employee, $dateStr);
@@ -237,12 +250,23 @@ class PhilippinePayrollService
             $daysPresent++;
             $totalLateMinutes      += $day['minutes_late'];
             $totalUndertimeMinutes += $day['minutes_undertime'];
+            $renderedHours         += $day['hours_worked'];
         }
 
         // Basic pay = FULL period pay (working days × daily rate)
         // Absent deduction = absent days × 8 hrs × hourly rate (hours-based, matches HR payslip)
-        $basicPay   = round($workingDays * $dailyRate, 2);
-        $daysAbsent = max(0, $workingDays - $daysPresent - $approvedLeaveDays);
+        $basicPay = round($workingDays * $dailyRate, 2);
+
+        if ($isNurse) {
+            // Nurses' shifts vary in length, so "absence" is measured in total hours
+            // short of the cutoff's required-hours quota (approved leave credited at
+            // a flat 8 hrs/day), not in whole missed calendar days.
+            $creditedHours = round($renderedHours + ($approvedLeaveDays * 8), 2);
+            $daysAbsent    = round(max(0, $requiredHours - $creditedHours) / 8, 2);
+        } else {
+            $daysAbsent = max(0, $workingDays - $daysPresent - $approvedLeaveDays);
+        }
+
         $absentDeduction = round($daysAbsent * 8 * $hourlyRate, 2);
 
         // Overtime: only approved OT requests count — not raw attendance
@@ -326,6 +350,46 @@ class PhilippinePayrollService
             'total_deductions'     => $totalDeductions,
             'net_pay'              => $netPay,
         ];
+    }
+
+    /**
+     * Required duty hours per cutoff for Nursing staff, keyed by employment type.
+     * The higher figure applies only to the 2nd-half cutoff of a 31-day month
+     * (the extra day 31 adds one more 8-hour shift to the quota).
+     */
+    protected const NURSE_REQUIRED_HOURS = [
+        'regular'      => ['base' => 88, 'month_31' => 96],
+        'probationary' => ['base' => 104, 'month_31' => 112],
+    ];
+
+    /**
+     * Nursing staff are held to a fixed required-hours quota per cutoff instead
+     * of a calendar weekday count, since their shifts rotate across 8/9/12/13-hour
+     * lengths (see ScheduleSeeder). Identified by department name.
+     */
+    protected function isNurse(Employee $employee): bool
+    {
+        return strcasecmp(trim((string) $employee->department), 'Nursing') === 0;
+    }
+
+    /**
+     * Determine the required duty hours for a nurse's payroll period.
+     */
+    protected function getNurseRequiredHours(Employee $employee, PayrollPeriod $period): int
+    {
+        $type = ($employee->employment_type ?? 'regular') === 'probationary' ? 'probationary' : 'regular';
+        $rule = self::NURSE_REQUIRED_HOURS[$type];
+
+        $monthHas31Days = Carbon::parse($period->start_date)->daysInMonth === 31;
+
+        return match ($period->cutoff_type) {
+            // Only the 2nd-half cutoff absorbs the extra day of a 31-day month.
+            'semi_monthly_2' => $monthHas31Days ? $rule['month_31'] : $rule['base'],
+            // Monthly cutoffs cover both halves.
+            'monthly'        => $rule['base'] * 2 + ($monthHas31Days ? 8 : 0),
+            // 1st-half and custom periods use the base figure.
+            default          => $rule['base'],
+        };
     }
 
     /**

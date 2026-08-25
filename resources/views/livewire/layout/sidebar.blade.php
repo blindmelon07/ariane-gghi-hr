@@ -147,6 +147,24 @@ new class extends Component
                     ['label' => 'Vehicle Returns',   'route' => 'security.fleet-return',    'icon' => 'check-circle'],
                 ],
             ],
+            'head_nurse' => [
+                'Main' => [
+                    ['label' => 'Duty Roster',       'route' => 'head-nurse.roster',        'icon' => 'calendar'],
+                ],
+                'Payroll' => [
+                    ['label' => 'My Payslips',       'route' => 'payslips.index',           'icon' => 'currency-dollar'],
+                ],
+                'My Leave' => [
+                    ['label' => 'File a Leave',      'route' => 'leave.request',            'icon' => 'paper-airplane'],
+                    ['label' => 'My Requests',       'route' => 'leave.my-requests',        'icon' => 'document-text'],
+                    ['label' => 'Leave Balance',     'route' => 'leave.balance',            'icon' => 'gift'],
+                    ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
+                ],
+                'Fleet' => [
+                    ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
+                    ['label' => 'My Tickets',        'route' => 'trip-ticket.list',         'icon' => 'document-text'],
+                ],
+            ],
             default => [
                 'Main' => [
                     ['label' => 'Dashboard',         'route' => 'dashboard',                'icon' => 'home'],

@@ -15,6 +15,8 @@ Route::redirect('/', '/login')->name('home');
 | hr_admin       – Step-2 leave approver + full HR access
 | approver       – Step-3 leave approver (Medical Director)
 | super_admin    – Step-3 leave approver (CEO) + all access
+| head_nurse     – Nursing dept duty roster only + standard employee self-service
+|                   (no leave/trip-ticket approval powers)
 |
 | NOTE: Two role layers exist:
 |   1. users.role column  – drives sidebar menu & dashboardRoute()
@@ -28,13 +30,13 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'role:employee'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'role:employee'])->group(function () {
+Route::middleware(['auth', 'role:employee,head_nurse'])->group(function () {
     Route::view('payslips', 'payslips.index')->name('payslips.index');
     Route::view('overtime/request', 'overtime.request')->name('overtime.request');
 });
 
 // Leave filing — employees + managers/dept heads (managers skip to step 3 automatically)
-Route::middleware(['auth', 'role:employee,manager,department_head'])->group(function () {
+Route::middleware(['auth', 'role:employee,manager,department_head,head_nurse'])->group(function () {
     Route::view('leave/request', 'leave.request')->name('leave.request');
     Route::view('leave/my-requests', 'leave.my-requests')->name('leave.my-requests');
     Route::view('leave/balance', 'leave.balance')->name('leave.balance');
@@ -42,10 +44,16 @@ Route::middleware(['auth', 'role:employee,manager,department_head'])->group(func
 });
 
 // Fleet — Trip ticket filing (all roles except pure approvers)
-Route::middleware(['auth', 'role:employee,manager,department_head,hr_admin,super_admin'])->group(function () {
+Route::middleware(['auth', 'role:employee,manager,department_head,hr_admin,super_admin,head_nurse'])->group(function () {
     Route::view('trip-ticket', 'trip-ticket')->name('trip-ticket.request');
     Route::view('trip-ticket/my-tickets', 'trip-ticket-list')->name('trip-ticket.list');
 });
+
+// ── Head Nurse — Nursing department duty roster ───────────────────────────────
+
+Route::view('head-nurse/roster', 'head-nurse.roster')
+    ->middleware(['auth', 'role:head_nurse'])
+    ->name('head-nurse.roster');
 
 // ── Shared ────────────────────────────────────────────────────────────────────
 

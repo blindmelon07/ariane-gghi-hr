@@ -47,6 +47,7 @@ class User extends Authenticatable
             'manager', 'department_head'         => '/admin/dashboard',
             'approver'                           => '/admin/dashboard',
             'security_guard'                     => '/security/fleet-return',
+            'head_nurse'                         => '/head-nurse/roster',
             default                              => '/dashboard',
         };
     }

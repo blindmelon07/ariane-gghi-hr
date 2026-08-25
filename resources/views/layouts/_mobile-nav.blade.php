@@ -21,6 +21,12 @@
             ['route' => 'admin.reports.attendance',  'label' => 'Reports', 'icon' => 'chart'],
             ['route' => 'profile',                   'label' => 'Profile', 'icon' => 'profile'],
         ],
+        in_array($role, ['head_nurse']) => [
+            ['route' => 'head-nurse.roster',         'label' => 'Roster',  'icon' => 'chart'],
+            ['route' => 'leave.request',             'label' => 'Leave',   'icon' => 'leave'],
+            ['route' => 'payslips.index',            'label' => 'Payslips','icon' => 'payslip'],
+            ['route' => 'profile',                   'label' => 'Profile', 'icon' => 'profile'],
+        ],
         default => [
             ['route' => 'dashboard',         'label' => 'Home',     'icon' => 'home'],
             ['route' => 'leave.request',     'label' => 'Leave',    'icon' => 'leave'],

@@ -64,7 +64,7 @@ class UserManager extends Component
         $rules = [
             'name'         => 'required|string|max:100',
             'employeeCode' => 'required|string|max:20|unique:users,employee_code' . ($this->editId ? ",{$this->editId}" : ''),
-            'role'         => 'required|in:employee,hr_admin,manager,department_head,approver,super_admin,security_guard',
+            'role'         => 'required|in:employee,hr_admin,manager,department_head,approver,super_admin,security_guard,head_nurse',
             'isActive'     => 'boolean',
         ];
 

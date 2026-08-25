@@ -68,6 +68,7 @@
                                         'manager'        => ['bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300', 'Manager'],
                                         'department_head'=> ['bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300', 'Dept. Head'],
                                         'security_guard' => ['bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300', 'Security Guard'],
+                                        'head_nurse'     => ['bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300', 'Head Nurse'],
                                         default          => ['bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300', 'Employee'],
                                     };
                                 @endphp
@@ -149,6 +150,7 @@
                         <option value="approver">Approver</option>
                         <option value="super_admin">Super Admin</option>
                         <option value="security_guard">Security Guard</option>
+                        <option value="head_nurse">Head Nurse</option>
                     </select>
                     @error('role') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
