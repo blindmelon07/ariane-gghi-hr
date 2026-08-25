@@ -26,6 +26,7 @@ class EmployeeManager extends Component
     // Edit modal state
     public bool    $showEdit        = false;
     public ?int    $editEmployeeId  = null;
+    public string  $editEmpCode     = '';
     public string  $editFirstName   = '';
     public string  $editLastName    = '';
     public string  $editCellNumber  = '';
@@ -116,6 +117,7 @@ class EmployeeManager extends Component
         $emp = Employee::findOrFail($id);
 
         $this->editEmployeeId      = $emp->id;
+        $this->editEmpCode         = $emp->emp_code;
         $this->editFirstName       = $emp->first_name;
         $this->editLastName        = $emp->last_name;
         $this->editCellNumber      = $emp->cell_number ?? '';
@@ -130,7 +132,17 @@ class EmployeeManager extends Component
 
     public function saveEmployee(): void
     {
+        $emp = Employee::findOrFail($this->editEmployeeId);
+
         $this->validate([
+            // Editable so HR can correct it to match the biometric device's
+            // enrolled user ID — attendance sync links punches to employees
+            // purely by emp_code (see ZKTecoService::syncAttendance/syncUsers).
+            'editEmpCode'        => [
+                'required', 'string', 'max:20',
+                Rule::unique('employees', 'emp_code')->ignore($emp->id),
+                Rule::unique('users', 'employee_code')->ignore($emp->user_id),
+            ],
             'editFirstName'      => 'required|string|max:255',
             'editLastName'       => 'required|string|max:255',
             'editCellNumber'     => 'nullable|string|max:20',
@@ -141,8 +153,8 @@ class EmployeeManager extends Component
             'editDob'            => 'nullable|date',
         ]);
 
-        $emp = Employee::findOrFail($this->editEmployeeId);
         $emp->update([
+            'emp_code'        => $this->editEmpCode,
             'first_name'      => $this->editFirstName,
             'last_name'       => $this->editLastName,
             'cell_number'     => $this->editCellNumber ?: null,
@@ -153,6 +165,13 @@ class EmployeeManager extends Component
             'date_of_birth'   => $this->editDob ?: null,
             'is_active'       => $this->editIsActive,
         ]);
+
+        // Keep the linked login account's username in lockstep — the whole
+        // employee self-service side of the app looks up Employee by
+        // auth()->user()->employee_code, so these two must never drift apart.
+        if ($emp->user) {
+            $emp->user->update(['employee_code' => $this->editEmpCode]);
+        }
 
         ActivityLogService::log('employee_updated', "Updated employee: {$emp->full_name} ({$emp->emp_code})", $emp);
 

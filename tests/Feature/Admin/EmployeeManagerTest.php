@@ -151,6 +151,75 @@ describe('save employee', function () {
     });
 });
 
+describe('editing emp_code (biometric device ID matching)', function () {
+    it('updates emp_code so it can be matched to the device-enrolled ID', function () {
+        $emp = freshEmployee(['emp_code' => 'GGHI-001']);
+
+        Livewire::actingAs(hrAdmin())
+            ->test(EmployeeManager::class)
+            ->call('openEdit', $emp->id)
+            ->set('editEmpCode', '42')
+            ->call('saveEmployee')
+            ->assertHasNoErrors();
+
+        expect($emp->fresh()->emp_code)->toBe('42');
+    });
+
+    it('keeps the linked login account employee_code in sync when emp_code changes', function () {
+        $user = User::factory()->create(['employee_code' => 'GGHI-002', 'role' => 'employee']);
+        $emp  = freshEmployee(['emp_code' => 'GGHI-002', 'user_id' => $user->id]);
+
+        Livewire::actingAs(hrAdmin())
+            ->test(EmployeeManager::class)
+            ->call('openEdit', $emp->id)
+            ->set('editEmpCode', '17')
+            ->call('saveEmployee')
+            ->assertHasNoErrors();
+
+        expect($emp->fresh()->emp_code)->toBe('17')
+            ->and($user->fresh()->employee_code)->toBe('17');
+    });
+
+    it('rejects an emp_code already used by another employee', function () {
+        freshEmployee(['emp_code' => 'TAKEN']);
+        $emp = freshEmployee(['emp_code' => 'GGHI-003']);
+
+        Livewire::actingAs(hrAdmin())
+            ->test(EmployeeManager::class)
+            ->call('openEdit', $emp->id)
+            ->set('editEmpCode', 'TAKEN')
+            ->call('saveEmployee')
+            ->assertHasErrors(['editEmpCode']);
+
+        expect($emp->fresh()->emp_code)->toBe('GGHI-003');
+    });
+
+    it('rejects an emp_code already used as another user\'s login username', function () {
+        User::factory()->create(['employee_code' => 'LOGIN-TAKEN']);
+        $emp = freshEmployee(['emp_code' => 'GGHI-004']);
+
+        Livewire::actingAs(hrAdmin())
+            ->test(EmployeeManager::class)
+            ->call('openEdit', $emp->id)
+            ->set('editEmpCode', 'LOGIN-TAKEN')
+            ->call('saveEmployee')
+            ->assertHasErrors(['editEmpCode']);
+    });
+
+    it('allows keeping the same emp_code unchanged (no false uniqueness conflict)', function () {
+        $emp = freshEmployee(['emp_code' => 'GGHI-005']);
+
+        Livewire::actingAs(hrAdmin())
+            ->test(EmployeeManager::class)
+            ->call('openEdit', $emp->id)
+            ->set('editFirstName', 'Updated')
+            ->call('saveEmployee')
+            ->assertHasNoErrors();
+
+        expect($emp->fresh()->emp_code)->toBe('GGHI-005');
+    });
+});
+
 // ── Account creation ──────────────────────────────────────────────────────────
 
 describe('account creation', function () {

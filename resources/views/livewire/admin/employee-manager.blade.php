@@ -184,6 +184,14 @@
         <div class="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-lg p-6 max-h-[90dvh] overflow-y-auto">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Edit Employee</h3>
             <form wire:submit="saveEmployee" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                        Employee Code
+                        <span class="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">must match the biometric device's enrolled ID</span>
+                    </label>
+                    <input type="text" wire:model.live="editEmpCode" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm font-mono" />
+                    @error('editEmpCode') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">First Name</label>
