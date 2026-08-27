@@ -36,7 +36,13 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost/ariane-gghi-hr/public/images/gghi%20logo.png\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/ariane-gghi-hr/public/apple-touch-icon.png)",
       "Skill(code-review)",
-      "Skill(code-review:*)"
+      "Skill(code-review:*)",
+      "Bash(composer show *)",
+      "Bash(composer install *)",
+      "Bash(php -v)",
+      "Bash(grep -i \"Spatie\\\\\\\\\\\\\\\\Permission\" vendor/composer/autoload_psr4.php)",
+      "Bash(composer dump-autoload *)",
+      "Bash(curl -sS -o /c/xampp/php/cacert.pem https://curl.se/ca/cacert.pem --max-time 20)"
     ]
   }
 }

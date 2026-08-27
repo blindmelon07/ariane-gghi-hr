@@ -21,3 +21,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Windows reserved device name accidentally created by a stray `> nul` redirect
+/nul

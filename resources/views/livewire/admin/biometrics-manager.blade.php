@@ -216,12 +216,14 @@
                                     'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' => $log->status === 'success',
                                     'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'                 => $log->status === 'failed',
                                     'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'         => $log->status === 'running',
+                                    'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'     => $log->status === 'partial',
                                 ])>
                                     <span @class([
                                         'w-1.5 h-1.5 rounded-full',
                                         'bg-emerald-500'              => $log->status === 'success',
                                         'bg-red-500'                  => $log->status === 'failed',
                                         'bg-amber-400 animate-pulse'  => $log->status === 'running',
+                                        'bg-orange-500'                => $log->status === 'partial',
                                     ])></span>
                                     {{ ucfirst($log->status) }}
                                 </span>

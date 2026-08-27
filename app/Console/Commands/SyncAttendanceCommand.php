@@ -32,21 +32,6 @@ class SyncAttendanceCommand extends Command
         try {
             $result  = $zk->syncAttendance($from, $to);
             $synced  = $result['synced'];
-
-            // If SYNC_API_URL is configured, push records to the online app
-            $apiUrl = rtrim(env('SYNC_API_URL', ''), '/');
-            if ($apiUrl) {
-                $this->pushToOnlineApp($apiUrl, $from, $to);
-            }
-
-            $syncLog->update([
-                'status'          => 'success',
-                'records_fetched' => $synced,
-                'completed_at'    => now(),
-            ]);
-
-            $this->info("Done. Synced: {$synced}, Skipped: {$result['skipped']}, Total on device: {$result['total']}");
-            return self::SUCCESS;
         } catch (\Throwable $e) {
             $syncLog->update([
                 'status'        => 'failed',
@@ -57,6 +42,30 @@ class SyncAttendanceCommand extends Command
             $this->error('Sync failed: ' . $e->getMessage());
             return self::FAILURE;
         }
+
+        // Device sync succeeded. Pushing to the online app is best-effort —
+        // a failure here shouldn't mark the (successful) device sync as failed.
+        $pushError = null;
+        $apiUrl    = rtrim(env('SYNC_API_URL', ''), '/');
+        if ($apiUrl) {
+            try {
+                $this->pushToOnlineApp($apiUrl, $from, $to);
+            } catch (\Throwable $e) {
+                $pushError = $e->getMessage();
+                Log::warning('SyncAttendanceCommand: Failed to push to online app — ' . $pushError);
+                $this->warn('Could not push to online app: ' . $pushError);
+            }
+        }
+
+        $syncLog->update([
+            'status'          => $pushError ? 'partial' : 'success',
+            'records_fetched' => $synced,
+            'error_message'   => $pushError,
+            'completed_at'    => now(),
+        ]);
+
+        $this->info("Done. Synced: {$synced}, Skipped: {$result['skipped']}, Total on device: {$result['total']}");
+        return self::SUCCESS;
     }
 
     private function pushToOnlineApp(string $apiUrl, string $from, string $to): void
