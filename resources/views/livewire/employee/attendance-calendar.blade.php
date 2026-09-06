@@ -1,4 +1,4 @@
-<div x-data="{ selectedDay: null, selectedDate: null, selectedDayData: {} }">
+<div x-data="{ selectedDay: null, selectedDate: null, selectedDayData: {}, today: '{{ now()->toDateString() }}' }">
 
     {{-- ── Card wrapper ── --}}
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
@@ -219,6 +219,28 @@
                 </div>
 
                 {{-- Modal footer --}}
+                <div class="px-6 pb-5 space-y-2" x-show="selectedDayData.status !== 'Day-off'">
+                    {{-- Filing actions --}}
+                    <div class="grid grid-cols-2 gap-2" x-show="selectedDay >= today">
+                        <a :href="'{{ route('leave.request') }}?type=SL&date=' + selectedDay"
+                           class="py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-xs font-semibold text-red-700 dark:text-red-300
+                                  ring-1 ring-red-200 dark:ring-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors text-center">
+                            File Sick Leave
+                        </a>
+                        <a :href="'{{ route('leave.request') }}?type=VL&date=' + selectedDay"
+                           class="py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-xs font-semibold text-emerald-700 dark:text-emerald-300
+                                  ring-1 ring-emerald-200 dark:ring-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors text-center">
+                            File Vacation Leave
+                        </a>
+                    </div>
+                    <a :href="'{{ route('time-correction.request') }}?date=' + selectedDay"
+                       x-show="selectedDay <= today"
+                       class="block py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-xs font-semibold text-indigo-700 dark:text-indigo-300
+                              ring-1 ring-indigo-200 dark:ring-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors text-center">
+                        Request Time Correction
+                    </a>
+                </div>
+
                 <div class="px-6 pb-5">
                     <button @click="selectedDay = null"
                             class="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-medium text-gray-700 dark:text-slate-300

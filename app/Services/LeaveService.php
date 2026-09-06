@@ -49,16 +49,22 @@ class LeaveService
     }
 
     /**
-     * Compute working days between two dates (excludes Sundays only).
+     * Compute working days between two dates.
+     * Excludes Sunday (company-wide rest day) plus the employee's own
+     * configured weekly rest day (Employee::weekday_off, 0=Sun..6=Sat),
+     * matching the rest-day rules used by DayOffManager.
      */
-    public function computeTotalDays(string $startDate, string $endDate): float
+    public function computeTotalDays(string $startDate, string $endDate, ?int $weekdayOff = null): float
     {
         $start = Carbon::parse($startDate);
         $end   = Carbon::parse($endDate);
         $days  = 0;
 
         for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
-            if (!$day->isSunday()) {
+            $isSunday     = $day->isSunday();
+            $isWeekdayOff = $weekdayOff !== null && $day->dayOfWeek === $weekdayOff;
+
+            if (!$isSunday && !$isWeekdayOff) {
                 $days++;
             }
         }

@@ -27,6 +27,23 @@ class LeaveRequestForm extends Component
 
     public bool $is_half_day = false;
 
+    public function mount(): void
+    {
+        // Allow deep-linking from the attendance calendar, e.g.
+        // /leave/request?date=2026-09-07&type=SL
+        if ($date = request()->query('date')) {
+            $this->start_date = $date;
+            $this->end_date   = $date;
+        }
+
+        if ($code = request()->query('type')) {
+            $leaveType = LeaveType::where('code', $code)->first();
+            if ($leaveType) {
+                $this->leave_type_id = $leaveType->id;
+            }
+        }
+    }
+
     #[Computed]
     public function leaveBalances(): array
     {
@@ -72,7 +89,9 @@ class LeaveRequestForm extends Component
             return 0;
         }
 
-        return app(LeaveService::class)->computeTotalDays($this->start_date, $this->end_date);
+        $employee = Employee::where('emp_code', auth()->user()->employee_code)->first();
+
+        return app(LeaveService::class)->computeTotalDays($this->start_date, $this->end_date, $employee?->weekday_off);
     }
 
     #[Computed]
@@ -132,7 +151,9 @@ class LeaveRequestForm extends Component
         }
 
         $leaveService = app(LeaveService::class);
-        $totalDays    = $leaveService->computeTotalDays($this->start_date, $this->end_date);
+        $totalDays    = $this->is_half_day
+            ? 0.5
+            : $leaveService->computeTotalDays($this->start_date, $this->end_date, $employee->weekday_off);
 
         // Check overlap
         if ($leaveService->hasOverlap($employee->id, $this->start_date, $this->end_date)) {

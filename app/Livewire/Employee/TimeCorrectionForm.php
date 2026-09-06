@@ -17,6 +17,15 @@ class TimeCorrectionForm extends Component
     public string  $pmTimeOut  = '';
     public string  $reason     = '';
 
+    public function mount(): void
+    {
+        // Allow deep-linking from the attendance calendar, e.g.
+        // /time-correction?date=2026-09-07
+        if ($date = request()->query('date')) {
+            $this->date = $date;
+        }
+    }
+
     #[Computed]
     public function myRequests()
     {
