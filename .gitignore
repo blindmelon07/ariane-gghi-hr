@@ -23,3 +23,13 @@ yarn-error.log
 
 # Windows reserved device name accidentally created by a stray `> nul` redirect
 /nul
+
+# Attendance puller desktop script — config.ini holds a secret token, logs/
+# bytecode are machine-local, and the built .exe is a large binary that's
+# reproducible via build.bat — none of it belongs in git.
+/scripts/attendance-puller/config.ini
+/scripts/attendance-puller/*.log
+/scripts/attendance-puller/__pycache__/
+/scripts/attendance-puller/build/
+/scripts/attendance-puller/dist/
+/scripts/attendance-puller/*.spec
