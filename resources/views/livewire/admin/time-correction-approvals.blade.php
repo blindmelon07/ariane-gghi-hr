@@ -21,8 +21,52 @@
         </div>
     @endif
 
-    {{-- Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+    {{-- Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->requests as $req)
+            @php
+                $sc = match($req->status) {
+                    'approved' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                    'rejected' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                    default    => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+                };
+            @endphp
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $req->employee->full_name }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $req->employee->emp_code }}</p>
+                    </div>
+                    <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $sc }}">{{ ucfirst($req->status) }}</span>
+                </div>
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-200 mt-2">{{ $req->date->format('M d, Y') }}</p>
+                <div class="grid grid-cols-2 gap-2 mt-2 text-xs text-gray-600 dark:text-gray-300">
+                    <div>AM In: {{ $req->am_time_in  ? \Carbon\Carbon::parse($req->am_time_in)->format('h:i A')  : '—' }}</div>
+                    <div>AM Out: {{ $req->am_time_out ? \Carbon\Carbon::parse($req->am_time_out)->format('h:i A') : '—' }}</div>
+                    <div>PM In: {{ $req->pm_time_in  ? \Carbon\Carbon::parse($req->pm_time_in)->format('h:i A')  : '—' }}</div>
+                    <div>PM Out: {{ $req->pm_time_out ? \Carbon\Carbon::parse($req->pm_time_out)->format('h:i A') : '—' }}</div>
+                </div>
+                @if ($req->reason)
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 truncate">{{ $req->reason }}</p>
+                @endif
+                <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    @if ($req->status === 'pending' && $req->approval_step === $this->myStep)
+                        <div class="flex gap-4">
+                            <button wire:click="openAction({{ $req->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">Approve</button>
+                            <button wire:click="openAction({{ $req->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">Reject</button>
+                        </div>
+                    @elseif ($req->status === 'pending')
+                        <span class="text-xs text-gray-400 dark:text-gray-500">Not your step</span>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-8 text-center text-gray-400 dark:text-gray-500 text-sm">No time correction requests found.</div>
+        @endforelse
+    </div>
+
+    {{-- Table (desktop / tablet) --}}
+    <div class="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                 <thead class="bg-gray-50 dark:bg-gray-700">

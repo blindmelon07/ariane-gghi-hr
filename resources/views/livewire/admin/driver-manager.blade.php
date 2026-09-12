@@ -13,7 +13,53 @@
                    class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100 w-full sm:w-72">
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden space-y-3">
+            @forelse ($this->drivers as $d)
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $d->employee->full_name }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ $d->employee->emp_code }}</p>
+                        </div>
+                        <button wire:click="toggleActive({{ $d->id }})"
+                                class="shrink-0 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold
+                                       {{ $d->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
+                            {{ $d->is_active ? 'Active' : 'Inactive' }}
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+                        <div>
+                            <p class="text-gray-400 dark:text-gray-500">License No.</p>
+                            <p class="font-mono text-gray-600 dark:text-gray-300">{{ $d->license_number }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 dark:text-gray-500">License Expiry</p>
+                            @if ($d->license_expiry)
+                                @php $expired = $d->license_expiry->isPast(); @endphp
+                                <p class="{{ $expired ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-gray-600 dark:text-gray-300' }}">
+                                    {{ $d->license_expiry->format('M d, Y') }} {{ $expired ? '(Expired)' : '' }}
+                                </p>
+                            @else
+                                <p class="text-gray-400 dark:text-gray-500">—</p>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="text-gray-400 dark:text-gray-500">Medical Clearance</p>
+                            <p class="text-gray-600 dark:text-gray-300">{{ $d->medical_clearance_date?->format('M d, Y') ?? '—' }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                        <button wire:click="openEdit({{ $d->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No drivers found.</div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>

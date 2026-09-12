@@ -34,8 +34,63 @@
                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
     </div>
 
-    {{-- Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+    {{-- Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->users as $user)
+            @php
+                [$bg, $label] = match($user->role) {
+                    'super_admin'    => ['bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300', 'Super Admin'],
+                    'hr_admin'       => ['bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', 'HR Admin'],
+                    'approver'       => ['bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300', 'Approver'],
+                    'manager'        => ['bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300', 'Manager'],
+                    'department_head'=> ['bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300', 'Dept. Head'],
+                    'security_guard' => ['bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300', 'Security Guard'],
+                    'head_nurse'     => ['bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300', 'Head Nurse'],
+                    default          => ['bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300', 'Employee'],
+                };
+            @endphp
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0">
+                        <span class="text-xs font-bold text-white">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{{ $user->name }}</p>
+                        <p class="text-xs font-mono text-gray-500 dark:text-gray-400">{{ $user->employee_code }}</p>
+                    </div>
+                    @if ($user->is_active)
+                        <span class="shrink-0 inline-flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active
+                        </span>
+                    @else
+                        <span class="shrink-0 inline-flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Inactive
+                        </span>
+                    @endif
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $bg }}">{{ $label }}</span>
+                    <div class="flex items-center gap-3">
+                        <button wire:click="openEdit({{ $user->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">Edit</button>
+                        <button wire:click="toggleActive({{ $user->id }})"
+                                class="text-sm font-medium {{ $user->is_active ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400' }}">
+                            {{ $user->is_active ? 'Deactivate' : 'Activate' }}
+                        </button>
+                        @if ($user->id !== auth()->id())
+                            <button wire:click="delete({{ $user->id }})"
+                                    wire:confirm="Delete account {{ $user->name }}? This cannot be undone."
+                                    class="text-sm text-red-500 dark:text-red-400 font-medium">Delete</button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-8 text-center text-gray-400 dark:text-gray-500 text-sm">No accounts found.</div>
+        @endforelse
+    </div>
+
+    {{-- Table (desktop / tablet) --}}
+    <div class="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-700">

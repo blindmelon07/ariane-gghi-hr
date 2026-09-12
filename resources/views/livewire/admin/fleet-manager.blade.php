@@ -33,7 +33,50 @@
             </select>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden space-y-3">
+            @forelse ($this->vehicles as $v)
+                @php
+                    $badge = match($v->status) {
+                        'available'          => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                        'in_use'             => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                        'under_maintenance'  => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                        default              => 'bg-gray-100 text-gray-500',
+                    };
+                @endphp
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-mono font-semibold text-gray-800 dark:text-gray-100">{{ $v->plate_number }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $v->make }} {{ $v->model }}</p>
+                        </div>
+                        <button wire:click="toggleActive({{ $v->id }})"
+                                class="shrink-0 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold
+                                       {{ $v->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
+                            {{ $v->is_active ? 'Active' : 'Inactive' }}
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2 mt-3">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold {{ $badge }}">
+                            {{ str_replace('_', ' ', ucfirst($v->status)) }}
+                        </span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ $v->vehicle_type }}</span>
+                        <span class="text-xs text-gray-400 dark:text-gray-500">· {{ $v->capacity }} seats</span>
+                        @if ($v->year)
+                            <span class="text-xs text-gray-400 dark:text-gray-500">· {{ $v->year }}</span>
+                        @endif
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                        <button wire:click="openEdit({{ $v->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No vehicles found.</div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>

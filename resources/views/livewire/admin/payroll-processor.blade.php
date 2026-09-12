@@ -157,8 +157,49 @@
     </div>
     @endif
 
-    {{-- Periods Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+    {{-- Periods Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->periods as $period)
+            @php
+                $colors = ['draft' => 'gray', 'processing' => 'yellow', 'processed' => 'blue', 'finalized' => 'green'];
+                $c = $colors[$period->status] ?? 'gray';
+            @endphp
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $period->name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $period->start_date->format('M d') }} – {{ $period->end_date->format('M d, Y') }}</p>
+                    </div>
+                    <span class="shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800 dark:bg-{{ $c }}-900/30 dark:text-{{ $c }}-300">
+                        {{ ucfirst($period->status) }}
+                    </span>
+                </div>
+                <div class="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span>{{ str_replace('_', ' ', ucfirst($period->cutoff_type)) }}</span>
+                    <span>· {{ $period->payslips()->count() }} payslips</span>
+                </div>
+                <div class="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    @if ($period->status === 'draft' || $period->status === 'processed')
+                        <button wire:click="generatePayslips({{ $period->id }})" wire:confirm="Generate payslips for all employees?" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+                            {{ $period->status === 'draft' ? 'Generate' : 'Regenerate' }}
+                        </button>
+                    @endif
+                    @if ($period->status === 'processed')
+                        <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone." class="text-sm text-green-600 dark:text-green-400 font-medium">Finalize</button>
+                    @endif
+                    @if (in_array($period->status, ['processed', 'finalized']))
+                        <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 font-medium">Excel</button>
+                        <button wire:click="viewPayslips({{ $period->id }})" class="text-sm text-purple-600 dark:text-purple-400 font-medium">Payslips</button>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-8 text-center text-gray-400 dark:text-gray-500 text-sm">No payroll periods found.</div>
+        @endforelse
+    </div>
+
+    {{-- Periods Table (desktop / tablet) --}}
+    <div class="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
@@ -235,8 +276,42 @@
                 </button>
             </div>
 
-            {{-- Employee List --}}
-            <div class="overflow-y-auto flex-1">
+            {{-- Employee List: Cards (mobile) --}}
+            <div class="lg:hidden overflow-y-auto flex-1 divide-y divide-gray-100 dark:divide-gray-700">
+                @foreach ($this->periodPayslips as $row)
+                    @php $emp = $row['employee']; $slip = $row['payslip']; @endphp
+                    <div class="px-6 py-3">
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $emp->full_name }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $emp->emp_code }}</p>
+                        <div class="grid grid-cols-3 gap-2 mt-2 text-xs">
+                            <div>
+                                <p class="text-gray-400 dark:text-gray-500">Gross</p>
+                                <p class="font-mono text-gray-700 dark:text-gray-300">{{ $slip ? '₱' . number_format($slip->gross_pay, 2) : '—' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 dark:text-gray-500">Deductions</p>
+                                <p class="font-mono text-red-600 dark:text-red-400">{{ $slip ? '₱' . number_format($slip->total_deductions, 2) : '—' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 dark:text-gray-500">Net</p>
+                                <p class="font-mono font-semibold text-green-600 dark:text-green-400">{{ $slip ? '₱' . number_format($slip->net_pay, 2) : '—' }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.payslips.download', [$emp->id, $viewPeriodId]) }}"
+                           target="_blank"
+                           class="mt-2 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg
+                                  {{ $slip ? 'bg-indigo-600 dark:bg-indigo-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' }}">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            {{ $slip ? 'Download' : 'Generate & Download' }}
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Employee List: Table (desktop / tablet) --}}
+            <div class="hidden lg:block overflow-y-auto flex-1">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0">
                         <tr>

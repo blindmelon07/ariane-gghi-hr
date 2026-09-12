@@ -32,7 +32,37 @@
                 <p class="text-gray-500 dark:text-gray-400 text-sm">No leave requests found.</p>
             </div>
         @else
-            <div class="overflow-x-auto">
+            {{-- Cards (mobile) --}}
+            <div class="lg:hidden space-y-3">
+                @foreach ($this->requests as $req)
+                    @php
+                        $badgeClass = match($req->status) {
+                            'pending'   => 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
+                            'approved'  => 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+                            'rejected'  => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+                            'cancelled' => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                            default     => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                        };
+                    @endphp
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="font-medium text-gray-800 dark:text-gray-100">{{ $req->leaveType->code }}</p>
+                            <span class="shrink-0 inline-block px-2 py-0.5 text-xs font-semibold rounded {{ $badgeClass }}">{{ ucfirst($req->status) }}</span>
+                        </div>
+                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">{{ $req->start_date->format('M d, Y') }} – {{ $req->end_date->format('M d, Y') }} · {{ $req->total_days }}d</p>
+                        @if ($req->reason)
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ $req->reason }}</p>
+                        @endif
+                        @if ($req->status === 'pending')
+                            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                <button wire:click="cancel({{ $req->id }})" wire:confirm="Are you sure you want to cancel this request?" class="text-red-600 dark:text-red-400 text-xs font-medium">Cancel</button>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="hidden lg:block overflow-x-auto">
                 <table class="w-full text-sm text-left">
                     <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                         <tr>

@@ -6,6 +6,12 @@
         </div>
     @endif
 
+    @if (session('error'))
+        <div class="bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-300 rounded-xl px-4 py-3 text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -49,7 +55,50 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden divide-y divide-gray-100 dark:divide-gray-700">
+            @forelse ($this->schedules as $sched)
+            <div class="p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-gray-800 dark:text-gray-100 font-medium truncate">{{ $sched->name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $sched->department }}</p>
+                    </div>
+                    <button wire:click="toggleScheduleActive({{ $sched->id }})"
+                        class="shrink-0 inline-block px-2 py-0.5 text-xs rounded-full cursor-pointer transition
+                        {{ $sched->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' }}">
+                        {{ $sched->is_active ? 'Active' : 'Inactive' }}
+                    </button>
+                </div>
+                <div class="mt-2 text-sm">
+                    <span class="font-mono text-gray-700 dark:text-gray-200">{{ substr($sched->time_in, 0, 5) }} - {{ substr($sched->time_out, 0, 5) }}</span>
+                    @if ($sched->time_in_2)
+                        <span class="font-mono text-gray-500 dark:text-gray-400 text-xs block">{{ substr($sched->time_in_2, 0, 5) }} - {{ substr($sched->time_out_2, 0, 5) }}</span>
+                    @endif
+                </div>
+                <div class="flex items-center gap-1.5 mt-2">
+                    @if ($sched->break_start)
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Break {{ substr($sched->break_start, 0, 5) }}-{{ substr($sched->break_end, 0, 5) }}</span>
+                    @endif
+                    @if ($sched->time_in_2)
+                        <span class="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">Split</span>
+                    @endif
+                    @if ($sched->is_night_shift)
+                        <span class="inline-block px-2 py-0.5 text-xs rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">Night</span>
+                    @endif
+                </div>
+                <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <button wire:click="openEditSchedule({{ $sched->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                    <button wire:click="deleteSchedule({{ $sched->id }})" wire:confirm="Delete this schedule?" class="text-red-500 dark:text-red-400 text-xs font-medium">Delete</button>
+                </div>
+            </div>
+            @empty
+            <div class="px-4 py-8 text-center text-gray-400 dark:text-gray-500">No schedules found.</div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>
@@ -146,7 +195,35 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden divide-y divide-gray-100 dark:divide-gray-700">
+            @forelse ($this->assignments as $assign)
+            <div class="p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $assign->employee->first_name }} {{ $assign->employee->last_name }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">{{ $assign->employee->emp_code }} · {{ $assign->employee->department }}</p>
+                    </div>
+                    <span class="shrink-0 inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300">
+                        {{ $assign->schedule->name }}
+                    </span>
+                </div>
+                <p class="font-mono text-gray-700 dark:text-gray-200 text-xs mt-2">{{ $assign->schedule->formatted_time }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {{ $assign->effective_from->format('M d, Y') }} – {{ $assign->effective_to ? $assign->effective_to->format('M d, Y') : 'ongoing' }}
+                </p>
+                <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <button wire:click="openEditAssign({{ $assign->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                    <button wire:click="deleteAssign({{ $assign->id }})" wire:confirm="Remove this assignment?" class="text-red-500 dark:text-red-400 text-xs font-medium">Remove</button>
+                </div>
+            </div>
+            @empty
+            <div class="px-4 py-8 text-center text-gray-400 dark:text-gray-500">No schedule assignments found.</div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>
@@ -296,7 +373,27 @@
             <div class="space-y-4">
                 {{-- Employee search --}}
                 <div x-data="{ open: false }" @click.outside="open = false">
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Employee</label>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {{ $editAssignId ? 'Employee' : 'Add Employees' }}
+                    </label>
+
+                    @if (!$editAssignId)
+                        {{-- Quick "whole department" pick, for assigning a group like all of Nursing at once --}}
+                        <div class="flex gap-2 mb-2">
+                            <select wire:model.live="assignEmpDeptFilter" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                                <option value="">Filter / pick by department…</option>
+                                @foreach ($this->departments as $dept)
+                                    <option value="{{ $dept }}">{{ $dept }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" wire:click="selectAllInDept" @click="open = false"
+                                    class="px-3 py-1.5 text-xs font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 whitespace-nowrap"
+                                    {{ $assignEmpDeptFilter ? '' : 'disabled' }}>
+                                + Add all
+                            </button>
+                        </div>
+                    @endif
+
                     <input wire:model.live.debounce.300ms="assignEmpSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" {{ $editAssignId ? 'disabled' : '' }} />
                     @if (!$editAssignId)
@@ -313,8 +410,22 @@
                             @endif
                         </ul>
                     </div>
+
+                    {{-- Selected employees for this group assignment --}}
+                    @if ($this->selectedAssignEmployees->isNotEmpty())
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            @foreach ($this->selectedAssignEmployees as $emp)
+                                <span class="inline-flex items-center gap-1 pl-2 pr-1 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs">
+                                    {{ $emp->first_name }} {{ $emp->last_name }}
+                                    <button type="button" wire:click="removeAssignEmployee({{ $emp->id }})" class="hover:text-indigo-900 dark:hover:text-indigo-100 font-bold px-1">&times;</button>
+                                </span>
+                            @endforeach
+                        </div>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ $this->selectedAssignEmployees->count() }} employee(s) selected</p>
+                    @endif
                     @endif
                     @error('assignEmployeeId') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                    @error('assignEmployeeIds') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Schedule picker --}}

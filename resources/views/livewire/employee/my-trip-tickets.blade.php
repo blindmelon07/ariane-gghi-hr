@@ -23,7 +23,93 @@
             </select>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden space-y-3">
+            @forelse ($this->tickets as $ticket)
+                @php
+                    $approvedSteps = $ticket->approvals->where('action','approved')->pluck('step')->toArray();
+                    $rejectedStep  = $ticket->approvals->where('action','rejected')->first()?->step;
+                    $steps         = \App\Services\TripTicketService::APPROVAL_STEPS;
+                    $onTrip = $ticket->status === 'approved' && $ticket->departed_at !== null;
+                    $badge = match(true) {
+                        $onTrip                        => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                        $ticket->status === 'approved'  => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                        $ticket->status === 'completed' => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                        $ticket->status === 'rejected'  => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                        $ticket->status === 'cancelled' => 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
+                        default                         => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                    };
+                    $label = match(true) {
+                        $onTrip                        => 'On Trip',
+                        $ticket->status === 'approved'  => 'Scheduled',
+                        $ticket->status === 'completed' => 'Returned',
+                        default                         => ucfirst($ticket->status),
+                    };
+                @endphp
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $ticket->destination_to }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">from {{ $ticket->destination_from }}</p>
+                        </div>
+                        <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold {{ $badge }}">{{ $label }}</span>
+                    </div>
+                    <div class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                        {{ $ticket->departure_datetime->format('M d, Y g:i A') }}
+                        @if ($ticket->return_datetime)
+                            <span class="text-gray-400 dark:text-gray-500">· Return: {{ $ticket->return_datetime->format('M d, Y g:i A') }}</span>
+                        @endif
+                    </div>
+                    @if ($ticket->purpose)
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ $ticket->purpose }}</p>
+                    @endif
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        @if ($ticket->vehicle || $ticket->driver)
+                            {{ $ticket->vehicle?->display_name }} {{ $ticket->driver ? '· ' . $ticket->driver->display_name : '' }}
+                        @else
+                            <span class="text-gray-400 dark:text-gray-500">Vehicle/driver to be assigned</span>
+                        @endif
+                    </div>
+
+                    <div class="flex items-center gap-1 mt-3">
+                        @foreach ($steps as $stepNum => $stepConfig)
+                            @php
+                                $isApproved = in_array($stepNum, $approvedSteps);
+                                $isRejected = $rejectedStep === $stepNum;
+                                $isCurrent  = $ticket->approval_step === $stepNum && $ticket->status === 'pending';
+                            @endphp
+                            @if ($stepNum > 1)
+                                <div class="w-3 h-px {{ $isApproved ? 'bg-gray-400' : 'bg-gray-200 dark:bg-gray-600' }}"></div>
+                            @endif
+                            <div title="{{ $stepConfig['label'] }}"
+                                 class="flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold
+                                        {{ $isApproved ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : '' }}
+                                        {{ $isRejected ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' : '' }}
+                                        {{ $isCurrent  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 ring-1 ring-amber-400' : '' }}
+                                        {{ !$isApproved && !$isRejected && !$isCurrent ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : '' }}">
+                                @if ($isApproved)
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                @elseif ($isRejected)
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                @else
+                                    {{ $stepNum }}
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @if ($ticket->status === 'pending')
+                        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                            <button wire:click="confirmCancel({{ $ticket->id }})" @click="showCancelModal = true" class="text-xs text-red-600 dark:text-red-400 font-medium">Cancel</button>
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500">No trip tickets found.</div>
+            @endforelse
+        </div>
+
+        <div class="hidden lg:block overflow-x-auto">
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>

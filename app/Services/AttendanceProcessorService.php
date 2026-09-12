@@ -97,27 +97,42 @@ class AttendanceProcessorService
             if ($correction->pm_time_out) $pmOut = Carbon::parse($date . ' ' . $correction->pm_time_out);
         }
 
-        // Lookup schedule (falls back to 08:00–17:00)
-        $scheduleIn  = Carbon::parse($date)->setTime(8, 0, 0);
-        $scheduleOut = Carbon::parse($date)->setTime(17, 0, 0);
+        // Lookup schedule (falls back to 08:00–17:00, PM session at 13:00)
+        $scheduleIn   = Carbon::parse($date)->setTime(8, 0, 0);
+        $scheduleOut  = Carbon::parse($date)->setTime(17, 0, 0);
+        $pmScheduleIn = Carbon::parse($date)->setTime(13, 0, 0);
 
         $assignment = \App\Models\EmployeeSchedule::where('employee_id', $employee->id)
-            ->where('effective_from', '<=', $date)
+            ->whereDate('effective_from', '<=', $date)
             ->where(function ($q) use ($date) {
-                $q->whereNull('effective_to')->orWhere('effective_to', '>=', $date);
+                $q->whereNull('effective_to')->orWhereDate('effective_to', '>=', $date);
             })
             ->orderByDesc('effective_from')
             ->with('schedule')
             ->first();
 
         if ($assignment?->schedule) {
-            $inParts  = explode(':', substr($assignment->schedule->time_in, 0, 5));
-            $outParts = explode(':', substr($assignment->schedule->time_out, 0, 5));
+            $schedule = $assignment->schedule;
+
+            $inParts  = explode(':', substr($schedule->time_in, 0, 5));
+            $outParts = explode(':', substr($schedule->time_out, 0, 5));
             $scheduleIn  = Carbon::parse($date)->setTime((int) $inParts[0], (int) $inParts[1], 0);
             $scheduleOut = Carbon::parse($date)->setTime((int) $outParts[0], (int) $outParts[1], 0);
-        }
 
-        $pmScheduleIn = Carbon::parse($date)->setTime(13, 0, 0);
+            // Split-shift templates set a distinct PM start (time_in_2) — use it
+            // instead of the 13:00 default so lateness is measured against the
+            // shift actually assigned, not a one-size-fits-all boundary.
+            if ($schedule->time_in_2) {
+                $in2Parts     = explode(':', substr($schedule->time_in_2, 0, 5));
+                $pmScheduleIn = Carbon::parse($date)->setTime((int) $in2Parts[0], (int) $in2Parts[1], 0);
+            }
+
+            // TODO: is_night_shift is stored but not yet applied here. A shift whose
+            // time_out crosses midnight (e.g. 22:00–06:00) needs its checkout matched
+            // against the following calendar day's punches, which this day-by-day
+            // punch_date grouping doesn't currently support. Needs a dedicated fix,
+            // not a partial patch here.
+        }
 
         // Late = AM late + PM late
         $amLate = $amIn ? (int) max(0, $amIn->diffInMinutes($scheduleIn, false) * -1) : 0;

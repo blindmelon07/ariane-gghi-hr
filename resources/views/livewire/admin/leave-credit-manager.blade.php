@@ -100,8 +100,36 @@
             </div>
         </div>
 
-        {{-- Table --}}
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden space-y-3">
+            @foreach ($this->employees as $employee)
+                <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $employee->full_name }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ $employee->emp_code }} · {{ $employee->department ?? '—' }}</p>
+                        </div>
+                        <button wire:click="openEmployeeCredits({{ $employee->id }})" class="shrink-0 text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        @foreach ($this->leaveTypes as $type)
+                            @php $credit = $employee->leaveCredits->firstWhere('leave_type_id', $type->id); @endphp
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-white dark:bg-gray-700 text-xs" title="{{ $type->name }}">
+                                <span class="font-semibold text-gray-500 dark:text-gray-400">{{ $type->code }}</span>
+                                @if ($credit)
+                                    <span class="text-gray-700 dark:text-gray-200">{{ number_format($credit->remaining_credits, 1) }}/{{ number_format($credit->total_credits, 1) }}</span>
+                                @else
+                                    <span class="text-gray-300">—</span>
+                                @endif
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>

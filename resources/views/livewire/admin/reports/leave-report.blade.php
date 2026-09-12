@@ -77,7 +77,34 @@
     {{-- Table --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden print:shadow-none">
         <div wire:loading.delay class="px-6 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-xs font-medium print:hidden">Loading...</div>
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden divide-y divide-gray-100 dark:divide-gray-700 print:hidden">
+            @forelse ($this->reportData as $req)
+                @php
+                    $c = match($req->status) {
+                        'approved' => 'green', 'pending' => 'yellow', 'rejected' => 'red', 'cancelled' => 'gray', default => 'gray'
+                    };
+                @endphp
+                <div class="px-4 py-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $req->employee->full_name ?? '—' }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ $req->leaveType->name ?? '' }}</p>
+                        </div>
+                        <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800">{{ ucfirst($req->status) }}</span>
+                    </div>
+                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">{{ $req->start_date->format('M d, Y') }} – {{ $req->end_date->format('M d, Y') }} · {{ $req->total_days }}d</p>
+                    <div class="flex items-center justify-between mt-1 text-xs text-gray-400 dark:text-gray-500">
+                        <span>Approved by: {{ $req->approver?->name ?? '—' }}</span>
+                        <span>Filed {{ $req->created_at->format('M d, Y') }}</span>
+                    </div>
+                </div>
+            @empty
+                <div class="px-4 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No leave requests found.</div>
+            @endforelse
+        </div>
+
+        <div class="hidden lg:block overflow-x-auto print:block">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50">
                 <tr>

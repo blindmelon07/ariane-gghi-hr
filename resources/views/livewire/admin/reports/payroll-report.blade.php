@@ -84,7 +84,45 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden print:shadow-none">
         <div wire:loading class="p-4 text-center text-gray-400 dark:text-gray-500 text-sm">Loading report data...</div>
 
-        <div wire:loading.remove class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div wire:loading.remove class="lg:hidden divide-y divide-gray-100 dark:divide-gray-700 print:hidden">
+            @forelse ($this->payslips as $slip)
+                <div class="px-4 py-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium truncate">{{ $slip->employee->full_name ?? '' }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $slip->employee->emp_code ?? '' }} · {{ number_format($slip->days_present, 1) }} days</p>
+                        </div>
+                        <p class="shrink-0 text-right font-bold text-green-700 dark:text-green-300">{{ number_format($slip->net_pay, 2) }}</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-2 text-xs">
+                        <div><p class="text-gray-400 dark:text-gray-500">Basic</p>{{ number_format($slip->basic_pay, 2) }}</div>
+                        <div><p class="text-gray-400 dark:text-gray-500">OT</p>{{ number_format($slip->overtime_pay, 2) }}</div>
+                        <div><p class="text-gray-400 dark:text-gray-500">Gross</p><span class="font-medium">{{ number_format($slip->gross_pay, 2) }}</span></div>
+                    </div>
+                    <p class="text-xs text-red-600 dark:text-red-400 mt-2">
+                        Deductions: {{ number_format($slip->total_deductions, 2) }}
+                        <span class="text-gray-400 dark:text-gray-500">(SSS {{ number_format($slip->sss_deduction, 2) }} · PH {{ number_format($slip->philhealth_deduction, 2) }} · PI {{ number_format($slip->pagibig_deduction, 2) }} · Tax {{ number_format($slip->tax_deduction, 2) }} · Other {{ number_format($slip->other_deductions, 2) }})</span>
+                    </p>
+                </div>
+            @empty
+                <div class="p-8 text-center text-gray-400 dark:text-gray-500">
+                    @if ($periodId)
+                        No payslips found for this period.
+                    @else
+                        Select a payroll period to view the report.
+                    @endif
+                </div>
+            @endforelse
+            @if ($this->payslips->isNotEmpty())
+                <div class="px-4 py-3 bg-gray-100 dark:bg-gray-700 font-bold text-sm flex items-center justify-between">
+                    <span>TOTALS</span>
+                    <span class="text-green-700 dark:text-green-300">{{ number_format($this->totals['net_pay'], 2) }}</span>
+                </div>
+            @endif
+        </div>
+
+        <div wire:loading.remove class="hidden lg:block overflow-x-auto print:block">
             @if ($this->payslips->isNotEmpty())
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">

@@ -47,8 +47,94 @@
         </div>
         @endif
 
-        {{-- Table --}}
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden space-y-3">
+            @forelse ($this->pendingRequests as $req)
+                @php
+                    $approvedSteps = $req->approvals->where('action','approved')->pluck('step')->toArray();
+                    $rejectedStep  = $req->approvals->where('action','rejected')->first()?->step;
+                    $isCurrent = $req->approval_step === $myStep && $req->status === 'pending';
+                @endphp
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $req->employee->full_name }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ $req->employee->emp_code }}</p>
+                        </div>
+                        <span class="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400">{{ $req->leaveType->code }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 mt-2 text-xs text-gray-600 dark:text-gray-300">
+                        @if ($req->is_half_day)
+                            {{ $req->start_date->format('M d, Y') }}
+                        @else
+                            {{ $req->start_date->format('M d') }} – {{ $req->end_date->format('M d, Y') }}
+                        @endif
+                        <span>· {{ $req->total_days }}d</span>
+                        @if ($req->is_half_day)
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">½ day</span>
+                        @endif
+                    </div>
+                    @if ($req->reason)
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ $req->reason }}</p>
+                    @endif
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Filed {{ $req->created_at->diffForHumans() }}</p>
+
+                    {{-- Approval chain --}}
+                    <div class="flex items-center gap-1 mt-3">
+                        @foreach ($steps as $stepNum => $stepConfig)
+                            @php
+                                $stepApproved = in_array($stepNum, $approvedSteps);
+                                $stepRejected = $rejectedStep === $stepNum;
+                                $stepCurrent  = $req->approval_step === $stepNum && $req->status === 'pending';
+                            @endphp
+                            @if ($stepNum > 1)
+                                <div class="w-3 h-px {{ $stepApproved || $stepRejected ? 'bg-gray-400' : 'bg-gray-200 dark:bg-gray-600' }}"></div>
+                            @endif
+                            <div title="{{ $stepConfig['label'] }}"
+                                 class="flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold
+                                        {{ $stepApproved ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : '' }}
+                                        {{ $stepRejected ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' : '' }}
+                                        {{ $stepCurrent  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 ring-1 ring-amber-400' : '' }}
+                                        {{ (!$stepApproved && !$stepRejected && !$stepCurrent) ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : '' }}">
+                                @if ($stepApproved)
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                @elseif ($stepRejected)
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                @else
+                                    {{ $stepNum }}
+                                @endif
+                            </div>
+                        @endforeach
+                        @if ($req->status === 'approved')
+                            <span class="ml-1 text-[10px] font-semibold text-green-600 dark:text-green-400">Done</span>
+                        @elseif ($req->status === 'rejected')
+                            <span class="ml-1 text-[10px] font-semibold text-red-600 dark:text-red-400">Rejected</span>
+                        @elseif ($isCurrent)
+                            <span class="ml-1 text-[10px] text-amber-600 dark:text-amber-400">Awaiting</span>
+                        @endif
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                        @if ($req->status === 'pending' && $req->approval_step === $myStep)
+                            <div class="flex gap-4">
+                                <button wire:click="openAction({{ $req->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">Approve</button>
+                                <button wire:click="openAction({{ $req->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">Reject</button>
+                            </div>
+                        @elseif ($req->status === 'pending')
+                            <span class="text-xs text-gray-400 dark:text-gray-500">Not your step</span>
+                        @else
+                            <span class="text-gray-400 dark:text-gray-500 text-xs">No action needed</span>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No leave requests found.</div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>

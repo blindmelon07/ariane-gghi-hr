@@ -61,8 +61,55 @@
         </div>
     </div>
 
-    {{-- Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+    {{-- Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->dayOffs as $off)
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+            <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                    <p class="font-medium truncate">{{ $off->employee->full_name ?? '' }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $off->employee->emp_code ?? '' }}</p>
+                </div>
+                <div class="shrink-0 text-right">
+                    <p class="text-sm font-medium">{{ $off->date->format('M d, Y') }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">{{ $off->date->format('l') }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 mt-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                    {{ match($off->type) {
+                        'rest_day' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+                        'holiday'  => 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+                        'special'  => 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+                        default    => 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+                    } }}">
+                    {{ str_replace('_', ' ', ucfirst($off->type)) }}
+                </span>
+                @if ($off->is_recurring)
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">Recurring</span>
+                @endif
+                @if ($off->description)
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $off->description }}</span>
+                @endif
+            </div>
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button wire:click="openEdit({{ $off->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                <button wire:click="delete({{ $off->id }})" wire:confirm="Remove this day off?" class="text-red-600 dark:text-red-400 text-xs font-medium">Delete</button>
+            </div>
+        </div>
+        @empty
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center text-gray-400 dark:text-gray-500 text-sm">
+            No day offs found for this period.
+        </div>
+        @endforelse
+
+        @if ($this->dayOffs->hasPages())
+        <div class="pt-1">{{ $this->dayOffs->links() }}</div>
+        @endif
+    </div>
+
+    {{-- Table (desktop / tablet) --}}
+    <div class="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">

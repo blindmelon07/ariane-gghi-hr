@@ -31,8 +31,47 @@
         </div>
     </div>
 
-    {{-- Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+    {{-- Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->holidays as $holiday)
+            @php
+                [$badgeClass, $label] = match($holiday->type) {
+                    'regular'             => ['bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', 'Regular Holiday'],
+                    'special_non_working' => ['bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300', 'Special Non-Working'],
+                    'special_working'     => ['bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', 'Special Working'],
+                    default               => ['bg-gray-100 text-gray-700', $holiday->type],
+                };
+            @endphp
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{{ $holiday->name }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ $holiday->date->format('M d, Y') }} ({{ $holiday->date->format('l') }})</p>
+                    </div>
+                    @if ($holiday->is_recurring)
+                        <span class="shrink-0 inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Every year
+                        </span>
+                    @endif
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $badgeClass }}">{{ $label }}</span>
+                    <div class="flex items-center gap-4">
+                        <button wire:click="openEdit({{ $holiday->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">Edit</button>
+                        <button wire:click="delete({{ $holiday->id }})" wire:confirm="Remove this holiday?" class="text-sm text-red-500 dark:text-red-400 font-medium">Delete</button>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center text-gray-400 dark:text-gray-500 text-sm">
+                No holidays for {{ $filterYear }}.
+            </div>
+        @endforelse
+    </div>
+
+    {{-- Table (desktop / tablet) --}}
+    <div class="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-700">

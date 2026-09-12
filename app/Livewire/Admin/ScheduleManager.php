@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -40,7 +41,9 @@ class ScheduleManager extends Component
 
     public bool    $showAssignModal   = false;
     public string  $assignEmpSearch   = '';
-    public ?int    $assignEmployeeId  = null;
+    public ?int    $assignEmployeeId  = null;   // single employee — used only when editing an existing assignment
+    public array   $assignEmployeeIds = [];     // multiple employees — used when creating new assignments
+    public string  $assignEmpDeptFilter = '';   // narrows the employee picker / powers "add all in department"
     public ?int    $assignScheduleId  = null;
     public string  $assignFrom        = '';
     public string  $assignTo          = '';
@@ -125,8 +128,24 @@ class ScheduleManager extends Component
                   ->orWhere('last_name', 'like', "%{$this->assignEmpSearch}%")
                   ->orWhere('emp_code', 'like', "%{$this->assignEmpSearch}%");
             })
+            // Already-picked employees are shown in the selected list instead —
+            // only relevant in multi-select (create) mode, not while editing.
+            ->when(!$this->editAssignId && $this->assignEmployeeIds, fn ($q) => $q->whereNotIn('id', $this->assignEmployeeIds))
             ->limit(10)
             ->get();
+    }
+
+    /**
+     * The employees currently picked for a new (multi-employee) assignment.
+     */
+    #[Computed]
+    public function selectedAssignEmployees()
+    {
+        if (empty($this->assignEmployeeIds)) {
+            return collect();
+        }
+
+        return Employee::whereIn('id', $this->assignEmployeeIds)->get();
     }
 
     #[Computed]
@@ -227,6 +246,25 @@ class ScheduleManager extends Component
 
     public function deleteSchedule(int $id): void
     {
+        // schedules -> employee_schedules is cascadeOnDelete at the DB level,
+        // so deleting a template still in use would silently wipe out every
+        // employee's assignment to it. Block that and point the admin at
+        // deactivating instead, which keeps assignments intact.
+        // Only count currently-active assignments — an expired assignment
+        // (effective_to in the past) shouldn't permanently block retiring a
+        // template no one is actually on anymore.
+        $today = now()->toDateString();
+        $inUseCount = EmployeeSchedule::where('schedule_id', $id)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('effective_to')->orWhereDate('effective_to', '>=', $today);
+            })
+            ->count();
+
+        if ($inUseCount > 0) {
+            session()->flash('error', "Can't delete — this schedule is assigned to {$inUseCount} employee(s). Reassign or remove those assignments first, or deactivate the schedule instead.");
+            return;
+        }
+
         Schedule::where('id', $id)->delete();
         session()->flash('message', 'Schedule deleted.');
         unset($this->schedules);
@@ -237,20 +275,60 @@ class ScheduleManager extends Component
     public function openAssign(): void
     {
         $this->reset([
-            'editAssignId', 'assignEmpSearch', 'assignEmployeeId',
-            'assignScheduleId', 'assignFrom', 'assignTo',
+            'editAssignId', 'assignEmpSearch', 'assignEmployeeId', 'assignEmployeeIds',
+            'assignEmpDeptFilter', 'assignScheduleId', 'assignFrom', 'assignTo',
         ]);
         $this->assignFrom = now()->format('Y-m-d');
         $this->showAssignModal = true;
+        unset($this->selectedAssignEmployees);
     }
 
+    /**
+     * Add an employee to the picker. While editing an existing assignment this
+     * replaces the single employee; otherwise it adds to the multi-select list
+     * used when creating new assignments for a group at once.
+     */
     public function selectEmployee(int $id): void
     {
-        $emp = Employee::find($id);
-        if ($emp) {
-            $this->assignEmployeeId = $emp->id;
-            $this->assignEmpSearch  = $emp->first_name . ' ' . $emp->last_name . ' (' . $emp->emp_code . ')';
+        if ($this->editAssignId) {
+            $emp = Employee::find($id);
+            if ($emp) {
+                $this->assignEmployeeId = $emp->id;
+                $this->assignEmpSearch  = $emp->first_name . ' ' . $emp->last_name . ' (' . $emp->emp_code . ')';
+            }
+            return;
         }
+
+        if (! in_array($id, $this->assignEmployeeIds, true)) {
+            $this->assignEmployeeIds[] = $id;
+            unset($this->selectedAssignEmployees, $this->employeeResults);
+        }
+        $this->assignEmpSearch = '';
+    }
+
+    public function removeAssignEmployee(int $id): void
+    {
+        $this->assignEmployeeIds = array_values(array_diff($this->assignEmployeeIds, [$id]));
+        unset($this->selectedAssignEmployees, $this->employeeResults);
+    }
+
+    /**
+     * Add every active employee in the currently filtered department to the
+     * multi-select list in one click — e.g. "all Nursing staff".
+     */
+    public function selectAllInDept(): void
+    {
+        if (! $this->assignEmpDeptFilter) {
+            return;
+        }
+
+        $ids = Employee::where('is_active', true)
+            ->where('department', $this->assignEmpDeptFilter)
+            ->pluck('id')
+            ->all();
+
+        $this->assignEmployeeIds = array_values(array_unique(array_merge($this->assignEmployeeIds, $ids)));
+        unset($this->selectedAssignEmployees, $this->employeeResults);
     }
 
     public function openEditAssign(int $id): void
@@ -258,6 +336,7 @@ class ScheduleManager extends Component
         $assign = EmployeeSchedule::with('employee')->findOrFail($id);
         $this->editAssignId     = $assign->id;
         $this->assignEmployeeId = $assign->employee_id;
+        $this->assignEmployeeIds = [];
         $this->assignScheduleId = $assign->schedule_id;
         $this->assignFrom       = $assign->effective_from->format('Y-m-d');
         $this->assignTo         = $assign->effective_to ? $assign->effective_to->format('Y-m-d') : '';
@@ -267,26 +346,37 @@ class ScheduleManager extends Component
 
     public function saveAssign(): void
     {
-        $this->validate([
-            'assignEmployeeId' => 'required|exists:employees,id',
-            'assignScheduleId' => 'required|exists:schedules,id',
-            'assignFrom'       => 'required|date',
-        ]);
-
-        $data = [
-            'employee_id'    => $this->assignEmployeeId,
-            'schedule_id'    => $this->assignScheduleId,
-            'effective_from' => $this->assignFrom,
-            'effective_to'   => $this->assignTo ?: null,
-            'created_by'     => Auth::id(),
-        ];
-
         if ($this->editAssignId) {
-            EmployeeSchedule::where('id', $this->editAssignId)->update($data);
+            $this->validate([
+                'assignEmployeeId' => 'required|exists:employees,id',
+                'assignScheduleId' => 'required|exists:schedules,id',
+                'assignFrom'       => 'required|date',
+            ]);
+
+            EmployeeSchedule::where('id', $this->editAssignId)->update([
+                'employee_id'    => $this->assignEmployeeId,
+                'schedule_id'    => $this->assignScheduleId,
+                'effective_from' => $this->assignFrom,
+                'effective_to'   => $this->assignTo ?: null,
+                'created_by'     => Auth::id(),
+            ]);
             session()->flash('message', 'Assignment updated.');
         } else {
-            EmployeeSchedule::create($data);
-            session()->flash('message', 'Schedule assigned to employee.');
+            $this->validate([
+                'assignEmployeeIds'   => 'required|array|min:1',
+                'assignEmployeeIds.*' => 'exists:employees,id',
+                'assignScheduleId'    => 'required|exists:schedules,id',
+                'assignFrom'          => 'required|date',
+            ]);
+
+            $count = $this->createAssignments(
+                $this->assignEmployeeIds,
+                $this->assignScheduleId,
+                $this->assignFrom,
+                $this->assignTo ?: null,
+            );
+
+            session()->flash('message', "Schedule assigned to {$count} employee(s).");
         }
 
         $this->showAssignModal = false;
@@ -317,25 +407,45 @@ class ScheduleManager extends Component
             'bulkFrom'       => 'required|date',
         ]);
 
-        $employees = Employee::where('department', $this->bulkDept)
+        $employeeIds = Employee::where('department', $this->bulkDept)
             ->where('is_active', true)
-            ->get();
+            ->pluck('id')
+            ->all();
 
-        $count = 0;
-        foreach ($employees as $emp) {
-            EmployeeSchedule::create([
-                'employee_id'    => $emp->id,
-                'schedule_id'    => $this->bulkScheduleId,
-                'effective_from' => $this->bulkFrom,
-                'effective_to'   => $this->bulkTo ?: null,
-                'created_by'     => Auth::id(),
-            ]);
-            $count++;
-        }
+        $count = $this->createAssignments(
+            $employeeIds,
+            $this->bulkScheduleId,
+            $this->bulkFrom,
+            $this->bulkTo ?: null,
+        );
 
         $this->showBulkModal = false;
         session()->flash('message', "Schedule assigned to {$count} employees in {$this->bulkDept}.");
         unset($this->assignments);
+    }
+
+    /**
+     * Shared by the "assign to multiple employees" and Bulk Assign flows —
+     * both boil down to "create an EmployeeSchedule row per employee ID for
+     * the same schedule/date range." Wrapped in a transaction so a failure
+     * partway through a large batch doesn't leave some employees assigned
+     * and others not.
+     */
+    private function createAssignments(array $employeeIds, int $scheduleId, string $from, ?string $to): int
+    {
+        return DB::transaction(function () use ($employeeIds, $scheduleId, $from, $to) {
+            foreach ($employeeIds as $employeeId) {
+                EmployeeSchedule::create([
+                    'employee_id'    => $employeeId,
+                    'schedule_id'    => $scheduleId,
+                    'effective_from' => $from,
+                    'effective_to'   => $to,
+                    'created_by'     => Auth::id(),
+                ]);
+            }
+
+            return count($employeeIds);
+        });
     }
 
     // ==================== RENDER ====================

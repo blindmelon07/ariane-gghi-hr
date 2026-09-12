@@ -54,8 +54,8 @@
         </div>
     </div>
 
-    {{-- Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+    {{-- Table (desktop / tablet) --}}
+    <div class="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 text-gray-500 dark:text-gray-400 uppercase text-xs">
@@ -134,6 +134,78 @@
 
         @if ($this->deductions->hasPages())
         <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+            {{ $this->deductions->links() }}
+        </div>
+        @endif
+    </div>
+
+    {{-- Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->deductions as $d)
+        @php
+            $categoryClass = match($d->deductionType?->category) {
+                'government' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+                'loan' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+                'benefit' => 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+                default => 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+            };
+            $statusClass = $d->is_active
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
+        @endphp
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+            <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                    <p class="font-medium truncate">{{ $d->employee->full_name ?? '' }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $d->employee->emp_code ?? '' }}</p>
+                </div>
+                <span class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
+                    {{ $d->is_active ? 'Active' : 'Inactive' }}
+                </span>
+            </div>
+
+            <div class="flex items-center gap-2 mt-3">
+                @if ($d->deductionType)
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $categoryClass }}">
+                    {{ $d->deductionType->code }}
+                </span>
+                @endif
+                <span class="text-sm text-gray-600 dark:text-gray-300 truncate">{{ $d->description }}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+                <div>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">Per Cutoff</p>
+                    <p class="font-mono">
+                        {{ number_format($d->amount_per_cutoff, 2) }}
+                        <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold
+                            {{ $d->cutoff_schedule === 'both' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
+                            {{ $d->cutoff_schedule === 'both' ? '1st & 2nd' : $d->cutoff_schedule }}
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">Balance</p>
+                    <p class="font-mono">{{ number_format($d->remaining_balance, 2) }}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button wire:click="openEdit({{ $d->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                <button wire:click="toggleActive({{ $d->id }})" class="text-xs font-medium {{ $d->is_active ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
+                    {{ $d->is_active ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button wire:click="delete({{ $d->id }})" wire:confirm="Delete this deduction?" class="text-xs font-medium text-red-600 dark:text-red-400">Delete</button>
+            </div>
+        </div>
+        @empty
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center text-gray-400 dark:text-gray-500 text-sm">
+            No deductions found.
+        </div>
+        @endforelse
+
+        @if ($this->deductions->hasPages())
+        <div class="pt-1">
             {{ $this->deductions->links() }}
         </div>
         @endif

@@ -186,7 +186,52 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden divide-y divide-gray-50 dark:divide-slate-800">
+            @forelse ($this->recentSyncLogs as $log)
+                <div class="px-6 py-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <span @class([
+                            'inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize',
+                            'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' => $log->type === 'attendance',
+                            'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400'                 => $log->type === 'employees',
+                        ])>
+                            {{ $log->type }}
+                        </span>
+                        <span @class([
+                            'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium',
+                            'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' => $log->status === 'success',
+                            'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'                 => $log->status === 'failed',
+                            'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'         => $log->status === 'running',
+                            'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'     => $log->status === 'partial',
+                        ])>
+                            <span @class([
+                                'w-1.5 h-1.5 rounded-full',
+                                'bg-emerald-500'              => $log->status === 'success',
+                                'bg-red-500'                  => $log->status === 'failed',
+                                'bg-amber-400 animate-pulse'  => $log->status === 'running',
+                                'bg-orange-500'                => $log->status === 'partial',
+                            ])></span>
+                            {{ ucfirst($log->status) }}
+                        </span>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between text-xs text-gray-400 dark:text-slate-500">
+                        <span>{{ $log->started_at->format('M d, Y H:i:s') }}</span>
+                        <span>{{ $log->records_fetched > 0 ? number_format($log->records_fetched) . ' records' : '—' }}</span>
+                    </div>
+                    @if ($log->error_message)
+                        <p class="mt-1 text-xs text-red-500 dark:text-red-400 truncate">{{ $log->error_message }}</p>
+                    @endif
+                </div>
+            @empty
+                <div class="px-6 py-10 text-center text-sm text-slate-400">
+                    No sync history yet. Jobs will appear here once they run.
+                </div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-gray-100 dark:border-slate-800">
@@ -267,7 +312,45 @@
             <span class="text-xs font-medium text-slate-400">{{ $this->deviceUsers->count() }} employees</span>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden divide-y divide-gray-50 dark:divide-slate-800">
+            @forelse ($this->deviceUsers as $emp)
+                <div class="px-6 py-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-200 truncate">{{ $emp->full_name }}</p>
+                            <p class="text-xs text-gray-500 dark:text-slate-400 font-mono">{{ $emp->emp_code }}</p>
+                        </div>
+                        @if ($emp->user)
+                            <span class="shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium {{ $emp->user->is_active ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $emp->user->is_active ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
+                                {{ $emp->user->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        @else
+                            <span class="shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                No Account
+                            </span>
+                        @endif
+                    </div>
+                    <div class="mt-2 flex items-center justify-between text-xs text-gray-400 dark:text-slate-500">
+                        <span>{{ $emp->user ? ucfirst($emp->user->role) : 'No role' }}</span>
+                        <span>Synced {{ $emp->synced_at?->format('M d, Y H:i') ?? '—' }}</span>
+                    </div>
+                    <button wire:click="openAccountModal({{ $emp->id }})"
+                        class="mt-2 w-full text-xs font-medium px-3 py-1.5 rounded-lg transition-colors text-center {{ $emp->user ? 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300' : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}">
+                        {{ $emp->user ? 'Manage Account' : 'Assign Account' }}
+                    </button>
+                </div>
+            @empty
+                <div class="px-6 py-10 text-center text-sm text-slate-400">
+                    No employees yet. Click <strong>Sync Employees from BioTime</strong> above to import them.
+                </div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-gray-100 dark:border-slate-800">
@@ -385,7 +468,48 @@
             <span class="text-xs text-slate-400">Last 15 records</span>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden divide-y divide-gray-50 dark:divide-slate-800">
+            @forelse ($this->recentLogs as $log)
+                <div class="px-6 py-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-200 truncate">{{ $log->employee?->full_name ?? '—' }}</p>
+                            <p class="text-xs text-gray-500 dark:text-slate-400 font-mono">{{ $log->emp_code }}</p>
+                        </div>
+                        <span @class([
+                            'shrink-0 inline-flex px-2 py-0.5 rounded-full text-xs font-medium',
+                            'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' => $log->punch_state == 0,
+                            'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'            => $log->punch_state == 1,
+                            'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400'             => !in_array($log->punch_state, [0, 1]),
+                        ])>
+                            {{ $log->punch_state == 0 ? 'Check In' : ($log->punch_state == 1 ? 'Check Out' : 'Other') }}
+                        </span>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between text-xs text-gray-400 dark:text-slate-500">
+                        <span>{{ \Carbon\Carbon::parse($log->punch_time)->format('M d, Y H:i:s') }}</span>
+                        @if ($log->is_processed)
+                            <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Processed
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 text-slate-400">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Pending
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="px-6 py-10 text-center text-sm text-slate-400">
+                    No attendance logs yet. Sync from BioTime to import records.
+                </div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-gray-100 dark:border-slate-800">

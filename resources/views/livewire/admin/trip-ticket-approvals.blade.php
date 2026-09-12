@@ -47,8 +47,109 @@
             </div>
         @endif
 
-        {{-- Table --}}
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden space-y-3">
+            @forelse ($this->tickets as $ticket)
+                @php
+                    $approvedSteps = $ticket->approvals->where('action','approved')->pluck('step')->toArray();
+                    $rejectedStep  = $ticket->approvals->where('action','rejected')->first()?->step;
+                @endphp
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $ticket->employee->full_name }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ $ticket->department ?? $ticket->employee->emp_code }}</p>
+                        </div>
+                        <div class="shrink-0 text-right text-xs text-gray-600 dark:text-gray-300">
+                            <div>{{ $ticket->departure_datetime->format('M d, Y') }}</div>
+                            <div class="text-gray-400 dark:text-gray-500">{{ $ticket->departure_datetime->format('g:i A') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 text-xs">
+                        <p class="font-medium text-gray-800 dark:text-gray-100">{{ $ticket->destination_to }}</p>
+                        <p class="text-gray-400 dark:text-gray-500">from {{ $ticket->destination_from }}</p>
+                    </div>
+                    @if ($ticket->purpose)
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ $ticket->purpose }}</p>
+                    @endif
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        @if ($ticket->vehicle || $ticket->driver)
+                            {{ $ticket->vehicle?->display_name }} {{ $ticket->driver ? '· ' . $ticket->driver->display_name : '' }}
+                        @else
+                            <span class="text-gray-400 dark:text-gray-500">Vehicle/driver to be assigned</span>
+                        @endif
+                    </div>
+
+                    {{-- Approval chain --}}
+                    <div class="flex items-center gap-1 mt-3">
+                        @foreach ($steps as $stepNum => $stepConfig)
+                            @php
+                                $stepApproved = in_array($stepNum, $approvedSteps);
+                                $stepRejected = $rejectedStep === $stepNum;
+                                $stepCurrent  = $ticket->approval_step === $stepNum && $ticket->status === 'pending';
+                            @endphp
+                            @if ($stepNum > 1)
+                                <div class="w-3 h-px {{ $stepApproved ? 'bg-gray-400' : 'bg-gray-200 dark:bg-gray-600' }}"></div>
+                            @endif
+                            <div title="{{ $stepConfig['label'] }}"
+                                 class="flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold
+                                        {{ $stepApproved ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : '' }}
+                                        {{ $stepRejected ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' : '' }}
+                                        {{ $stepCurrent  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 ring-1 ring-amber-400' : '' }}
+                                        {{ (!$stepApproved && !$stepRejected && !$stepCurrent) ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : '' }}">
+                                @if ($stepApproved)
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                @elseif ($stepRejected)
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                @else
+                                    {{ $stepNum }}
+                                @endif
+                            </div>
+                        @endforeach
+                        @if ($ticket->status === 'approved')
+                            <span class="ml-1 text-[10px] font-semibold text-green-600 dark:text-green-400">Scheduled</span>
+                        @elseif ($ticket->status === 'rejected')
+                            <span class="ml-1 text-[10px] font-semibold text-red-600 dark:text-red-400">Denied</span>
+                        @endif
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                        @if ($ticket->status === 'pending' && in_array($ticket->approval_step, $mySteps))
+                            <div class="flex gap-4">
+                                <button wire:click="openAction({{ $ticket->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">
+                                    {{ $ticket->approval_step === 3 ? 'Schedule' : 'Approve' }}
+                                </button>
+                                <button wire:click="openAction({{ $ticket->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">
+                                    {{ $ticket->approval_step === 3 ? 'Deny' : 'Reject' }}
+                                </button>
+                            </div>
+                        @elseif ($ticket->status === 'approved')
+                            <button wire:click="markReturned({{ $ticket->id }})"
+                                    wire:confirm="Mark this vehicle as returned and trip completed?"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 transition">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Mark Returned
+                            </button>
+                        @elseif ($ticket->status === 'completed')
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                <span class="text-green-600 dark:text-green-400 font-medium">Returned</span>
+                                @if ($ticket->completed_at)
+                                    {{ $ticket->completed_at->format('M d, Y') }}
+                                @endif
+                            </div>
+                        @elseif ($ticket->status === 'pending')
+                            <span class="text-xs text-gray-400 dark:text-gray-500">Not your step</span>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No trip ticket requests found.</div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>

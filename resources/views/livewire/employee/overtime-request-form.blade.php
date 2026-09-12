@@ -60,7 +60,43 @@
                 No overtime requests yet.
             </div>
         @else
-            <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+            {{-- Cards (mobile) --}}
+            <div class="lg:hidden divide-y divide-gray-100 dark:divide-gray-700">
+                @foreach ($this->myRequests as $req)
+                    @php
+                        $badge = match($req->status) {
+                            'pending'   => 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
+                            'approved'  => 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+                            'rejected'  => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+                            'cancelled' => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                            default     => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                        };
+                    @endphp
+                    <div class="px-6 py-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="text-sm text-gray-800 dark:text-gray-100 font-medium">{{ $req->date->format('M d, Y') }}</p>
+                            <span class="shrink-0 inline-block px-2 py-0.5 text-xs font-semibold rounded {{ $badge }}">{{ ucfirst($req->status) }}</span>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1 text-sm">
+                            <span class="font-mono text-gray-600 dark:text-gray-300">Req: {{ $req->requested_hours }}h</span>
+                            @if ($req->approved_hours)
+                                <span class="font-mono text-green-600 dark:text-green-400 font-semibold">Appr: {{ $req->approved_hours }}h</span>
+                            @endif
+                        </div>
+                        @if ($req->reason)
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ $req->reason }}</p>
+                        @endif
+                        @if ($req->remarks)
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">Remarks: {{ $req->remarks }}</p>
+                        @endif
+                        @if ($req->status === 'pending')
+                            <button wire:click="cancel({{ $req->id }})" wire:confirm="Cancel this OT request?" class="mt-2 text-xs text-red-500 dark:text-red-400 font-medium">Cancel</button>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            <table class="hidden lg:table min-w-full divide-y divide-gray-100 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>

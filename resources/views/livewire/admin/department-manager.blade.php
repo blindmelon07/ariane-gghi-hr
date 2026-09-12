@@ -32,8 +32,51 @@
         </button>
     </div>
 
-    {{-- Table --}}
-    <div class="overflow-hidden bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+    {{-- Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->departments as $dept)
+            <div wire:key="dept-m-{{ $dept->id }}" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $dept->name }}</p>
+                        @if ($dept->description)
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ $dept->description }}</p>
+                        @endif
+                    </div>
+                    @if ($dept->is_active)
+                        <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active
+                        </span>
+                    @else
+                        <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Inactive
+                        </span>
+                    @endif
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Code: {{ $dept->code ?? '—' }}</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                        {{ $dept->employees_count }} employee{{ $dept->employees_count !== 1 ? 's' : '' }}
+                    </span>
+                </div>
+                <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <button wire:click="openEdit({{ $dept->id }})" class="text-sm text-blue-600 dark:text-blue-400 font-medium">Edit</button>
+                    <button wire:click="confirmDelete({{ $dept->id }})" class="text-sm text-red-600 dark:text-red-400 font-medium">Delete</button>
+                </div>
+            </div>
+        @empty
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-sm text-center text-gray-400">
+                No departments found. Create one to get started.
+            </div>
+        @endforelse
+
+        @if ($this->departments->hasPages())
+            <div class="pt-1">{{ $this->departments->links() }}</div>
+        @endif
+    </div>
+
+    {{-- Table (desktop / tablet) --}}
+    <div class="hidden lg:block overflow-hidden bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700/50">
                 <tr>

@@ -75,7 +75,50 @@
     {{-- Table --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden print:shadow-none">
         <div wire:loading.delay class="px-6 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-xs font-medium print:hidden">Loading report...</div>
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden divide-y divide-gray-100 dark:divide-gray-700 print:hidden">
+            @forelse ($this->paginatedReport as $row)
+                @php
+                    $isLeave = !in_array($row['status'], ['Present','Late','Absent','Half-day','Incomplete','Day-off']);
+                    $c = match(true) {
+                        $row['status'] === 'Present'    => 'green',
+                        $row['status'] === 'Late'       => 'yellow',
+                        $row['status'] === 'Absent'     => 'red',
+                        $row['status'] === 'Half-day'   => 'orange',
+                        $row['status'] === 'Incomplete' => 'purple',
+                        $row['status'] === 'Day-off'    => 'gray',
+                        $isLeave                        => 'blue',
+                        default                         => 'gray',
+                    };
+                @endphp
+                <div class="px-4 py-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="text-sm text-gray-900 dark:text-gray-100 truncate">{{ $row['name'] }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $row['emp_code'] }} · {{ $row['department'] }}</p>
+                        </div>
+                        <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-{{ $c }}-100 text-{{ $c }}-800 dark:bg-{{ $c }}-900/30 dark:text-{{ $c }}-300">{{ $row['status'] }}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $row['date'] }}</p>
+                    <div class="grid grid-cols-4 gap-2 mt-2 text-xs text-gray-600 dark:text-gray-300">
+                        <div><p class="text-gray-400 dark:text-gray-500">AM In</p>{{ $row['am_time_in'] ?? '—' }}</div>
+                        <div><p class="text-gray-400 dark:text-gray-500">AM Out</p>{{ $row['am_time_out'] ?? '—' }}</div>
+                        <div><p class="text-gray-400 dark:text-gray-500">PM In</p>{{ $row['pm_time_in'] ?? '—' }}</div>
+                        <div><p class="text-gray-400 dark:text-gray-500">PM Out</p>{{ $row['pm_time_out'] ?? '—' }}</div>
+                    </div>
+                    <div class="flex items-center gap-4 mt-2 text-xs">
+                        <span class="font-mono text-gray-700 dark:text-gray-200">{{ number_format($row['hours'], 2) }} hrs</span>
+                        @if ($row['late_min'] > 0)
+                            <span class="font-medium text-red-600 dark:text-red-400">{{ $row['late_min'] }} min late</span>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="px-4 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No attendance data for the selected period.</div>
+            @endforelse
+        </div>
+
+        <div class="hidden lg:block overflow-x-auto print:block">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50">
                 <tr>

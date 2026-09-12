@@ -26,8 +26,52 @@
             </select>
         </div>
 
-        {{-- Table --}}
-        <div class="overflow-x-auto">
+        {{-- Cards (mobile) --}}
+        <div class="lg:hidden space-y-3">
+            @forelse ($this->requests as $req)
+                @php
+                    $badge = match($req->status) {
+                        'pending'   => 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
+                        'approved'  => 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+                        'rejected'  => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+                        'cancelled' => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                        default     => 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                    };
+                @endphp
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $req->employee->full_name }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $req->employee->emp_code }}</p>
+                        </div>
+                        <span class="shrink-0 inline-block px-2 py-0.5 text-xs font-semibold rounded {{ $badge }}">{{ ucfirst($req->status) }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 mt-2 text-xs text-gray-600 dark:text-gray-300">
+                        <span class="font-medium">{{ $req->date->format('M d, Y') }}</span>
+                        <span class="font-mono">Req: {{ $req->requested_hours }}h</span>
+                        @if ($req->approved_hours)
+                            <span class="font-mono text-green-600 dark:text-green-400 font-semibold">Appr: {{ $req->approved_hours }}h</span>
+                        @endif
+                    </div>
+                    @if ($req->reason)
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ $req->reason }}</p>
+                    @endif
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Filed {{ $req->created_at->diffForHumans() }}</p>
+
+                    @if ($req->status === 'pending')
+                        <div class="flex gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                            <button wire:click="openAction({{ $req->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">Approve</button>
+                            <button wire:click="openAction({{ $req->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">Reject</button>
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="text-center py-12 text-gray-400 dark:text-gray-500 text-sm">No overtime requests found.</div>
+            @endforelse
+        </div>
+
+        {{-- Table (desktop / tablet) --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 uppercase text-xs">
                     <tr>

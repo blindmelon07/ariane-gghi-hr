@@ -37,8 +37,63 @@
         </button>
     </div>
 
-    {{-- Table --}}
-    <div class="overflow-hidden bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+    {{-- Cards (mobile) --}}
+    <div class="lg:hidden space-y-3">
+        @forelse ($this->positions as $pos)
+            <div wire:key="pos-m-{{ $pos->id }}" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $pos->name }}</p>
+                        @if ($pos->department)
+                            <span class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
+                                {{ $pos->department->name }}
+                            </span>
+                        @else
+                            <span class="block mt-1 text-xs text-gray-400">All departments</span>
+                        @endif
+                    </div>
+                    @if ($pos->is_active)
+                        <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active
+                        </span>
+                    @else
+                        <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Inactive
+                        </span>
+                    @endif
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                        {{ $pos->employees_count }} employee{{ $pos->employees_count !== 1 ? 's' : '' }}
+                    </span>
+                    <button wire:click="toggleApprover({{ $pos->id }})"
+                            wire:loading.attr="disabled"
+                            wire:target="toggleApprover({{ $pos->id }})"
+                            class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        Can Approve
+                        <span class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors {{ $pos->is_approver ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
+                            <span class="inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform {{ $pos->is_approver ? 'translate-x-5' : 'translate-x-1' }}"></span>
+                        </span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <button wire:click="openEdit({{ $pos->id }})" class="text-sm text-blue-600 dark:text-blue-400 font-medium">Edit</button>
+                    <button wire:click="confirmDelete({{ $pos->id }})" class="text-sm text-red-600 dark:text-red-400 font-medium">Delete</button>
+                </div>
+            </div>
+        @empty
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-sm text-center text-gray-400">
+                No positions found. Create one to get started.
+            </div>
+        @endforelse
+
+        @if ($this->positions->hasPages())
+            <div class="pt-1">{{ $this->positions->links() }}</div>
+        @endif
+    </div>
+
+    {{-- Table (desktop / tablet) --}}
+    <div class="hidden lg:block overflow-hidden bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700/50">
                 <tr>

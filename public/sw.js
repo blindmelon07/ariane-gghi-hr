@@ -33,7 +33,11 @@ self.addEventListener('fetch', event => {
                 if (cached) return cached;
                 return fetch(request).then(response => {
                     if (response.ok) {
-                        caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+                        // Clone synchronously, before the body can be consumed elsewhere —
+                        // caches.open() is async, so cloning inside its .then() risks the
+                        // original response already being read by the time clone() runs.
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
                     }
                     return response;
                 }).catch(() => caches.match(OFFLINE_URL));
@@ -49,7 +53,8 @@ self.addEventListener('fetch', event => {
                 if (cached) return cached;
                 return fetch(request).then(response => {
                     if (response.ok) {
-                        caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
                     }
                     return response;
                 });
