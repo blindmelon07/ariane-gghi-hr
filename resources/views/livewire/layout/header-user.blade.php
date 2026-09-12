@@ -76,6 +76,18 @@ new class extends Component
                 </svg>
                 My Profile
             </a>
+            <button
+                x-show="!$store.pwaInstall.isStandalone && ($store.pwaInstall.canInstallAndroid || $store.pwaInstall.isIOS)"
+                x-cloak
+                @click="$store.pwaInstall.install(); open = false"
+                class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300
+                       hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+            >
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15"/>
+                </svg>
+                Install App
+            </button>
         </div>
 
         {{-- Divider + Logout --}}

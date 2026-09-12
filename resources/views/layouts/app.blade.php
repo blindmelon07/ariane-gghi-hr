@@ -134,7 +134,78 @@
                     store.isDesktop = window.innerWidth >= 1024;
                     if (store.isDesktop) store.mobileOpen = false;
                 });
+
+                window.initPwaInstallStore();
             });
+
+            // ── "Install App" prompt (Android install banner + iOS instructions) ──
+            // Defined as a standalone, idempotent function (not just inside alpine:init)
+            // because wire:navigate keeps the Alpine runtime alive across the guest→app
+            // layout transition without a full page reload — same reason guest.blade.php
+            // re-registers the 'sidebar' store on livewire:navigated. Calling this again
+            // on every navigation is safe: it no-ops once the store already exists.
+            window.initPwaInstallStore = function () {
+                if (!window.Alpine || Alpine.store('pwaInstall')) return;
+
+                var isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()) && !window.MSStream;
+                var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+                var dismissedAt = null;
+                try { dismissedAt = localStorage.getItem('pwaInstallDismissedAt'); } catch (e) {}
+                var dismissedRecently = dismissedAt && (Date.now() - parseInt(dismissedAt, 10)) < 7 * 24 * 60 * 60 * 1000;
+
+                Alpine.store('pwaInstall', {
+                    deferredPrompt: null,
+                    canInstallAndroid: false,
+                    isIOS: isIOS,
+                    isStandalone: isStandalone,
+                    showBanner: false,
+                    showIOSModal: false,
+
+                    async install() {
+                        if (this.deferredPrompt) {
+                            this.deferredPrompt.prompt();
+                            await this.deferredPrompt.userChoice;
+                            this.deferredPrompt = null;
+                            this.canInstallAndroid = false;
+                            this.showBanner = false;
+                        } else if (this.isIOS) {
+                            this.showIOSModal = true;
+                        }
+                    },
+                    dismiss() {
+                        this.showBanner = false;
+                        try { localStorage.setItem('pwaInstallDismissedAt', Date.now().toString()); } catch (e) {}
+                    },
+                });
+
+                if (!isStandalone) {
+                    window.addEventListener('beforeinstallprompt', function (e) {
+                        e.preventDefault();
+                        var store = Alpine.store('pwaInstall');
+                        store.deferredPrompt = e;
+                        store.canInstallAndroid = true;
+                        if (!dismissedRecently) store.showBanner = true;
+                    });
+
+                    // iOS Safari never fires beforeinstallprompt — show our own banner instead.
+                    if (isIOS && !dismissedRecently) {
+                        Alpine.store('pwaInstall').showBanner = true;
+                    }
+                }
+            };
+
+            // Covers: arriving here via wire:navigate from a layout that never ran
+            // alpine:init with this script (i.e. guest.blade.php after login).
+            document.addEventListener('livewire:navigated', function () {
+                window.initPwaInstallStore();
+            });
+
+            // Covers the transition itself: when wire:navigate brings this very script
+            // into the document (e.g. right after login), Alpine is already booted, so
+            // no future alpine:init/livewire:navigated event will fire for this page —
+            // call it once immediately (no-ops harmlessly if Alpine isn't ready yet;
+            // alpine:init above will pick it up in that case).
+            window.initPwaInstallStore();
         </script>
 
         <style>[x-cloak]{display:none!important}</style>
@@ -239,6 +310,7 @@
         </div>
 
         @include('layouts._mobile-nav')
+        @include('layouts._pwa-install')
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
         @livewireScripts
         <script>
