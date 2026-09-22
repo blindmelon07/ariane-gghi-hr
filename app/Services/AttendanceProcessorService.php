@@ -12,9 +12,6 @@ use Illuminate\Support\Carbon;
 
 class AttendanceProcessorService
 {
-    // Punch times before this boundary are treated as AM; at/after are PM.
-    private const AM_PM_BOUNDARY = '12:30:00';
-
     /**
      * @return array{
      *   am_time_in: ?string, am_time_out: ?string,
@@ -78,10 +75,23 @@ class AttendanceProcessorService
             return $this->emptyResult('Absent');
         }
 
-        $boundary = Carbon::parse($date . ' ' . self::AM_PM_BOUNDARY);
+        $boundary = Carbon::parse($date . ' 12:30:00');
 
         $amLogs = $logs->filter(fn ($l) => $l->punch_time->lt($boundary))->values();
         $pmLogs = $logs->filter(fn ($l) => $l->punch_time->gte($boundary))->values();
+
+        // A short lunch break that falls entirely before the boundary (e.g. out
+        // at 12:03, back in at 12:11 — both under 12:30) leaves 3+ punches in
+        // the AM bucket (in, lunch-out, lunch-in) and only the final checkout in
+        // the PM bucket. Left alone, that makes the checkout look like a second
+        // "check-in" with no matching checkout, and the day comes back
+        // "Incomplete". A normal AM session is just [in, out], so anything past
+        // the first two AM punches actually belongs to the PM session.
+        if ($amLogs->count() > 2) {
+            $overflow = $amLogs->slice(2)->values();
+            $amLogs   = $amLogs->slice(0, 2)->values();
+            $pmLogs   = $overflow->concat($pmLogs)->values();
+        }
 
         // Base times from biometric
         $amIn  = $amLogs->first()?->punch_time;

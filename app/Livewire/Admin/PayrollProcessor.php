@@ -8,13 +8,16 @@ use App\Models\Employee;
 use App\Models\PayrollPeriod;
 use App\Models\Payslip;
 use App\Services\ActivityLogService;
+use App\Services\PayrollWorksheetImportService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PayrollProcessor extends Component
 {
+    use WithFileUploads;
     use WithPagination;
 
     public string $filterStatus = 'all';
@@ -28,6 +31,11 @@ class PayrollProcessor extends Component
 
     // Per-period payslip viewer
     public ?int   $viewPeriodId  = null;
+
+    // Excel import
+    public ?int    $importPeriodId = null;
+
+    public mixed   $importFile     = null;
 
     public function mount(): void
     {
@@ -155,6 +163,49 @@ class PayrollProcessor extends Component
 
         unset($this->periods);
         session()->flash('success', 'Payroll period finalized.');
+    }
+
+    public function openImport(int $periodId): void
+    {
+        $this->importPeriodId = $periodId;
+        $this->importFile     = null;
+    }
+
+    public function closeImport(): void
+    {
+        $this->importPeriodId = null;
+        $this->importFile     = null;
+    }
+
+    public function importExcel(PayrollWorksheetImportService $importer): void
+    {
+        $this->validate([
+            'importFile' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        $period = PayrollPeriod::findOrFail($this->importPeriodId);
+
+        if ($period->status === 'finalized') {
+            session()->flash('error', 'Cannot import into a finalized payroll.');
+            return;
+        }
+
+        $result = $importer->import($this->importFile->getRealPath(), $period);
+
+        if ($result['matched'] > 0) {
+            $period->update(['status' => 'processed']);
+        }
+
+        ActivityLogService::log('payroll_imported', "Imported {$result['matched']} payslip(s) from Excel into: {$period->name}", $period);
+
+        $message = "Imported {$result['matched']} payslip(s).";
+        if (! empty($result['unmatched'])) {
+            $message .= ' Could not match: '.implode(', ', $result['unmatched']).'.';
+        }
+        session()->flash($result['matched'] > 0 ? 'success' : 'error', $message);
+
+        $this->closeImport();
+        unset($this->periods);
     }
 
     public function exportExcel(int $periodId): mixed

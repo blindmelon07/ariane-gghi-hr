@@ -157,6 +157,41 @@
     </div>
     @endif
 
+    {{-- Import Excel Modal --}}
+    @if ($importPeriodId)
+    <div wire:click.self="closeImport"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+         x-data x-on:keydown.escape.window="$wire.closeImport()">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Import Payroll Excel</h3>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">
+                Upload a payroll worksheet (with a "WORKSHEET" sheet) to create or update salary details and payslips for this period. Matching is by employee surname/first name.
+            </p>
+
+            <form wire:submit="importExcel" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Excel File</label>
+                    <input type="file" wire:model="importFile" accept=".xlsx,.xls"
+                           class="w-full text-sm text-gray-700 dark:text-gray-200" />
+                    <div wire:loading wire:target="importFile" class="text-xs text-gray-400 dark:text-gray-500 mt-1">Uploading…</div>
+                    @error('importFile') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex justify-end gap-3 pt-1">
+                    <button type="button" wire:click="closeImport"
+                            class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="submit" wire:loading.attr="disabled" wire:target="importExcel"
+                            class="rounded-lg bg-teal-600 dark:bg-teal-500 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 dark:hover:bg-teal-600 disabled:opacity-50">
+                        Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
     {{-- Periods Cards (mobile) --}}
     <div class="lg:hidden space-y-3">
         @forelse ($this->periods as $period)
@@ -190,6 +225,9 @@
                     @if (in_array($period->status, ['processed', 'finalized']))
                         <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 font-medium">Excel</button>
                         <button wire:click="viewPayslips({{ $period->id }})" class="text-sm text-purple-600 dark:text-purple-400 font-medium">Payslips</button>
+                    @endif
+                    @if ($period->status !== 'finalized')
+                        <button wire:click="openImport({{ $period->id }})" class="text-sm text-teal-600 dark:text-teal-400 font-medium">Import Excel</button>
                     @endif
                 </div>
             </div>
@@ -241,6 +279,9 @@
                             @endif
                             @if (in_array($period->status, ['processed', 'finalized']))
                                 <button wire:click="viewPayslips({{ $period->id }})" class="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 font-medium">Payslips</button>
+                            @endif
+                            @if ($period->status !== 'finalized')
+                                <button wire:click="openImport({{ $period->id }})" class="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-800 font-medium">Import Excel</button>
                             @endif
                         </td>
                     </tr>
