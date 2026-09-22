@@ -294,7 +294,12 @@ class PhilippinePayrollService
             'semi_monthly_1' => ['both', '1st'],
             'semi_monthly_2' => ['both', '2nd'],
             'monthly'        => ['both', '1st', '2nd'],
-            default          => ['both'],   // custom period: apply only "Both Cutoffs" deductions
+            'custom'         => match ($period->custom_deduction_scope) {
+                '1st'   => ['both', '1st'],
+                '2nd'   => ['both', '2nd'],
+                default => ['both', '1st', '2nd'], // 'all' (default): a custom range has no inherent half, so include everything
+            },
+            default => ['both', '1st', '2nd'],
         };
 
         $activeDeductions = OtherDeduction::with('deductionType')

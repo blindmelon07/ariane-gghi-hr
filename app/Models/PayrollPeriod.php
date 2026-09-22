@@ -11,6 +11,7 @@ class PayrollPeriod extends Model
     protected $fillable = [
         'name',
         'cutoff_type',
+        'custom_deduction_scope',
         'start_date',
         'end_date',
         'status',

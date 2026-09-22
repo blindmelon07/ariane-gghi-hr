@@ -137,10 +137,47 @@
                         </p>
                     @else
                         <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-2">
-                            Enter your exact cut-off start and end dates. All deductions set to "Both Cutoffs" will apply.
+                            Enter your exact cut-off start and end dates.
                         </p>
                     @endif
                 </div>
+
+                {{-- Custom: which deductions apply --}}
+                @if ($cutoffType === 'custom')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Which deductions apply?</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" wire:click="$set('customDeductionScope', 'all')"
+                                class="flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border-2 transition-colors
+                                       {{ $customDeductionScope === 'all'
+                                           ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $customDeductionScope === 'all' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300' }}">All</span>
+                            <span class="text-[11px] {{ $customDeductionScope === 'all' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">Both + 1st + 2nd</span>
+                        </button>
+                        <button type="button" wire:click="$set('customDeductionScope', '1st')"
+                                class="flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border-2 transition-colors
+                                       {{ $customDeductionScope === '1st'
+                                           ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $customDeductionScope === '1st' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300' }}">Acts as 1st</span>
+                            <span class="text-[11px] {{ $customDeductionScope === '1st' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">Both + 1st only</span>
+                        </button>
+                        <button type="button" wire:click="$set('customDeductionScope', '2nd')"
+                                class="flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border-2 transition-colors
+                                       {{ $customDeductionScope === '2nd'
+                                           ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $customDeductionScope === '2nd' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300' }}">Acts as 2nd</span>
+                            <span class="text-[11px] {{ $customDeductionScope === '2nd' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">Both + 2nd only</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-2">
+                        A custom range has no inherent 1st/2nd-half identity, so pick which employee deductions (SSS, PhilHealth, loans, etc.) should apply. "All" is safest if unsure.
+                    </p>
+                    @error('customDeductionScope') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+                @endif
 
                 <div class="flex justify-end gap-3 pt-1">
                     <button type="button" wire:click="$set('showCreate', false)"

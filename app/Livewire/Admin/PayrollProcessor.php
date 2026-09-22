@@ -23,11 +23,12 @@ class PayrollProcessor extends Component
     public string $filterStatus = 'all';
 
     // Create period form
-    public bool   $showCreate    = false;
-    public string $cutoffType    = 'custom';
-    public string $startDate     = '';
-    public string $endDate       = '';
-    public string $periodName    = '';
+    public bool   $showCreate             = false;
+    public string $cutoffType             = 'custom';
+    public string $customDeductionScope   = 'all';
+    public string $startDate              = '';
+    public string $endDate                = '';
+    public string $periodName             = '';
 
     // Per-period payslip viewer
     public ?int   $viewPeriodId  = null;
@@ -45,6 +46,8 @@ class PayrollProcessor extends Component
     public function prefillDates(): void
     {
         $now = now();
+
+        $this->customDeductionScope = 'all';
 
         if ($now->day <= 15) {
             $this->cutoffType = 'semi_monthly_1';
@@ -69,9 +72,10 @@ class PayrollProcessor extends Component
     {
         // Custom: clear dates and let the user pick freely — no auto-fill
         if ($this->cutoffType === 'custom') {
-            $this->startDate  = '';
-            $this->endDate    = '';
-            $this->periodName = '';
+            $this->startDate            = '';
+            $this->endDate              = '';
+            $this->periodName           = '';
+            $this->customDeductionScope = 'all';
             return;
         }
 
@@ -109,18 +113,20 @@ class PayrollProcessor extends Component
     public function createPeriod(): void
     {
         $this->validate([
-            'periodName' => 'required|string|max:255',
-            'cutoffType' => 'required|in:semi_monthly_1,semi_monthly_2,monthly,custom',
-            'startDate'  => 'required|date',
-            'endDate'    => 'required|date|after_or_equal:startDate',
+            'periodName'           => 'required|string|max:255',
+            'cutoffType'           => 'required|in:semi_monthly_1,semi_monthly_2,monthly,custom',
+            'customDeductionScope' => 'required|in:all,1st,2nd',
+            'startDate'            => 'required|date',
+            'endDate'              => 'required|date|after_or_equal:startDate',
         ]);
 
         PayrollPeriod::create([
-            'name'        => $this->periodName,
-            'cutoff_type' => $this->cutoffType,
-            'start_date'  => $this->startDate,
-            'end_date'    => $this->endDate,
-            'status'      => 'draft',
+            'name'                   => $this->periodName,
+            'cutoff_type'            => $this->cutoffType,
+            'custom_deduction_scope' => $this->cutoffType === 'custom' ? $this->customDeductionScope : 'all',
+            'start_date'             => $this->startDate,
+            'end_date'               => $this->endDate,
+            'status'                 => 'draft',
         ]);
 
         $this->showCreate = false;
