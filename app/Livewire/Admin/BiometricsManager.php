@@ -6,14 +6,19 @@ use App\Models\AttendanceLog;
 use App\Models\Employee;
 use App\Models\SyncLog;
 use App\Models\User;
+use App\Services\ActivityLogService;
+use App\Services\BiometricAttendanceImportService;
 use App\Services\ZKTecoService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class BiometricsManager extends Component
 {
+    use WithFileUploads;
+
     public string $fromDate = '';
     public string $toDate   = '';
 
@@ -25,6 +30,10 @@ class BiometricsManager extends Component
 
     public string $successMessage = '';
     public string $errorMessage   = '';
+
+    // Manual attendance import (Excel)
+    public mixed  $importFile        = null;
+    public string $importPeriodStart = '';
 
     // Device account modal
     public bool   $showAccountModal   = false;
@@ -132,6 +141,33 @@ class BiometricsManager extends Component
         } finally {
             $this->syncingUsers = false;
         }
+    }
+
+    public function importAttendance(BiometricAttendanceImportService $importer): void
+    {
+        $this->validate([
+            'importFile'        => 'required|file|mimes:xlsx,xls',
+            'importPeriodStart' => 'required|date',
+        ]);
+
+        $this->successMessage = '';
+        $this->errorMessage   = '';
+
+        $result = $importer->import($this->importFile->getRealPath(), $this->importPeriodStart);
+
+        $message = "Imported {$result['punches_inserted']} punch(es) for {$result['employees_matched']} employee(s).";
+        if (! empty($result['employees_unmatched'])) {
+            $message .= ' Could not match: ' . implode(', ', $result['employees_unmatched']) . '.';
+        }
+
+        if ($result['employees_matched'] > 0) {
+            $this->successMessage = $message;
+            ActivityLogService::log('attendance_imported', "Imported {$result['punches_inserted']} punch(es) for {$result['employees_matched']} employee(s) from Excel.");
+        } else {
+            $this->errorMessage = $message;
+        }
+
+        $this->importFile = null;
     }
 
     #[Computed]

@@ -30,9 +30,11 @@ class BiometricAttendanceImportService
     private const LABEL_SEARCH_COLS = 15;
 
     /**
+     * @param string $periodStart Y-m-d date of the sheet's first day-of-month column;
+     *                            supplies the year/month the "day" cells roll forward from.
      * @return array{employees_matched: int, employees_unmatched: array<int, string>, punches_inserted: int}
      */
-    public function import(string $filePath): array
+    public function import(string $filePath, string $periodStart): array
     {
         $sheet = IOFactory::load($filePath)->getActiveSheet();
 
@@ -51,7 +53,7 @@ class BiometricAttendanceImportService
             }
 
             $matched++;
-            $punchesTotal += $this->importBlockPunches($employee, $sheet, $block);
+            $punchesTotal += $this->importBlockPunches($employee, $sheet, $block, $periodStart);
         }
 
         return [
@@ -157,9 +159,9 @@ class BiometricAttendanceImportService
         return $byLast->count() === 1 ? $byLast->first() : null;
     }
 
-    private function importBlockPunches(Employee $employee, Worksheet $sheet, array $block): int
+    private function importBlockPunches(Employee $employee, Worksheet $sheet, array $block, string $periodStart): int
     {
-        $dateByCol = $this->resolveDatesForRow($sheet, $block['dateRow']);
+        $dateByCol = $this->resolveDatesForRow($sheet, $block['dateRow'], $periodStart);
         $inserted  = 0;
 
         foreach ($dateByCol as $col => $date) {
@@ -195,12 +197,13 @@ class BiometricAttendanceImportService
     /**
      * @return array<int, string> column index => Y-m-d date, for the 16-day cutoff window
      */
-    private function resolveDatesForRow(Worksheet $sheet, int $dateRow): array
+    private function resolveDatesForRow(Worksheet $sheet, int $dateRow, string $periodStart): array
     {
-        $year   = 2026;
-        $month  = 8;
+        $start   = Carbon::parse($periodStart);
+        $year    = $start->year;
+        $month   = $start->month;
         $prevDay = 0;
-        $dates  = [];
+        $dates   = [];
 
         for ($col = self::DATE_COL_START; $col <= self::DATE_COL_END; $col++) {
             $day = (int) $sheet->getCell([$col, $dateRow])->getValue();
@@ -208,7 +211,11 @@ class BiometricAttendanceImportService
                 continue;
             }
             if ($day < $prevDay) {
-                $month = 9;
+                $month++;
+                if ($month > 12) {
+                    $month = 1;
+                    $year++;
+                }
             }
             $prevDay = $day;
 

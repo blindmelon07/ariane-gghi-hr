@@ -177,6 +177,49 @@
 
     @endif
 
+    {{-- Manual attendance import — for environments without a live device connection (e.g. the online server) --}}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6">
+        <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-1">Import Attendance (Excel)</h2>
+        <p class="text-xs text-gray-400 dark:text-slate-500 mb-5">
+            Upload the ZKTeco "Employee Attendance Record Table" export (one sheet named "RecordTable"). Use this when the server can't reach the device directly — e.g. the online environment, where sync is normally pushed from the local machine.
+        </p>
+
+        <form wire:submit="importAttendance" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Cutoff Start Date</label>
+                    <input type="date" wire:model="importPeriodStart"
+                           class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+                    <p class="text-[11px] text-slate-400 mt-1">First day shown in the sheet — its month/year is used to resolve every day-of-month column.</p>
+                    @error('importPeriodStart') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Excel File</label>
+                    <input type="file" wire:model="importFile" accept=".xlsx,.xls"
+                           class="w-full text-sm text-gray-700 dark:text-gray-200" />
+                    <div wire:loading wire:target="importFile" class="text-xs text-gray-400 dark:text-slate-500 mt-1">Uploading…</div>
+                    @error('importFile') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <button
+                type="submit"
+                wire:loading.attr="disabled"
+                wire:target="importAttendance"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+            >
+                <svg wire:loading wire:target="importAttendance" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <svg wire:loading.remove wire:target="importAttendance" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Import Attendance
+            </button>
+        </form>
+    </div>
+
     {{-- Sync History --}}
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
