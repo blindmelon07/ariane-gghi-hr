@@ -178,25 +178,42 @@
             <div class="space-y-4">
                 {{-- Employee search --}}
                 <div x-data="{ open: false }" @click.outside="open = false">
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Employee</label>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {{ $editId ? 'Employee' : 'Employees' }}
+                    </label>
                     <input wire:model.live.debounce.300ms="empSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" {{ $editId ? 'disabled' : '' }} />
+
                     @if (!$editId)
-                    <div x-show="open && $wire.empSearch.length >= 2" class="relative">
-                        <ul class="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-                            @foreach ($this->employeeResults as $emp)
-                            <li wire:click="selectEmployee({{ $emp->id }})" @click="open = false"
-                                class="px-3 py-2 hover:bg-indigo-50 dark:bg-indigo-950/30 cursor-pointer text-sm">
-                                {{ $emp->full_name }} <span class="text-gray-400 dark:text-gray-500">({{ $emp->emp_code }})</span>
-                            </li>
+                        {{-- Selected employee chips --}}
+                        @if ($this->selectedEmployees->isNotEmpty())
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            @foreach ($this->selectedEmployees as $emp)
+                            <span class="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 text-xs font-medium">
+                                {{ $emp->full_name }}
+                                <button type="button" wire:click="removeEmployee({{ $emp->id }})"
+                                    class="w-4 h-4 flex items-center justify-center rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-800 leading-none">&times;</button>
+                            </span>
                             @endforeach
-                            @if ($this->employeeResults->isEmpty())
-                            <li class="px-3 py-2 text-gray-400 dark:text-gray-500 text-sm">No results</li>
-                            @endif
-                        </ul>
-                    </div>
+                        </div>
+                        @endif
+
+                        <div x-show="open && $wire.empSearch.length >= 2" class="relative">
+                            <ul class="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+                                @foreach ($this->employeeResults as $emp)
+                                <li wire:click="selectEmployee({{ $emp->id }})"
+                                    class="px-3 py-2 hover:bg-indigo-50 dark:bg-indigo-950/30 cursor-pointer text-sm">
+                                    {{ $emp->full_name }} <span class="text-gray-400 dark:text-gray-500">({{ $emp->emp_code }})</span>
+                                </li>
+                                @endforeach
+                                @if ($this->employeeResults->isEmpty())
+                                <li class="px-3 py-2 text-gray-400 dark:text-gray-500 text-sm">No results</li>
+                                @endif
+                            </ul>
+                        </div>
                     @endif
                     @error('modalEmployeeId') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                    @error('selectedEmployeeIds') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Mode toggle (only for new) --}}

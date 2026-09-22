@@ -146,7 +146,15 @@
                 @if ($cutoffType === 'custom')
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Which deductions apply?</label>
-                    <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" wire:click="$set('customDeductionScope', 'both')"
+                                class="flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border-2 transition-colors
+                                       {{ $customDeductionScope === 'both'
+                                           ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $customDeductionScope === 'both' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300' }}">Both only</span>
+                            <span class="text-[11px] {{ $customDeductionScope === 'both' ? 'text-amber-500 dark:text-amber-400' : 'text-gray-400 dark:text-gray-500' }}">Universal deductions only</span>
+                        </button>
                         <button type="button" wire:click="$set('customDeductionScope', 'all')"
                                 class="flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border-2 transition-colors
                                        {{ $customDeductionScope === 'all'
@@ -173,7 +181,7 @@
                         </button>
                     </div>
                     <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-2">
-                        A custom range has no inherent 1st/2nd-half identity, so pick which employee deductions (SSS, PhilHealth, loans, etc.) should apply. "All" is safest if unsure.
+                        A custom range has no inherent 1st/2nd-half identity. "Both only" (default) applies just the deductions tagged for every cutoff — safest choice. Pick "Acts as 1st/2nd" only if this range truly stands in for that half of the month.
                     </p>
                     @error('customDeductionScope') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>

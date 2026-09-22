@@ -297,7 +297,8 @@ class PhilippinePayrollService
             'custom'         => match ($period->custom_deduction_scope) {
                 '1st'   => ['both', '1st'],
                 '2nd'   => ['both', '2nd'],
-                default => ['both', '1st', '2nd'], // 'all' (default): a custom range has no inherent half, so include everything
+                'all'   => ['both', '1st', '2nd'],
+                default => ['both'], // 'both' (default): a custom range has no inherent half, so only universal deductions apply unless explicitly widened
             },
             default => ['both', '1st', '2nd'],
         };

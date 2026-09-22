@@ -25,7 +25,7 @@ class PayrollProcessor extends Component
     // Create period form
     public bool   $showCreate             = false;
     public string $cutoffType             = 'custom';
-    public string $customDeductionScope   = 'all';
+    public string $customDeductionScope   = 'both';
     public string $startDate              = '';
     public string $endDate                = '';
     public string $periodName             = '';
@@ -47,7 +47,7 @@ class PayrollProcessor extends Component
     {
         $now = now();
 
-        $this->customDeductionScope = 'all';
+        $this->customDeductionScope = 'both';
 
         if ($now->day <= 15) {
             $this->cutoffType = 'semi_monthly_1';
@@ -75,7 +75,7 @@ class PayrollProcessor extends Component
             $this->startDate            = '';
             $this->endDate              = '';
             $this->periodName           = '';
-            $this->customDeductionScope = 'all';
+            $this->customDeductionScope = 'both';
             return;
         }
 
@@ -115,7 +115,7 @@ class PayrollProcessor extends Component
         $this->validate([
             'periodName'           => 'required|string|max:255',
             'cutoffType'           => 'required|in:semi_monthly_1,semi_monthly_2,monthly,custom',
-            'customDeductionScope' => 'required|in:all,1st,2nd',
+            'customDeductionScope' => 'required|in:both,1st,2nd,all',
             'startDate'            => 'required|date',
             'endDate'              => 'required|date|after_or_equal:startDate',
         ]);
@@ -123,7 +123,7 @@ class PayrollProcessor extends Component
         PayrollPeriod::create([
             'name'                   => $this->periodName,
             'cutoff_type'            => $this->cutoffType,
-            'custom_deduction_scope' => $this->cutoffType === 'custom' ? $this->customDeductionScope : 'all',
+            'custom_deduction_scope' => $this->cutoffType === 'custom' ? $this->customDeductionScope : 'both',
             'start_date'             => $this->startDate,
             'end_date'               => $this->endDate,
             'status'                 => 'draft',

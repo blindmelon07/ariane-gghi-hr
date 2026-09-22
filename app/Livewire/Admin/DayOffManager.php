@@ -24,7 +24,8 @@ class DayOffManager extends Component
     public bool    $showModal       = false;
     public ?int    $editId          = null;
     public string  $empSearch       = '';
-    public ?int    $modalEmployeeId = null;
+    public ?int    $modalEmployeeId = null; // used when editing (single employee)
+    public array   $selectedEmployeeIds = []; // used when creating (multi-select)
     public string  $date            = '';
     public string  $type            = 'rest_day';
     public string  $description     = '';
@@ -107,15 +108,26 @@ class DayOffManager extends Component
                   ->orWhere('last_name', 'like', "%{$this->empSearch}%")
                   ->orWhere('emp_code', 'like', "%{$this->empSearch}%");
             })
+            ->when(!$this->editId, fn ($q) => $q->whereNotIn('id', $this->selectedEmployeeIds ?: [0]))
             ->limit(10)
             ->get();
+    }
+
+    #[Computed]
+    public function selectedEmployees()
+    {
+        if (empty($this->selectedEmployeeIds)) {
+            return collect();
+        }
+
+        return Employee::whereIn('id', $this->selectedEmployeeIds)->get();
     }
 
     // ── Single Day Off ───────────────────────────────
 
     public function openAdd(): void
     {
-        $this->reset(['editId', 'empSearch', 'modalEmployeeId', 'date', 'type', 'description', 'mode', 'selectedDays', 'dateFrom', 'dateTo']);
+        $this->reset(['editId', 'empSearch', 'modalEmployeeId', 'selectedEmployeeIds', 'date', 'type', 'description', 'mode', 'selectedDays', 'dateFrom', 'dateTo']);
         $this->type = 'rest_day';
         $this->mode = 'single';
         $this->showModal = true;
@@ -123,11 +135,24 @@ class DayOffManager extends Component
 
     public function selectEmployee(int $id): void
     {
-        $emp = Employee::find($id);
-        if ($emp) {
-            $this->modalEmployeeId = $emp->id;
-            $this->empSearch = $emp->full_name . ' (' . $emp->emp_code . ')';
+        if ($this->editId) {
+            $emp = Employee::find($id);
+            if ($emp) {
+                $this->modalEmployeeId = $emp->id;
+                $this->empSearch = $emp->full_name . ' (' . $emp->emp_code . ')';
+            }
+            return;
         }
+
+        if (!in_array($id, $this->selectedEmployeeIds, true)) {
+            $this->selectedEmployeeIds[] = $id;
+        }
+        $this->empSearch = '';
+    }
+
+    public function removeEmployee(int $id): void
+    {
+        $this->selectedEmployeeIds = array_values(array_diff($this->selectedEmployeeIds, [$id]));
     }
 
     public function openEdit(int $id): void
@@ -174,9 +199,10 @@ class DayOffManager extends Component
 
         // Create mode — validate all fields upfront based on mode
         $baseRules = [
-            'modalEmployeeId' => 'required|exists:employees,id',
-            'type'            => 'required|in:rest_day,holiday,special,other',
-            'description'     => 'nullable|string|max:255',
+            'selectedEmployeeIds'   => 'required|array|min:1',
+            'selectedEmployeeIds.*' => 'exists:employees,id',
+            'type'                  => 'required|in:rest_day,holiday,special,other',
+            'description'           => 'nullable|string|max:255',
         ];
 
         if ($this->mode === 'recurring') {
@@ -191,63 +217,88 @@ class DayOffManager extends Component
             ]));
         }
 
-        $emp = Employee::find($this->modalEmployeeId);
+        $employees = Employee::whereIn('id', $this->selectedEmployeeIds)->get();
 
         if ($this->mode === 'recurring') {
-            $start = Carbon::parse($this->dateFrom);
-            $end   = Carbon::parse($this->dateTo);
-            $count = 0;
-            $days  = array_map('intval', $this->selectedDays);
+            $start      = Carbon::parse($this->dateFrom);
+            $end        = Carbon::parse($this->dateTo);
+            $days       = array_map('intval', $this->selectedDays);
+            $totalCount = 0;
 
-            for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
-                if (!in_array($d->dayOfWeek, $days)) {
+            foreach ($employees as $emp) {
+                $count = 0;
+
+                for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+                    if (!in_array($d->dayOfWeek, $days)) {
+                        continue;
+                    }
+
+                    $exists = DayOff::where('employee_id', $emp->id)
+                        ->whereDate('date', $d->format('Y-m-d'))
+                        ->exists();
+
+                    if (!$exists) {
+                        DayOff::create([
+                            'employee_id'           => $emp->id,
+                            'date'                  => $d->format('Y-m-d'),
+                            'type'                  => $this->type,
+                            'description'           => $this->description ?: null,
+                            'is_recurring'          => true,
+                            'recurring_day_of_week' => $d->dayOfWeek,
+                            'created_by'            => auth()->id(),
+                        ]);
+                        $count++;
+                    }
+                }
+
+                if ($count > 0) {
+                    ActivityLogService::log('recurring_day_off', "Assigned {$count} recurring day offs to {$emp->full_name}", $emp);
+                }
+                $totalCount += $count;
+            }
+
+            $this->showModal = false;
+            unset($this->dayOffs);
+            session()->flash('success', "{$totalCount} day off(s) created for {$employees->count()} employee(s).");
+        } else {
+            $created = 0;
+            $skipped = [];
+
+            foreach ($employees as $emp) {
+                $exists = DayOff::where('employee_id', $emp->id)
+                    ->whereDate('date', $this->date)
+                    ->exists();
+
+                if ($exists) {
+                    $skipped[] = $emp->full_name;
                     continue;
                 }
 
-                $exists = DayOff::where('employee_id', $this->modalEmployeeId)
-                    ->whereDate('date', $d->format('Y-m-d'))
-                    ->exists();
+                DayOff::create([
+                    'employee_id' => $emp->id,
+                    'date'        => $this->date,
+                    'type'        => $this->type,
+                    'description' => $this->description ?: null,
+                    'created_by'  => auth()->id(),
+                ]);
+                $created++;
 
-                if (!$exists) {
-                    DayOff::create([
-                        'employee_id'           => $this->modalEmployeeId,
-                        'date'                  => $d->format('Y-m-d'),
-                        'type'                  => $this->type,
-                        'description'           => $this->description ?: null,
-                        'is_recurring'          => true,
-                        'recurring_day_of_week' => $d->dayOfWeek,
-                        'created_by'            => auth()->id(),
-                    ]);
-                    $count++;
-                }
+                ActivityLogService::log('day_off_assigned', "Day off ({$this->type}) assigned to {$emp->full_name} on {$this->date}", $emp);
             }
 
-            ActivityLogService::log('recurring_day_off', "Assigned {$count} recurring day offs to {$emp->full_name}", $emp);
-            $this->showModal = false;
-            unset($this->dayOffs);
-            session()->flash('success', "{$count} day off(s) created for {$emp->full_name}.");
-        } else {
-            $exists = DayOff::where('employee_id', $this->modalEmployeeId)
-                ->whereDate('date', $this->date)
-                ->exists();
-
-            if ($exists) {
-                $this->addError('date', 'This employee already has a day off on this date.');
+            if ($created === 0) {
+                $this->addError('date', 'Selected employee(s) already have a day off on this date.');
                 return;
             }
 
-            DayOff::create([
-                'employee_id' => $this->modalEmployeeId,
-                'date'        => $this->date,
-                'type'        => $this->type,
-                'description' => $this->description ?: null,
-                'created_by'  => auth()->id(),
-            ]);
-
-            ActivityLogService::log('day_off_assigned', "Day off ({$this->type}) assigned to {$emp->full_name} on {$this->date}", $emp);
             $this->showModal = false;
             unset($this->dayOffs);
-            session()->flash('success', 'Day off saved successfully.');
+
+            $message = "{$created} day off(s) saved successfully.";
+            if (!empty($skipped)) {
+                $message .= ' Already had a day off (skipped): ' . implode(', ', $skipped) . '.';
+            }
+            session()->flash('success', $message);
         }
     }
 
