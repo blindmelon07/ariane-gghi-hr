@@ -242,6 +242,24 @@
                     <input wire:model.live="date" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('date') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
+
+                @if ($editId && $date)
+                {{-- Day of week (edit only): shifts the date above to the nearest matching weekday --}}
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Day of Week</label>
+                    <div class="flex flex-wrap gap-2">
+                        @php $dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; $currentDow = \Illuminate\Support\Carbon::parse($date)->dayOfWeek; @endphp
+                        @foreach ($dayLabels as $i => $label)
+                        <button type="button" wire:click="setEditDayOfWeek({{ $i }})"
+                            class="px-3 py-2 rounded-lg border text-sm font-medium transition
+                            {{ $currentDow === $i ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-gray-800/50' }}">
+                            {{ $label }}
+                        </button>
+                        @endforeach
+                    </div>
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1.5">Shifts the date above to the nearest matching weekday.</p>
+                </div>
+                @endif
                 @else
                 {{-- Recurring: day checkboxes --}}
                 <div>

@@ -155,6 +155,22 @@ class DayOffManager extends Component
         $this->selectedEmployeeIds = array_values(array_diff($this->selectedEmployeeIds, [$id]));
     }
 
+    public function setEditDayOfWeek(int $dow): void
+    {
+        $current = $this->date ? Carbon::parse($this->date) : now();
+
+        if ($current->dayOfWeek === $dow) {
+            return;
+        }
+
+        $next = $current->copy()->next($dow);
+        $prev = $current->copy()->previous($dow);
+
+        $this->date = $current->diffInDays($next) <= $current->diffInDays($prev)
+            ? $next->format('Y-m-d')
+            : $prev->format('Y-m-d');
+    }
+
     public function openEdit(int $id): void
     {
         $dayOff = DayOff::with('employee')->findOrFail($id);
