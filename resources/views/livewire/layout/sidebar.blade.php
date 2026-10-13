@@ -115,6 +115,9 @@ new class extends Component
                 'Messaging' => [
                     ['label' => 'SMS Center',        'route' => 'admin.sms',                'icon' => 'chat-bubble'],
                 ],
+                'Administration' => [
+                    ['label' => 'User Accounts',     'route' => 'admin.accounts',           'icon' => 'users'],
+                ],
             ],
             'manager', 'department_head' => [
                 'Main' => [

@@ -124,7 +124,7 @@ Route::view('admin/roles-permissions', 'admin.roles-permissions')
     ->name('admin.roles-permissions');
 
 Route::view('admin/accounts', 'admin.accounts')
-    ->middleware(['auth', 'role:super_admin'])
+    ->middleware(['auth', 'role:super_admin,hr_admin'])
     ->name('admin.accounts');
 
 require __DIR__.'/auth.php';

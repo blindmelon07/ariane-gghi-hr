@@ -1,0 +1,108 @@
+<?php
+
+use App\Livewire\Admin\UserManager;
+use App\Models\Employee;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
+
+beforeEach(function () {
+    foreach (array_keys(UserManager::ROLES) as $role) {
+        Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+    }
+});
+
+function accountAs(string $role): User
+{
+    $u = User::factory()->create(['role' => $role]);
+    $u->syncRoles($role);
+    return $u;
+}
+
+it('lets HR admins and super admins open User Accounts, but not employees', function () {
+    $this->actingAs(accountAs('hr_admin'))->get(route('admin.accounts'))->assertOk();
+    $this->actingAs(accountAs('super_admin'))->get(route('admin.accounts'))->assertOk();
+    $this->actingAs(accountAs('employee'))->get(route('admin.accounts'))->assertForbidden();
+});
+
+it('creates an account from a picked employee and links it', function () {
+    $emp = Employee::create(['emp_code' => '42', 'first_name' => 'Ana', 'last_name' => 'Cruz', 'full_name' => 'Ana Cruz', 'is_active' => true]);
+
+    Livewire::actingAs(accountAs('hr_admin'))
+        ->test(UserManager::class)
+        ->call('openAdd')
+        ->assertSee('Ana Cruz')
+        ->call('pickEmployee', $emp->id)
+        ->assertSet('name', 'Ana Cruz')
+        ->assertSet('employeeCode', '42')
+        ->set('password', 'secret123')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $user = User::where('employee_code', '42')->sole();
+    expect($emp->fresh()->user_id)->toBe($user->id)
+        ->and($user->role)->toBe('employee')
+        ->and(Hash::check('secret123', $user->password))->toBeTrue();
+});
+
+it('hides employees who already have an account from the picker', function () {
+    $has = User::factory()->create(['employee_code' => '50']);
+    Employee::create(['emp_code' => '50', 'first_name' => 'Has', 'last_name' => 'Account', 'is_active' => true, 'user_id' => $has->id]);
+    Employee::create(['emp_code' => '51', 'first_name' => 'Needs', 'last_name' => 'Account', 'is_active' => true]);
+
+    $codes = Livewire::actingAs(accountAs('hr_admin'))->test(UserManager::class)
+        ->instance()->availableEmployees->pluck('emp_code')->all();
+
+    expect($codes)->toContain('51')->not->toContain('50');
+});
+
+it('links a typed-in code to the matching employee', function () {
+    $emp = Employee::create(['emp_code' => '60', 'first_name' => 'Ben', 'last_name' => 'Reyes', 'is_active' => true]);
+
+    Livewire::actingAs(accountAs('hr_admin'))
+        ->test(UserManager::class)
+        ->call('openAdd')
+        ->set('name', 'Ben Reyes')->set('employeeCode', '60')->set('password', 'secret123')
+        ->call('save');
+
+    expect($emp->fresh()->user_id)->toBe(User::where('employee_code', '60')->value('id'));
+});
+
+it('stops HR admins from creating or touching super admins', function () {
+    $super = accountAs('super_admin');
+
+    $hr = Livewire::actingAs(accountAs('hr_admin'))->test(UserManager::class);
+    expect($hr->instance()->roleOptions)->not->toHaveKey('super_admin');
+
+    $hr->call('openAdd')
+        ->set('name', 'Sneaky')->set('employeeCode', 'X1')->set('password', 'secret123')->set('role', 'super_admin')
+        ->call('save')
+        ->assertHasErrors('role');
+
+    $hr->call('delete', $super->id);
+    $hr->call('toggleActive', $super->id);
+
+    expect(User::find($super->id))->not->toBeNull()->is_active->toBeTrue();
+});
+
+it('lets a super admin create another super admin', function () {
+    Livewire::actingAs(accountAs('super_admin'))
+        ->test(UserManager::class)
+        ->call('openAdd')
+        ->set('name', 'Second Admin')->set('employeeCode', 'SA2')->set('password', 'secret123')->set('role', 'super_admin')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect(User::where('employee_code', 'SA2')->value('role'))->toBe('super_admin');
+});
+
+it('unlinks the employee when its account is deleted', function () {
+    $user = User::factory()->create(['employee_code' => '70', 'role' => 'employee']);
+    $emp  = Employee::create(['emp_code' => '70', 'first_name' => 'Cy', 'last_name' => 'Go', 'is_active' => true, 'user_id' => $user->id]);
+
+    Livewire::actingAs(accountAs('hr_admin'))->test(UserManager::class)->call('delete', $user->id);
+
+    expect(User::find($user->id))->toBeNull()
+        ->and($emp->fresh()->user_id)->toBeNull();
+});
