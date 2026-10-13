@@ -75,3 +75,22 @@ it('rejects messages shorter than 10 characters', function () {
 
     Http::assertNotSent(fn ($req) => str_ends_with($req->url(), '/bulk'));
 });
+
+it('sends a test notification to every user with a registered device', function () {
+    $withDevice = User::factory()->create(['role' => 'employee']);
+    $noDevice   = User::factory()->create(['role' => 'employee']);
+    \App\Models\PushSubscription::create([
+        'user_id' => $withDevice->id, 'endpoint' => 'https://push.test/1', 'endpoint_hash' => hash('sha256', 'https://push.test/1'),
+        'public_key' => 'k', 'auth_token' => 't',
+    ]);
+
+    Livewire::actingAs(smsAdmin())
+        ->test(SmsCenter::class)
+        ->set('tab', 'push')
+        ->assertSee('Send Test to All Devices')
+        ->call('sendTestToAllDevices');
+
+    expect($withDevice->notifications()->sole()->data['title'])->toBe('Test notification')
+        ->and($noDevice->notifications()->count())->toBe(0);
+    Http::assertNotSent(fn ($req) => str_ends_with($req->url(), '/bulk') || str_ends_with($req->url(), '/sms'));
+});

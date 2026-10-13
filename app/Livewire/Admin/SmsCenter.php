@@ -4,10 +4,14 @@ namespace App\Livewire\Admin;
 
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\PushSubscription;
 use App\Models\SmsLog;
+use App\Models\User;
+use App\Notifications\HrAlert;
 use App\Services\ActivityLogService;
 use App\Services\SmsNotificationService;
 use App\Services\SmsService;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -192,6 +196,39 @@ class SmsCenter extends Component
         $this->credits = app(SmsService::class)->credits();
         unset($this->logs);
         session()->flash('success', "{$this->alertDate}: {$result['late']} late, {$result['absent']} absent — {$result['queued']} sent, {$result['skipped']} skipped, {$result['failed']} failed, {$result['app']} app notification(s). Employees already alerted for this date were not alerted again.");
+    }
+
+    /** Devices (phones/computers) that turned on notifications, newest first. */
+    #[Computed]
+    public function pushDevices()
+    {
+        return PushSubscription::with('user')->latest('updated_at')->get();
+    }
+
+    /**
+     * Send a test notification to every user who has at least one device
+     * registered. App only — no SMS, no credits.
+     */
+    public function sendTestToAllDevices(): void
+    {
+        $users = User::whereHas('pushSubscriptions')->get();
+
+        if ($users->isEmpty()) {
+            session()->flash('error', 'No devices have notifications turned on yet. Open the portal on a phone, tap the bell → Turn on phone notifications.');
+            return;
+        }
+
+        Notification::send($users, new HrAlert(
+            'Test notification',
+            'This is a test from HR. If you can see this, notifications work on your device.',
+            null,
+            'test'
+        ));
+
+        ActivityLogService::log('push_test_all', "Sent a test notification to {$users->count()} user(s) on {$this->pushDevices->count()} device(s)");
+        unset($this->pushDevices);
+
+        session()->flash('success', "Test sent to {$users->count()} user(s) on {$this->pushDevices->count()} device(s). Devices that were uninstalled or blocked are removed from the list automatically.");
     }
 
     public function toggleAllCredentials(): void

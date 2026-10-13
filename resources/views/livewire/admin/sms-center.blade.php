@@ -22,8 +22,8 @@
 
     {{-- Header: tabs + credits --}}
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="inline-flex p-1 bg-gray-100 rounded-lg dark:bg-gray-800">
-            @foreach (['compose' => 'Send Message', 'credentials' => 'Login Details', 'alerts' => 'Attendance Alerts', 'history' => 'History'] as $key => $label)
+        <div class="inline-flex flex-wrap p-1 bg-gray-100 rounded-lg dark:bg-gray-800">
+            @foreach (['compose' => 'Send Message', 'credentials' => 'Login Details', 'alerts' => 'Attendance Alerts', 'push' => 'App Notifications', 'history' => 'History'] as $key => $label)
                 <button wire:click="$set('tab', '{{ $key }}')"
                         class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors {{ $tab === $key ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' }}">
                     {{ $label }}
@@ -195,6 +195,70 @@
                     <span wire:loading.remove wire:target="runAttendanceAlerts">Send Alerts Now</span>
                     <span wire:loading wire:target="runAttendanceAlerts">Checking attendance…</span>
                 </button>
+            </div>
+        </div>
+    @endif
+
+    {{-- ── App Notifications ────────────────────────────────────── --}}
+    @if ($tab === 'push')
+        <div class="p-5 space-y-4 bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+            @php $devices = $this->pushDevices; @endphp
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div class="text-sm text-gray-600 dark:text-gray-300">
+                    <p><strong class="text-gray-900 dark:text-white">{{ $devices->count() }}</strong> device(s) from
+                        <strong class="text-gray-900 dark:text-white">{{ $devices->pluck('user_id')->unique()->count() }}</strong> user(s) have phone notifications turned on.</p>
+                    <p class="text-gray-500 dark:text-gray-400">Employees turn them on from the bell → <em>Turn on phone notifications</em>. The test is app-only: no SMS, no credits.</p>
+                </div>
+                <button wire:click="sendTestToAllDevices" wire:loading.attr="disabled"
+                        wire:confirm="Send a test notification to all {{ $devices->count() }} device(s)?"
+                        @disabled($devices->isEmpty())
+                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg shrink-0 hover:bg-blue-700 disabled:opacity-50">
+                    <span wire:loading.remove wire:target="sendTestToAllDevices">Send Test to All Devices</span>
+                    <span wire:loading wire:target="sendTestToAllDevices">Sending…</span>
+                </button>
+            </div>
+
+            <div class="overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                        <tr>
+                            <th class="px-4 py-2 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">User</th>
+                            <th class="px-4 py-2 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Device</th>
+                            <th class="px-4 py-2 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Turned on</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @forelse ($devices as $device)
+                            @php
+                                $ua = (string) $device->user_agent;
+                                $os = match (true) {
+                                    str_contains($ua, 'iPhone') || str_contains($ua, 'iPad') => 'iPhone / iPad',
+                                    str_contains($ua, 'Android')                            => 'Android',
+                                    str_contains($ua, 'Windows')                            => 'Windows',
+                                    str_contains($ua, 'Mac OS')                             => 'Mac',
+                                    default                                                 => 'Other',
+                                };
+                                $browser = match (true) {
+                                    str_contains($ua, 'Edg/')                                   => 'Edge',
+                                    str_contains($ua, 'Firefox')                                => 'Firefox',
+                                    str_contains($ua, 'Chrome')                                 => 'Chrome',
+                                    str_contains($ua, 'Safari')                                 => 'Safari',
+                                    default                                                     => '',
+                                };
+                            @endphp
+                            <tr wire:key="dev-{{ $device->id }}">
+                                <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                    {{ $device->user?->name ?? '—' }}
+                                    <span class="font-mono text-xs text-gray-400">{{ $device->user?->employee_code }}</span>
+                                </td>
+                                <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">{{ $os }}{{ $browser ? " · {$browser}" : '' }}</td>
+                                <td class="px-4 py-2 text-xs text-gray-500 whitespace-nowrap dark:text-gray-400">{{ $device->updated_at->format('M d, h:i A') }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3" class="px-4 py-8 text-sm text-center text-gray-400">No devices yet.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     @endif
