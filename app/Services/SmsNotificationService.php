@@ -129,8 +129,7 @@ class SmsNotificationService
      */
     public function sendCredentials(Collection $employees): array
     {
-        $loginUrl = rtrim(config('app.url'), '/') . '/login';
-        $result   = ['sent' => [], 'failed' => []];
+        $result = ['sent' => [], 'failed' => []];
 
         foreach ($employees as $emp) {
             if (! SmsService::normalize($emp->cell_number)) {
@@ -145,7 +144,8 @@ class SmsNotificationService
             }
 
             $password = Str::password(8, symbols: false);
-            $text     = "GGHI HR: Your HR portal login. Employee Code: {$emp->emp_code} Password: {$password} Log in at {$loginUrl} and change your password after signing in.";
+            // No URL: the sender ID rejects messages containing links.
+            $text     = "GGHI HR: Your HR portal login. Employee Code: {$emp->emp_code} Password: {$password} Please log in to the GGHI HR portal and change your password after signing in.";
             $context  = [
                 'employee_id' => $emp->id,
                 'type'        => 'credentials',

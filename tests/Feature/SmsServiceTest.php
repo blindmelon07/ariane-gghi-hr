@@ -67,6 +67,30 @@ describe('SmsService::send', function () {
         expect(SmsLog::sole())->status->toBe('failed')->error->toContain('401');
     });
 
+    it('turns UniSMS validation errors into readable text', function () {
+        Http::fake(['unismsapi.com/*' => Http::response(['errors' => [
+            'content'   => ['Links are prohibited under this SenderID'],
+            'recipient' => ["This Sender ID can't send to Smart, TNT, Sun numbers"],
+        ]], 422)]);
+
+        app(SmsService::class)->send('09508367473', 'see https://x.com');
+
+        expect(SmsLog::sole()->error)
+            ->toBe("422: Links are prohibited under this SenderID This Sender ID can't send to Smart, TNT, Sun numbers");
+    });
+
+    it('explains why a whole bulk request was rejected', function () {
+        Http::fake(['unismsapi.com/*' => Http::response([
+            'errors'  => 'None of the messages can be sent. See skipped for the reasons.',
+            'queued'  => 0,
+            'skipped' => [['index' => 0, 'recipient' => '09810795445', 'errors' => ['recipient' => ["This Sender ID can't send to Smart, TNT, Sun numbers"]]]],
+        ], 422)]);
+
+        app(SmsService::class)->sendMany([['number' => '09810795445', 'message' => 'Hi']]);
+
+        expect(SmsLog::sole()->error)->toBe("422: This Sender ID can't send to Smart, TNT, Sun numbers");
+    });
+
     it('records network exceptions', function () {
         Http::fake(['unismsapi.com/*' => fn () => throw new \Exception('Connection refused')]);
 

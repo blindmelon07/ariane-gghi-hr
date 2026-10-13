@@ -78,7 +78,7 @@ it('creates an account, texts the login and stores only a masked copy', function
         preg_match('/Password: (\S+)/', $req['content'], $m);
         $sentPassword = $m[1] ?? null;
         return str_contains($req['content'], "Employee Code: {$e->emp_code}")
-            && str_contains($req['content'], 'https://hr.example.com/login');
+            && ! str_contains($req['content'], 'http');
     });
     expect($sentPassword)->toHaveLength(8);
 

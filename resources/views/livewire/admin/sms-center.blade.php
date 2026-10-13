@@ -237,7 +237,7 @@
                             </td>
                             <td class="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">{{ ucfirst($log->type) }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 max-w-md">{{ $log->content }}</td>
-                            <td class="px-4 py-3 text-xs whitespace-nowrap">
+                            <td class="px-4 py-3 text-xs">
                                 @php
                                     $badge = match ($log->status) {
                                         'queued'  => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -246,9 +246,9 @@
                                         default   => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
                                     };
                                 @endphp
-                                <span class="px-2 py-0.5 rounded-full font-medium {{ $badge }}">{{ $log->status === 'queued' ? 'Sent' : ucfirst($log->status) }}</span>
+                                <span class="px-2 py-0.5 rounded-full font-medium whitespace-nowrap {{ $badge }}">{{ $log->status === 'queued' ? 'Sent' : ucfirst($log->status) }}</span>
                                 @if ($log->error)
-                                    <p class="mt-1 text-gray-400 max-w-[12rem] break-words">{{ $log->error }}</p>
+                                    <p class="mt-1 text-red-500 dark:text-red-400 max-w-xs break-words">{{ $log->error }}</p>
                                 @endif
                             </td>
                         </tr>

@@ -213,8 +213,23 @@ class SmsService
             ->update(['status' => $status, 'error' => $error]);
     }
 
+    /**
+     * Turn a UniSMS error response into readable text, e.g.
+     * {"errors":{"content":["Links are prohibited…"]}} → "Links are prohibited…".
+     * Bulk rejections carry the reasons per message under skipped[].errors.
+     */
     private function errorText($response): string
     {
-        return mb_substr($response->status() . ' ' . ($response->json('message') ?? $response->body()), 0, 500);
+        $reasons = collect([$response->json('errors'), $response->json('skipped.*.errors')])
+            ->flatten()
+            ->filter(fn ($e) => is_string($e) && ! str_starts_with($e, 'None of the messages can be sent'))
+            ->unique()
+            ->values();
+
+        $text = $reasons->isNotEmpty()
+            ? $reasons->implode(' ')
+            : ($response->json('message') ?? $response->body());
+
+        return mb_substr("{$response->status()}: {$text}", 0, 500);
     }
 }

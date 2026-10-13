@@ -127,6 +127,12 @@ class SmsCenter extends Component
             'departmentId.required_if' => 'Choose a department.',
         ]);
 
+        // The sender ID rejects messages that contain links.
+        if (preg_match('~https?://|www\.|\b[a-z0-9-]+\.(com|ph|net|org)\b~i', $this->smsMessage)) {
+            $this->addError('smsMessage', 'Links are not allowed by the SMS sender ID — remove the web address and try again.');
+            return;
+        }
+
         if ($this->audience === 'numbers') {
             if (! $this->numberList) {
                 $this->addError('customNumbers', 'Enter at least one mobile number.');
