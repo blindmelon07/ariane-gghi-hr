@@ -6,8 +6,10 @@ use App\Models\Employee;
 use App\Models\LeaveRequestApproval;
 use App\Models\TripTicketApproval;
 use App\Models\User;
+use App\Notifications\HrAlert;
 use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -63,13 +65,21 @@ class UserManager extends Component
             ->paginate(15);
     }
 
-    /** Roles the current user may assign. */
+    /**
+     * Roles the current user may assign. Everyone can assign every role, but a
+     * non-super-admin can't change their own role (see save()).
+     */
     #[Computed]
     public function roleOptions(): array
     {
-        return $this->isSuperAdmin()
-            ? self::ROLES
-            : array_diff_key(self::ROLES, ['super_admin' => true]);
+        return self::ROLES;
+    }
+
+    /** True while a non-super-admin is editing their own account — role is locked. */
+    #[Computed]
+    public function roleLocked(): bool
+    {
+        return $this->editId === Auth::id() && ! $this->isSuperAdmin();
     }
 
     /** Active employees who don't have a login account yet. */
@@ -165,7 +175,12 @@ class UserManager extends Component
                 $this->showModal = false;
                 return;
             }
+            if ($this->roleLocked && $this->role !== $user->role) {
+                $this->addError('role', 'You can\'t change your own role.');
+                return;
+            }
 
+            $wasRole = $user->role;
             $data = [
                 'name'          => $this->name,
                 'employee_code' => $this->employeeCode,
@@ -180,6 +195,9 @@ class UserManager extends Component
             $linked = $this->linkEmployee($user);
 
             ActivityLogService::log('account_updated', "Updated account {$user->name} ({$user->employee_code})");
+            if ($wasRole !== 'super_admin' && $this->role === 'super_admin') {
+                $this->alertSuperAdmins($user);
+            }
             session()->flash('success', "Account \"{$user->name}\" updated." . ($linked ? " Linked to employee {$linked->emp_code}." : ''));
         } else {
             $user = User::create([
@@ -194,6 +212,9 @@ class UserManager extends Component
             $linked = $this->linkEmployee($user);
 
             ActivityLogService::log('account_created', "Created account {$user->name} ({$user->employee_code}) as {$this->role}");
+            if ($this->role === 'super_admin') {
+                $this->alertSuperAdmins($user);
+            }
             session()->flash('success', "Account \"{$user->name}\" created. They log in with employee code {$user->employee_code}."
                 . ($linked ? '' : ' Note: no employee record has this code, so this account won\'t get payslips, leave or notifications.'));
         }
@@ -245,6 +266,29 @@ class UserManager extends Component
         ActivityLogService::log('account_deleted', "Deleted account {$user->name} ({$user->employee_code})");
         session()->flash('success', "Account \"{$user->name}\" deleted.");
         unset($this->users, $this->availableEmployees);
+    }
+
+    /**
+     * Super Admin is the most powerful role, so every existing super admin is told
+     * (bell + phone) whenever someone else grants it — no silent escalation.
+     */
+    private function alertSuperAdmins(User $promoted): void
+    {
+        $by = Auth::user();
+        ActivityLogService::log('super_admin_granted', "{$by?->name} granted Super Admin to {$promoted->name} ({$promoted->employee_code})");
+
+        $recipients = User::where('role', 'super_admin')
+            ->where('is_active', true)
+            ->whereKeyNot($promoted->id)
+            ->when($by, fn ($q) => $q->whereKeyNot($by->id))
+            ->get();
+
+        Notification::send($recipients, new HrAlert(
+            'Super Admin role granted',
+            "{$by?->name} gave Super Admin to {$promoted->name} ({$promoted->employee_code}). If this wasn't expected, review it in User Accounts.",
+            route('admin.accounts'),
+            'security',
+        ));
     }
 
     public function canManage(User $user): bool

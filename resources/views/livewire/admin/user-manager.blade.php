@@ -244,12 +244,17 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Role</label>
-                    <select wire:model.live="role"
+                    <select wire:model.live="role" @disabled($this->roleLocked)
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
                         @foreach ($this->roleOptions as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach
                     </select>
+                    @if ($this->roleLocked)
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">You can't change your own role. Ask a super admin.</p>
+                    @elseif ($role === 'super_admin')
+                        <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">Super Admin has full access, including approving any request at any step. Existing super admins are notified.</p>
+                    @endif
                     @error('role') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 

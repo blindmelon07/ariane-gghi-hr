@@ -69,19 +69,40 @@ it('links a typed-in code to the matching employee', function () {
     expect($emp->fresh()->user_id)->toBe(User::where('employee_code', '60')->value('id'));
 });
 
-it('stops HR admins from creating or touching super admins', function () {
+it('lets HR admins grant Super Admin to others and alerts existing super admins', function () {
     $super = accountAs('super_admin');
+    $hr    = accountAs('hr_admin');
 
-    $hr = Livewire::actingAs(accountAs('hr_admin'))->test(UserManager::class);
-    expect($hr->instance()->roleOptions)->not->toHaveKey('super_admin');
+    Livewire::actingAs($hr)->test(UserManager::class)
+        ->call('openAdd')
+        ->set('name', 'New Boss')->set('employeeCode', 'NB1')->set('password', 'secret123')->set('role', 'super_admin')
+        ->call('save')
+        ->assertHasNoErrors();
 
-    $hr->call('openAdd')
-        ->set('name', 'Sneaky')->set('employeeCode', 'X1')->set('password', 'secret123')->set('role', 'super_admin')
+    expect(User::where('employee_code', 'NB1')->value('role'))->toBe('super_admin');
+    expect($super->notifications()->sole()->data)->toMatchArray(['title' => 'Super Admin role granted', 'type' => 'security']);
+});
+
+it('stops HR admins from changing their own role', function () {
+    $hr = accountAs('hr_admin');
+
+    Livewire::actingAs($hr)->test(UserManager::class)
+        ->call('openEdit', $hr->id)
+        ->assertSet('role', 'hr_admin')
+        ->set('role', 'super_admin')
         ->call('save')
         ->assertHasErrors('role');
 
+    expect($hr->fresh()->role)->toBe('hr_admin');
+});
+
+it('still stops HR admins from editing, deactivating or deleting existing super admins', function () {
+    $super = accountAs('super_admin');
+
+    $hr = Livewire::actingAs(accountAs('hr_admin'))->test(UserManager::class);
     $hr->call('delete', $super->id);
     $hr->call('toggleActive', $super->id);
+    $hr->call('openEdit', $super->id)->assertSet('showModal', false);
 
     expect(User::find($super->id))->not->toBeNull()->is_active->toBeTrue();
 });
