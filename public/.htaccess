@@ -8,6 +8,10 @@
     # Exclude Livewire endpoints from LiteSpeed Cache
     RewriteRule ^livewire/ - [E=Cache-Control:no-store]
 
+    # Never cache the service worker or manifest — phones must always get the
+    # latest sw.js, or push notifications and app updates silently stop working.
+    RewriteRule ^(sw\.js|manifest\.json)$ - [E=Cache-Control:no-store]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -25,4 +29,12 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# Browsers and Hostinger's CDN: always re-check the service worker and manifest.
+<IfModule mod_headers.c>
+    <FilesMatch "^(sw\.js|manifest\.json)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Service-Worker-Allowed "/"
+    </FilesMatch>
 </IfModule>
