@@ -144,3 +144,14 @@ it('sends the user a test notification', function () {
 
     expect($user->notifications()->sole()->data)->toMatchArray(['title' => 'Test notification', 'type' => 'test']);
 });
+
+it('refreshes the bell badge when a notification arrives', function () {
+    [, $user] = appEmployee();
+
+    $bell = \Livewire\Livewire::actingAs($user)->test(\App\Livewire\NotificationBell::class)
+        ->assertDontSee('Test notification');
+
+    $user->notify(new HrAlert('Test notification', 'Body text here'));
+
+    $bell->dispatch('notification-received')->assertSee('Test notification');
+});

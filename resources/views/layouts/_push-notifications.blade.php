@@ -79,6 +79,15 @@
         };
     })();
 
+    // A push arrived while the portal is open (posted by sw.js) — refresh the bell now.
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'gghi-notification' && window.Livewire) {
+                window.Livewire.dispatch('notification-received');
+            }
+        });
+    }
+
     window.addEventListener('load', () => {
         try {
             if (sessionStorage.getItem('gghiPushSynced') !== '{{ auth()->id() }}') {

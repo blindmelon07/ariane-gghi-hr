@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gghi-hr-v5';
+const CACHE_NAME = 'gghi-hr-v7';
 const OFFLINE_URL = '/offline.html';
 
 // Pre-cache the offline page on install
@@ -28,15 +28,22 @@ self.addEventListener('push', event => {
         data = { body: event.data ? event.data.text() : '' };
     }
 
-    event.waitUntil(
+    event.waitUntil(Promise.all([
         self.registration.showNotification(data.title || 'GGHI HR', {
             body: data.body || '',
             icon: data.icon || '/images/icon-192.png',
             badge: data.badge || '/images/icon-192.png',
             tag: data.tag,
             data: { url: data.url || '/login' },
-        })
-    );
+        }),
+        // Number on the installed app's icon (Badging API; ignored where unsupported).
+        ('setAppBadge' in self.navigator && typeof data.unread === 'number')
+            ? (data.unread > 0 ? self.navigator.setAppBadge(data.unread) : self.navigator.clearAppBadge()).catch(() => {})
+            : Promise.resolve(),
+        // Tell any open portal tab, so its bell badge updates without a reload.
+        clients.matchAll({ type: 'window', includeUncontrolled: true })
+            .then(windows => windows.forEach(win => win.postMessage({ type: 'gghi-notification' }))),
+    ]));
 });
 
 // Tapping a notification focuses an open portal tab, or opens one

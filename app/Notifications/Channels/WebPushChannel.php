@@ -38,6 +38,12 @@ class WebPushChannel
 
         $payload += ['url' => url(method_exists($notifiable, 'dashboardRoute') ? $notifiable->dashboardRoute() : '/'), 'icon' => '/images/icon-192.png', 'badge' => '/images/icon-192.png'];
 
+        // Unread count for the number on the app icon. The database channel runs
+        // first (see via()), so this already includes the notification being sent.
+        if (method_exists($notifiable, 'unreadNotifications')) {
+            $payload['unread'] = $notifiable->unreadNotifications()->count();
+        }
+
         try {
             $webPush = new WebPush(['VAPID' => [
                 'subject'    => config('services.webpush.subject'),

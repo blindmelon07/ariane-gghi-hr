@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class NotificationBell extends Component
@@ -17,6 +18,17 @@ class NotificationBell extends Component
     public function notifications()
     {
         return auth()->user()->notifications()->take(5)->get();
+    }
+
+    /**
+     * Re-read the badge and list. Fired instantly when a push arrives on this
+     * device (see layouts/_push-notifications), and by the 60s poll as a fallback
+     * for devices without phone notifications.
+     */
+    #[On('notification-received')]
+    public function refreshNotifications(): void
+    {
+        unset($this->unreadCount, $this->notifications);
     }
 
     public function markAllRead(): void

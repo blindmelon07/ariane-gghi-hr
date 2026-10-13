@@ -14,7 +14,14 @@
         },
      }"
      @resize.window="open = false"
+     wire:poll.60s.visible="refreshNotifications"
      class="relative">
+    {{-- Keep the number on the installed app's icon in sync with the unread count.
+         The wire:key changes with the count, so Livewire replaces this element and
+         x-init runs again after every refresh / mark-as-read. --}}
+    <span wire:key="app-badge-{{ $this->unreadCount }}" class="hidden"
+          x-init="if ('setAppBadge' in navigator) { ({{ $this->unreadCount }} > 0 ? navigator.setAppBadge({{ $this->unreadCount }}) : navigator.clearAppBadge()).catch(() => {}) }"></span>
+
     {{-- Bell Button --}}
     <button x-ref="bell" @click="toggle()" class="relative p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:text-gray-300 transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
