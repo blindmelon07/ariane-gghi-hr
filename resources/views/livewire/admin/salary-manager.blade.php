@@ -169,7 +169,7 @@
                         </tr>
                     @else
                         {{-- Display Row --}}
-                        <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                             <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                                 <div>{{ $employee->full_name }}</div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $employee->emp_code }}</div>

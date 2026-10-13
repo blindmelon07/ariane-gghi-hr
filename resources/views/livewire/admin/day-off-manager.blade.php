@@ -124,7 +124,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse ($this->dayOffs as $off)
-                    <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td class="px-4 py-2.5">
                             <p class="font-medium">{{ $off->employee->full_name ?? '' }}</p>
                             <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $off->employee->emp_code ?? '' }}</p>
@@ -202,7 +202,7 @@
                             <ul class="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
                                 @foreach ($this->employeeResults as $emp)
                                 <li wire:click="selectEmployee({{ $emp->id }})"
-                                    class="px-3 py-2 hover:bg-indigo-50 dark:bg-indigo-950/30 cursor-pointer text-sm">
+                                    class="px-3 py-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 cursor-pointer text-sm">
                                     {{ $emp->full_name }} <span class="text-gray-400 dark:text-gray-500">({{ $emp->emp_code }})</span>
                                 </li>
                                 @endforeach
@@ -223,12 +223,12 @@
                     <div class="flex gap-2">
                         <button type="button" wire:click="$set('mode', 'single')"
                             class="flex-1 py-2 px-3 text-sm font-medium rounded-lg border transition
-                            {{ $mode === 'single' ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-gray-800/50' }}">
+                            {{ $mode === 'single' ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50' }}">
                             Single Date
                         </button>
                         <button type="button" wire:click="$set('mode', 'recurring')"
                             class="flex-1 py-2 px-3 text-sm font-medium rounded-lg border transition
-                            {{ $mode === 'recurring' ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-gray-800/50' }}">
+                            {{ $mode === 'recurring' ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50' }}">
                             Recurring Weekly
                         </button>
                     </div>
@@ -252,7 +252,7 @@
                         @foreach ($dayLabels as $i => $label)
                         <button type="button" wire:click="setEditDayOfWeek({{ $i }})"
                             class="px-3 py-2 rounded-lg border text-sm font-medium transition
-                            {{ $currentDow === $i ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-gray-800/50' }}">
+                            {{ $currentDow === $i ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50' }}">
                             {{ $label }}
                         </button>
                         @endforeach
@@ -268,7 +268,7 @@
                         @php $dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; @endphp
                         @foreach ($dayLabels as $i => $label)
                         <label class="flex items-center gap-1.5 px-3 py-2 rounded-lg border cursor-pointer text-sm transition
-                            {{ in_array($i, $selectedDays) ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-400 text-indigo-700 dark:text-indigo-300' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800/50' }}">
+                            {{ in_array($i, $selectedDays) ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-400 text-indigo-700 dark:text-indigo-300' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50' }}">
                             <input type="checkbox" wire:model.live="selectedDays" value="{{ $i }}" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400 w-3.5 h-3.5" />
                             {{ $label }}
                         </label>
@@ -361,7 +361,7 @@
                         @php $dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; @endphp
                         @foreach ($dayLabels as $i => $label)
                         <label class="flex items-center gap-1.5 px-3 py-2 rounded-lg border cursor-pointer text-sm transition
-                            {{ in_array($i, $bulkSelectedDays) ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-400 text-indigo-700 dark:text-indigo-300' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800/50' }}">
+                            {{ in_array($i, $bulkSelectedDays) ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-400 text-indigo-700 dark:text-indigo-300' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50' }}">
                             <input type="checkbox" wire:model.live="bulkSelectedDays" value="{{ $i }}" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400 w-3.5 h-3.5" />
                             {{ $label }}
                         </label>

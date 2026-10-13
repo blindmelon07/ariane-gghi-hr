@@ -54,7 +54,7 @@
 
         <div class="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
             @forelse ($this->notifications as $notification)
-                <div wire:key="notif-{{ $notification->id }}" wire:click="markAsRead('{{ $notification->id }}')" class="relative px-4 py-3 pr-8 text-sm cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 {{ !$notification->read_at ? 'bg-indigo-50 dark:bg-indigo-950/30/50' : '' }}">
+                <div wire:key="notif-{{ $notification->id }}" wire:click="markAsRead('{{ $notification->id }}')" class="relative px-4 py-3 pr-8 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 {{ !$notification->read_at ? 'bg-indigo-50 dark:bg-indigo-950/30' : '' }}">
                     @if (! empty($notification->data['title']))
                         <p class="font-medium text-gray-900 dark:text-white">{{ $notification->data['title'] }}</p>
                     @endif

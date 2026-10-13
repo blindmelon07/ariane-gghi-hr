@@ -142,7 +142,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @foreach ($this->employees as $employee)
-                        <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                             <td class="px-4 py-3">
                                 <div class="font-medium text-gray-800 dark:text-gray-100">{{ $employee->full_name }}</div>
                                 <div class="text-xs text-gray-400 dark:text-gray-500">{{ $employee->emp_code }} · {{ $employee->department ?? '—' }}</div>

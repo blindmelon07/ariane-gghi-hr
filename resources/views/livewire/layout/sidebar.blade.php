@@ -252,7 +252,7 @@ new class extends Component
                        class="flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-150 group"
                        :class="[
                            $store.sidebar.collapsed ? 'justify-center p-3' : 'px-3 py-2.5',
-                           {{ $active ? 'true' : 'false' }} ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'text-slate-400 hover:text-white hover:bg-white/8'
+                           {{ $active ? 'true' : 'false' }} ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'text-slate-400 hover:text-white hover:bg-white/10'
                        ]">
                         @include('livewire.layout._sidebar-icon', ['icon' => $item['icon'], 'active' => $active])
                         <span x-show="!$store.sidebar.collapsed"
@@ -288,7 +288,7 @@ new class extends Component
                                 $store.sidebar.collapsed ? 'justify-center p-3' : 'px-3 py-2.5',
                                 {{ $sectionActive ? 'true' : 'false' }} && !$store.sidebar.collapsed
                                     ? 'text-white'
-                                    : 'text-slate-400 hover:text-white hover:bg-white/8'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/10'
                             ]">
                         @include('livewire.layout._sidebar-icon', ['icon' => $sectionIcon, 'active' => $sectionActive])
                         <span x-show="!$store.sidebar.collapsed"
@@ -320,7 +320,7 @@ new class extends Component
                                class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-all duration-150
                                       {{ $active
                                           ? 'text-blue-300 bg-blue-500/15 font-medium'
-                                          : 'text-slate-500 hover:text-slate-200 hover:bg-white/6' }}">
+                                          : 'text-slate-500 hover:text-slate-200 hover:bg-white/5' }}">
                                 <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ $active ? 'bg-blue-400' : 'bg-slate-600' }}"></span>
                                 <span class="truncate">{{ $item['label'] }}</span>
                             </a>

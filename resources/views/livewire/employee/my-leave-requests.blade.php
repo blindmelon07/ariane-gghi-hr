@@ -77,7 +77,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @foreach ($this->requests as $req)
-                            <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                 <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{{ $req->leaveType->code }}</td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $req->start_date->format('M d, Y') }}</td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $req->end_date->format('M d, Y') }}</td>

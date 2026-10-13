@@ -144,7 +144,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @foreach ($this->payslips as $slip)
-                    <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td class="px-4 py-2.5 font-mono text-xs">{{ $slip->employee->emp_code ?? '' }}</td>
                         <td class="px-4 py-2.5 font-medium">{{ $slip->employee->full_name ?? '' }}</td>
                         <td class="px-4 py-2.5 text-right">{{ number_format($slip->days_present, 1) }}</td>

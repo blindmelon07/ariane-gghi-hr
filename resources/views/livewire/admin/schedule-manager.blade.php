@@ -114,7 +114,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse ($this->schedules as $sched)
-                    <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-200">{{ $sched->department }}</td>
                         <td class="px-4 py-3 text-gray-800 dark:text-gray-100">{{ $sched->name }}</td>
                         <td class="px-4 py-3">
@@ -147,7 +147,7 @@
                         <td class="px-4 py-3 text-center">
                             <button wire:click="toggleScheduleActive({{ $sched->id }})"
                                 class="inline-block px-2 py-0.5 text-xs rounded-full cursor-pointer transition
-                                {{ $sched->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200 dark:bg-green-800/30' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:bg-red-800/30' }}">
+                                {{ $sched->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800/30' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800/30' }}">
                                 {{ $sched->is_active ? 'Active' : 'Inactive' }}
                             </button>
                         </td>
@@ -238,7 +238,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse ($this->assignments as $assign)
-                    <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td class="px-4 py-3">
                             <span class="font-medium text-gray-800 dark:text-gray-100">{{ $assign->employee->first_name }} {{ $assign->employee->last_name }}</span>
                             <br><span class="text-xs text-gray-400 dark:text-gray-500">{{ $assign->employee->emp_code }}</span>
@@ -401,7 +401,7 @@
                         <ul class="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
                             @foreach ($this->employeeResults as $emp)
                             <li wire:click="selectEmployee({{ $emp->id }})" @click="open = false"
-                                class="px-3 py-2 hover:bg-indigo-50 dark:bg-indigo-950/30 cursor-pointer text-sm">
+                                class="px-3 py-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 cursor-pointer text-sm">
                                 {{ $emp->first_name }} {{ $emp->last_name }} <span class="text-gray-400 dark:text-gray-500">({{ $emp->emp_code }})</span>
                             </li>
                             @endforeach

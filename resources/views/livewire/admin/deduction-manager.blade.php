@@ -71,7 +71,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse ($this->deductions as $d)
-                    <tr class="hover:bg-gray-50 dark:bg-gray-800/50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td class="px-4 py-2.5">
                             <p class="font-medium">{{ $d->employee->full_name ?? '' }}</p>
                             <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $d->employee->emp_code ?? '' }}</p>
@@ -228,7 +228,7 @@
                         <ul class="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
                             @foreach ($this->employeeResults as $emp)
                             <li wire:click="selectEmployee({{ $emp->id }})" @click="open = false"
-                                class="px-3 py-2 hover:bg-indigo-50 dark:bg-indigo-950/30 cursor-pointer text-sm">
+                                class="px-3 py-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 cursor-pointer text-sm">
                                 {{ $emp->full_name }} <span class="text-gray-400 dark:text-gray-500">({{ $emp->emp_code }})</span>
                             </li>
                             @endforeach
@@ -347,7 +347,7 @@
                     <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">{{ $catLabel }}</h4>
                     <div class="space-y-1">
                         @foreach ($catTypes as $t)
-                        <div class="flex items-center justify-between px-3 py-2 rounded-lg {{ $t->is_active ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-red-50 dark:bg-red-950/30/50' }}">
+                        <div class="flex items-center justify-between px-3 py-2 rounded-lg {{ $t->is_active ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-red-50 dark:bg-red-950/30' }}">
                             <div>
                                 <span class="text-sm font-medium {{ $t->is_active ? 'text-gray-800 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500 line-through' }}">{{ $t->name }}</span>
                                 <span class="text-xs text-gray-400 dark:text-gray-500 ml-2">{{ $t->code }}</span>
