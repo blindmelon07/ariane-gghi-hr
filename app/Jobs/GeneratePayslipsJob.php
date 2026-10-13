@@ -18,8 +18,13 @@ class GeneratePayslipsJob implements ShouldQueue
 
     public int $timeout = 300;
 
+    /**
+     * @param  int[]|null  $employeeIds  Only generate for these employees; null = everyone eligible.
+     *                                   Payslips of employees left out are kept as they are.
+     */
     public function __construct(
         public int $payrollPeriodId,
+        public ?array $employeeIds = null,
     ) {}
 
     public function handle(PhilippinePayrollService $payroll): void
@@ -28,6 +33,7 @@ class GeneratePayslipsJob implements ShouldQueue
 
         $employees = Employee::where('is_active', true)
             ->whereHas('salaryDetail')
+            ->when($this->employeeIds !== null, fn ($q) => $q->whereIn('id', $this->employeeIds))
             ->get();
 
         foreach ($employees as $employee) {

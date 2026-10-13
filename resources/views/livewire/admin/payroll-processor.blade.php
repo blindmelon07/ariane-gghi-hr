@@ -237,6 +237,79 @@
     </div>
     @endif
 
+    {{-- Generate Payslips Modal — choose which employees to process --}}
+    @if ($generatePeriodId)
+    <div wire:click.self="closeGenerate"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 p-4"
+         x-data="{
+             search: '',
+             matches(text) { return text.toLowerCase().includes(this.search.trim().toLowerCase()) },
+             visibleIds() {
+                 return [...this.$root.querySelectorAll('[data-emp-row]')]
+                     .filter(el => el.style.display !== 'none')
+                     .map(el => el.dataset.empRow)
+             },
+             selectVisible() {
+                 $wire.set('selectedEmployeeIds', [...new Set([...$wire.selectedEmployeeIds, ...this.visibleIds()])])
+             },
+             clearVisible() {
+                 const ids = this.visibleIds()
+                 $wire.set('selectedEmployeeIds', $wire.selectedEmployeeIds.filter(id => !ids.includes(id)))
+             },
+         }"
+         x-on:keydown.escape.window="$wire.closeGenerate()">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                {{ $this->generatePeriod?->status === 'processed' ? 'Regenerate' : 'Generate' }} Payslips
+            </h3>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
+                {{ $this->generatePeriod?->name }} — choose the employees to process. Payslips of employees you leave unchecked are not changed.
+            </p>
+
+            <div class="flex items-center gap-2 mb-2">
+                <input x-model="search" type="text" placeholder="Search name or code…"
+                       class="flex-1 min-w-0 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                <button type="button" x-on:click="selectVisible()" class="shrink-0 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">Select all</button>
+                <button type="button" x-on:click="clearVisible()" class="shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700">Clear</button>
+            </div>
+
+            <div class="max-h-80 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-100 dark:divide-gray-700">
+                @forelse ($this->eligibleEmployees as $emp)
+                    <label wire:key="gen-emp-{{ $emp->id }}" data-emp-row="{{ $emp->id }}"
+                           x-show="matches(@js($emp->full_name . ' ' . $emp->emp_code))"
+                           class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <input type="checkbox" wire:model.live="selectedEmployeeIds" value="{{ $emp->id }}"
+                               class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
+                        <span class="text-sm text-gray-800 dark:text-gray-100 truncate">{{ $emp->full_name }}</span>
+                        <span class="ml-auto text-xs text-gray-400 dark:text-gray-500">{{ $emp->emp_code }}</span>
+                    </label>
+                @empty
+                    <p class="px-3 py-6 text-center text-sm text-gray-400 dark:text-gray-500">No active employees with salary details.</p>
+                @endforelse
+            </div>
+
+            @error('selectedEmployeeIds') <p class="text-red-500 dark:text-red-400 text-xs mt-2">{{ $message }}</p> @enderror
+
+            <div class="flex items-center justify-between gap-3 pt-4">
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ count($selectedEmployeeIds) }} of {{ $this->eligibleEmployees->count() }} selected
+                </span>
+                <div class="flex gap-3">
+                    <button type="button" wire:click="closeGenerate"
+                            class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="button" wire:click="generatePayslips" wire:loading.attr="disabled" wire:target="generatePayslips"
+                            @disabled(count($selectedEmployeeIds) === 0)
+                            class="rounded-lg bg-indigo-600 dark:bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50">
+                        Generate ({{ count($selectedEmployeeIds) }})
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Periods Cards (mobile) --}}
     <div class="lg:hidden space-y-3">
         @forelse ($this->periods as $period)
@@ -260,7 +333,7 @@
                 </div>
                 <div class="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                     @if ($period->status === 'draft' || $period->status === 'processed')
-                        <button wire:click="generatePayslips({{ $period->id }})" wire:confirm="Generate payslips for all employees?" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+                        <button wire:click="openGenerate({{ $period->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
                             {{ $period->status === 'draft' ? 'Generate' : 'Regenerate' }}
                         </button>
                     @endif
@@ -312,7 +385,7 @@
                         <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $period->payslips()->count() }}</td>
                         <td class="px-6 py-4 text-right space-x-2">
                             @if ($period->status === 'draft' || $period->status === 'processed')
-                                <button wire:click="generatePayslips({{ $period->id }})" wire:confirm="Generate payslips for all employees?" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">
+                                <button wire:click="openGenerate({{ $period->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">
                                     {{ $period->status === 'draft' ? 'Generate' : 'Regenerate' }}
                                 </button>
                             @endif

@@ -61,6 +61,27 @@ Edit `config.ini`:
 `config.ini` is gitignored — it holds a secret token, so don't commit it or
 share it outside your organization.
 
+### More than one biometric device
+
+Add a `[device:<name>]` section for each extra device, alongside the
+existing `[device]` section:
+
+```ini
+[device]
+ip = 192.168.1.201
+
+[device:Second Floor]
+ip = 192.168.1.202
+port = 4370
+```
+
+Every run reads all configured devices and pushes their punches together.
+Each punch is tagged with the serial number of the device it came from
+(`terminal_sn`). If one device is unreachable, the others still sync, and the
+run is logged as failed so you notice. With `--sync-users`, an employee
+enrolled on several devices is pushed once. Use the same employee ID (user
+ID) for a person on every device, so their punches link to one employee.
+
 ## 3. Run it
 
 **One-time test run** (recommended first — doesn't push anything):
@@ -141,6 +162,7 @@ Each device attendance record becomes one row pushed to
 | `timestamp` | `punch_time` | `YYYY-MM-DD HH:MM:SS` |
 | `punch` | `punch_state` | Check type (in/out) — meaning is device/firmware-dependent |
 | `status` | `verify_type` | Verification method (fingerprint/card/password) |
+| device serial number | `terminal_sn` | Which device recorded the punch |
 
 If punch types come through looking swapped or wrong for your specific
 device model, run `--dry-run -v` and compare the raw values against a known

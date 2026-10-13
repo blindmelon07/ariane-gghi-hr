@@ -33,6 +33,10 @@ class PayrollProcessor extends Component
     // Per-period payslip viewer
     public ?int   $viewPeriodId  = null;
 
+    // Generate payslips — pick which employees to process
+    public ?int  $generatePeriodId    = null;
+    public array $selectedEmployeeIds = [];
+
     // Excel import
     public ?int    $importPeriodId = null;
 
@@ -135,7 +139,7 @@ class PayrollProcessor extends Component
         session()->flash('success', 'Payroll period created.');
     }
 
-    public function generatePayslips(int $periodId): void
+    public function openGenerate(int $periodId): void
     {
         $period = PayrollPeriod::findOrFail($periodId);
 
@@ -144,11 +148,66 @@ class PayrollProcessor extends Component
             return;
         }
 
-        $period->update(['status' => 'processing']);
-        GeneratePayslipsJob::dispatch($periodId);
+        $this->generatePeriodId    = $periodId;
+        $this->selectedEmployeeIds = $this->eligibleEmployees->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $this->resetErrorBag('selectedEmployeeIds');
+    }
 
+    public function closeGenerate(): void
+    {
+        $this->generatePeriodId    = null;
+        $this->selectedEmployeeIds = [];
+    }
+
+    public function generatePayslips(): void
+    {
+        $this->validate(
+            ['selectedEmployeeIds' => 'required|array|min:1'],
+            ['selectedEmployeeIds.required' => 'Select at least one employee.', 'selectedEmployeeIds.min' => 'Select at least one employee.'],
+        );
+
+        $period = PayrollPeriod::findOrFail($this->generatePeriodId);
+
+        if ($period->status === 'finalized') {
+            session()->flash('error', 'Cannot regenerate a finalized payroll.');
+            $this->closeGenerate();
+            return;
+        }
+
+        $employeeIds = array_map('intval', $this->selectedEmployeeIds);
+        $count       = count($employeeIds);
+
+        // Selecting everyone is the same as the old "all employees" run.
+        $isAll = $count >= $this->eligibleEmployees->count();
+
+        $period->update(['status' => 'processing']);
+        GeneratePayslipsJob::dispatch($period->id, $isAll ? null : $employeeIds);
+
+        ActivityLogService::log(
+            'payroll_generated',
+            "Generated payslips for {$count} employee(s): {$period->name}",
+            $period
+        );
+
+        $this->closeGenerate();
         unset($this->periods);
-        session()->flash('success', 'Payslip generation queued. Refresh in a moment to see results.');
+        session()->flash('success', "Payslip generation queued for {$count} employee(s). Refresh in a moment to see results.");
+    }
+
+    #[Computed]
+    public function eligibleEmployees()
+    {
+        return Employee::where('is_active', true)
+            ->whereHas('salaryDetail')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get(['id', 'emp_code', 'first_name', 'last_name']);
+    }
+
+    #[Computed]
+    public function generatePeriod()
+    {
+        return $this->generatePeriodId ? PayrollPeriod::find($this->generatePeriodId) : null;
     }
 
     public function finalize(int $periodId): void

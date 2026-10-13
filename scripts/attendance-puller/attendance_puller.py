@@ -120,6 +120,23 @@ def setup_logging(verbose: bool) -> logging.Logger:
 
 # ── Config ───────────────────────────────────────────────────────────────
 
+class DeviceConfig:
+    def __init__(self, section_name: str, section: configparser.SectionProxy):
+        # "[device]" → "device"; "[device:Annex]" → "Annex". An explicit
+        # `name = ...` in the section wins over either.
+        default_name = section_name.split(":", 1)[1].strip() if ":" in section_name else section_name
+        self.name: str = section.get("name", default_name).strip() or default_name
+
+        self.ip: str = section.get("ip", "").strip()
+        self.port: int = section.getint("port", fallback=4370)
+        self.timeout: int = section.getint("timeout_seconds", fallback=10)
+        self.password: int = section.getint("password", fallback=0)
+        self.force_udp: bool = section.getboolean("force_udp", fallback=False)
+
+        if not self.ip:
+            raise SystemExit(f"config.ini: [{section_name}] ip is required.")
+
+
 class Config:
     def __init__(self, path: Path):
         if not path.exists():
@@ -132,23 +149,23 @@ class Config:
         parser.read(path, encoding="utf-8")
 
         try:
-            device = parser["device"]
             server = parser["server"]
         except KeyError as e:
             raise SystemExit(f"config.ini is missing a required section: {e}")
 
-        self.device_ip: str = device.get("ip", "").strip()
-        self.device_port: int = device.getint("port", fallback=4370)
-        self.device_timeout: int = device.getint("timeout_seconds", fallback=10)
-        self.device_password: int = device.getint("password", fallback=0)
-        self.device_force_udp: bool = device.getboolean("force_udp", fallback=False)
+        # One device per section: [device] and/or any number of [device:<name>].
+        self.devices: list[DeviceConfig] = [
+            DeviceConfig(name, parser[name])
+            for name in parser.sections()
+            if name == "device" or name.startswith("device:")
+        ]
 
         self.server_base_url: str = server.get("base_url", "").strip().rstrip("/")
         self.api_token: str = server.get("api_token", "").strip()
         self.verify_ssl: bool = server.getboolean("verify_ssl", fallback=True)
 
-        if not self.device_ip:
-            raise SystemExit("config.ini: [device] ip is required.")
+        if not self.devices:
+            raise SystemExit("config.ini: at least one [device] or [device:<name>] section is required.")
         if not self.server_base_url:
             raise SystemExit("config.ini: [server] base_url is required.")
         if not self.api_token:
@@ -157,23 +174,23 @@ class Config:
 
 # ── ZKTeco device ────────────────────────────────────────────────────────
 
-def connect_device(cfg: Config, logger: logging.Logger) -> ZK:
+def connect_device(device: DeviceConfig, logger: logging.Logger) -> ZK:
     zk = ZK(
-        cfg.device_ip,
-        port=cfg.device_port,
-        timeout=cfg.device_timeout,
-        password=cfg.device_password,
-        force_udp=cfg.device_force_udp,
+        device.ip,
+        port=device.port,
+        timeout=device.timeout,
+        password=device.password,
+        force_udp=device.force_udp,
         ommit_ping=False,
     )
 
-    logger.info(f"Connecting to device at {cfg.device_ip}:{cfg.device_port} ...")
+    logger.info(f"[{device.name}] Connecting to device at {device.ip}:{device.port} ...")
     conn = zk.connect()
-    logger.info(f"Connected. Serial: {conn.get_serialnumber()}, firmware: {conn.get_firmware_version()}")
+    logger.info(f"[{device.name}] Connected. Serial: {conn.get_serialnumber()}, firmware: {conn.get_firmware_version()}")
     return conn
 
 
-def pull_attendance(conn: ZK, logger: logging.Logger, date_from: datetime | None, date_to: datetime | None) -> list[dict]:
+def pull_attendance(conn: ZK, logger: logging.Logger, date_from: datetime | None, date_to: datetime | None, terminal_sn: str | None) -> list[dict]:
     """
     Pulls all attendance records currently stored on the device and returns
     them as plain dicts ready for the API, optionally filtered to a date
@@ -215,6 +232,8 @@ def pull_attendance(conn: ZK, logger: logging.Logger, date_from: datetime | None
             # app's own PHP ZKTecoService uses for the same device protocol.
             "punch_state": int(rec.punch),
             "verify_type": int(rec.status),
+            # Identifies which device the punch came from when several are configured.
+            "terminal_sn": terminal_sn,
         })
 
     if skipped:
@@ -327,31 +346,45 @@ def run_once(cfg: Config, logger: logging.Logger, args: argparse.Namespace) -> b
         if args.date_to else None
     )
 
-    conn = None
-    try:
-        conn = connect_device(cfg, logger)
+    ok = True
+    attendance_records: list[dict] = []
+    user_records: list[dict] = []
+    seen_user_codes: set[str] = set()
 
-        attendance_records = pull_attendance(conn, logger, date_from, date_to)
-        user_records = pull_users(conn, logger) if args.sync_users else []
+    # Read every device first. One unreachable device doesn't stop the others
+    # from syncing — it just makes the run report failure.
+    for device in cfg.devices:
+        conn = None
+        try:
+            conn = connect_device(device, logger)
+            serial = str(conn.get_serialnumber() or "").strip() or None
 
-    except (ZKErrorConnection, ZKNetworkError, ZKErrorResponse) as e:
-        logger.error(f"Could not communicate with the ZKTeco device: {e}")
-        return False
-    except Exception as e:
-        logger.exception(f"Unexpected error while reading from the device: {e}")
-        return False
-    finally:
-        if conn is not None:
-            try:
-                conn.disconnect()
-            except Exception:
-                pass
+            attendance_records += pull_attendance(conn, logger, date_from, date_to, serial)
+
+            if args.sync_users:
+                # The same employee may be enrolled on several devices — push them once.
+                for user in pull_users(conn, logger):
+                    if user["emp_code"] not in seen_user_codes:
+                        seen_user_codes.add(user["emp_code"])
+                        user_records.append(user)
+
+        except (ZKErrorConnection, ZKNetworkError, ZKErrorResponse) as e:
+            logger.error(f"[{device.name}] Could not communicate with the ZKTeco device: {e}")
+            ok = False
+        except Exception as e:
+            logger.exception(f"[{device.name}] Unexpected error while reading from the device: {e}")
+            ok = False
+        finally:
+            if conn is not None:
+                try:
+                    conn.disconnect()
+                except Exception:
+                    pass
 
     if args.dry_run:
         logger.info(f"[DRY RUN] Would push {len(attendance_records)} attendance record(s) and {len(user_records)} user(s). Nothing sent.")
-        return True
+        return ok
 
-    ok = True
     try:
         push_attendance(cfg, logger, attendance_records)
         if args.sync_users:
