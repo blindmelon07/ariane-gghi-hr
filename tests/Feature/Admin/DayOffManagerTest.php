@@ -77,7 +77,7 @@ describe('single day off', function () {
             ->test(DayOffManager::class)
             ->call('openAdd')
             ->call('save')
-            ->assertHasErrors(['modalEmployeeId', 'date']);
+            ->assertHasErrors(['selectedEmployeeIds', 'date']);   // create mode picks one or more employees
     });
 
     it('rejects an invalid type value', function () {

@@ -136,3 +136,15 @@ it('allows short app-only messages but not short SMS', function () {
     Livewire::actingAs(smsAdmin())->test(SmsCenter::class)
         ->set('viaApp', false)->set('smsMessage', 'Hi!')->call('send')->assertHasErrors(['smsMessage' => 'min']);
 });
+
+it('does not let an HR admin reset a super admin password via Login Details', function () {
+    Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+    $ceo = User::factory()->create(['role' => 'super_admin', 'employee_code' => 'CEO9', 'password' => 'ceo-secret']);
+    $emp = Employee::create(['emp_code' => 'CEO9', 'first_name' => 'Big', 'last_name' => 'Boss', 'full_name' => 'Big Boss', 'is_active' => true, 'user_id' => $ceo->id, 'cell_number' => '09171234567']);
+
+    Livewire::actingAs(smsAdmin())->test(SmsCenter::class)
+        ->set('credentialIds', [$emp->id])
+        ->call('sendCredentials');
+
+    expect(\Illuminate\Support\Facades\Hash::check('ceo-secret', $ceo->fresh()->password))->toBeTrue();
+});

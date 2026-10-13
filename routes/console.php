@@ -18,4 +18,4 @@ Schedule::command('sync:employees')->dailyAt('00:00')->withoutOverlapping();
 Schedule::command('leave:accrue')->monthlyOn(1, '06:00')->withoutOverlapping();
 
 // Text late/absent employees at 8 PM, after the day's punches have synced (needs UNISMS_ATTENDANCE_ALERTS=true)
-Schedule::command('sms:attendance-alerts')->dailyAt('20:00')->withoutOverlapping();
+Schedule::command('sms:attendance-alerts')->dailyAt('20:00')->timezone('Asia/Manila')->withoutOverlapping();

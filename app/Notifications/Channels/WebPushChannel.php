@@ -69,7 +69,9 @@ class WebPushChannel
             'subject'    => config('services.webpush.subject'),
             'publicKey'  => config('services.webpush.public_key'),
             'privateKey' => config('services.webpush.private_key'),
-        ]], ['TTL' => 86400, 'urgency' => 'high']);
+        ]], ['TTL' => 86400, 'urgency' => 'high'],
+            // Bounded, so a slow push service can't stall the request that triggered the notification.
+            new \GuzzleHttp\Client(['timeout' => 10, 'connect_timeout' => 5]));
 
         $byEndpoint = [];
         foreach ($subscriptions as $sub) {

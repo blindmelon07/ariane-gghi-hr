@@ -27,6 +27,7 @@ test('computeTotalDays excludes both Sunday and the employee weekday_off', funct
 });
 
 test('filing vacation leave charges credits correctly around the employee weekday_off', function () {
+    $this->travelTo('2026-09-06 08:00:00');   // the fixed dates below must still be in the future
     ltdRole('employee');
     ltdRole('hr_admin');
 
@@ -66,6 +67,7 @@ test('filing vacation leave charges credits correctly around the employee weekda
 });
 
 test('half-day leave stores 0.5 total_days, not a full day', function () {
+    $this->travelTo('2026-09-06 08:00:00');   // the fixed date below must still be in the future
     ltdRole('employee');
     ltdRole('hr_admin');
 

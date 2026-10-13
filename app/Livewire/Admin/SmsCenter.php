@@ -11,6 +11,7 @@ use App\Notifications\HrAlert;
 use App\Services\ActivityLogService;
 use App\Services\SmsNotificationService;
 use App\Services\SmsService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -48,7 +49,7 @@ class SmsCenter extends Component
 
     public function mount(): void
     {
-        $this->alertDate = now()->toDateString();
+        $this->alertDate = now('Asia/Manila')->toDateString();   // app clock is UTC
         $this->credits   = app(SmsService::class)->credits();
     }
 
@@ -190,7 +191,17 @@ class SmsCenter extends Component
             return;
         }
 
-        $result = $notifier->sendCredentials(Employee::with('user')->whereIn('id', $this->credentialIds)->get());
+        $employees = Employee::with('user')->whereIn('id', $this->credentialIds)->get();
+
+        // Same rule as User Accounts: only a super admin can reset a super admin's password.
+        $blocked = Auth::user()?->role === 'super_admin'
+            ? collect()
+            : $employees->filter(fn ($e) => ($e->user ?? User::where('employee_code', $e->emp_code)->first())?->role === 'super_admin');
+
+        $result = $notifier->sendCredentials($employees->diff($blocked));
+        foreach ($blocked as $e) {
+            $result['failed'][] = "{$e->full_name} (super admin — only a super admin can reset this)";
+        }
 
         $this->credentialIds = [];
         $this->credits       = app(SmsService::class)->credits();
@@ -205,7 +216,7 @@ class SmsCenter extends Component
 
     public function runAttendanceAlerts(SmsNotificationService $notifier): void
     {
-        $this->validate(['alertDate' => 'required|date|before_or_equal:today']);
+        $this->validate(['alertDate' => 'required|date|before_or_equal:' . now('Asia/Manila')->toDateString()]);
 
         $result = $notifier->attendanceAlerts($this->alertDate);
         ActivityLogService::log('sms_attendance_alerts', "Attendance alerts for {$this->alertDate}: {$result['late']} late, {$result['absent']} absent");

@@ -236,7 +236,7 @@
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
                 <div>
                     <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Day</label>
-                    <input type="date" wire:model="alertDate" max="{{ now()->toDateString() }}"
+                    <input type="date" wire:model="alertDate" max="{{ now('Asia/Manila')->toDateString() }}"
                            class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     @error('alertDate') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>

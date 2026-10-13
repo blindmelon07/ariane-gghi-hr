@@ -175,7 +175,8 @@ class SmsService
         }
 
         try {
-            $response = $this->client()->get($this->url('/account'));
+            // Shown on page load, so fail fast rather than hang the SMS Center.
+            $response = $this->client()->timeout(5)->get($this->url('/account'));
 
             return $response->successful() ? (int) $response->json('sms_credits', $response->json('data.sms_credits')) : null;
         } catch (\Throwable) {

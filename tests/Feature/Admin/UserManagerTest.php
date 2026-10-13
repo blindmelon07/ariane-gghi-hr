@@ -106,3 +106,18 @@ it('unlinks the employee when its account is deleted', function () {
     expect(User::find($user->id))->toBeNull()
         ->and($emp->fresh()->user_id)->toBeNull();
 });
+
+it('refuses to delete an account that has approved requests, instead of crashing', function () {
+    $approver = accountAs('department_head');
+    $emp = Employee::create(['emp_code' => '80', 'first_name' => 'Dee', 'last_name' => 'Lee', 'is_active' => true]);
+    $lt  = \App\Models\LeaveType::create(['code' => 'UMX', 'name' => 'VL UMX', 'max_days_per_year' => 15, 'is_paid' => true, 'requires_approval' => true]);
+    $req = \App\Models\LeaveRequest::create([
+        'employee_id' => $emp->id, 'leave_type_id' => $lt->id, 'start_date' => now()->addDay()->toDateString(),
+        'end_date' => now()->addDay()->toDateString(), 'total_days' => 1, 'reason' => 'x', 'status' => 'pending', 'approval_step' => 1,
+    ]);
+    app(\App\Services\LeaveService::class)->approve($req, $approver);
+
+    Livewire::actingAs(accountAs('hr_admin'))->test(UserManager::class)->call('delete', $approver->id);
+
+    expect(User::find($approver->id))->not->toBeNull();
+});

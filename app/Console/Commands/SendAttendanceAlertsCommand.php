@@ -17,7 +17,8 @@ class SendAttendanceAlertsCommand extends Command
             return self::SUCCESS;
         }
 
-        $date   = $this->option('date') ?? now()->toDateString();
+        // The app clock is UTC; "today" means today in the Philippines.
+        $date   = $this->option('date') ?? now('Asia/Manila')->toDateString();
         $result = $notifier->attendanceAlerts($date);
 
         $this->info("{$date}: {$result['late']} late, {$result['absent']} absent — {$result['queued']} sent, {$result['skipped']} skipped, {$result['failed']} failed, {$result['app']} app notification(s).");

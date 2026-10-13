@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Employee;
+use App\Models\LeaveRequestApproval;
+use App\Models\TripTicketApproval;
 use App\Models\User;
 use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
@@ -224,6 +226,16 @@ class UserManager extends Component
         }
         if (! $this->canManage($user)) {
             session()->flash('error', 'Only a super admin can delete super-admin accounts.');
+            return;
+        }
+
+        // Approval records reference the approver: leave approvals block the delete
+        // (RESTRICT) and trip-ticket approvals would be erased with it (CASCADE).
+        // Keep the audit trail — such accounts can only be deactivated.
+        $hasApprovals = LeaveRequestApproval::where('approver_id', $user->id)->exists()
+            || TripTicketApproval::where('approver_id', $user->id)->exists();
+        if ($hasApprovals) {
+            session()->flash('error', "\"{$user->name}\" has approved or rejected requests, so the account can't be deleted without losing that history. Deactivate it instead.");
             return;
         }
 
