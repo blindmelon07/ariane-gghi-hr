@@ -29,6 +29,9 @@ class SmsCenter extends Component
     public string $customNumbers       = '';
     public string $smsMessage          = '';
     public string $employeeSearch      = '';
+    public string $notifTitle          = '';      // app notification title (optional)
+    public bool   $viaApp              = true;    // in-app bell + phone pop-up
+    public bool   $viaSms              = true;    // text message (uses credits)
 
     // Login details
     public array  $credentialIds    = [];
@@ -123,8 +126,19 @@ class SmsCenter extends Component
 
     public function send(SmsNotificationService $notifier, SmsService $sms): void
     {
+        // Typed numbers can only be texted.
+        $viaApp = $this->viaApp && $this->audience !== 'numbers';
+        $viaSms = $this->viaSms || $this->audience === 'numbers';
+
+        if (! $viaApp && ! $viaSms) {
+            $this->addError('viaApp', 'Choose at least one: App notification or SMS.');
+            return;
+        }
+
+        // UniSMS rejects texts under 10 characters; app notifications have no minimum.
         $this->validate([
-            'smsMessage'   => 'required|string|min:' . SmsService::MIN_LENGTH . '|max:' . SmsService::MAX_LENGTH,
+            'smsMessage'   => 'required|string|max:' . SmsService::MAX_LENGTH . ($viaSms ? '|min:' . SmsService::MIN_LENGTH : ''),
+            'notifTitle'   => 'nullable|string|max:80',
             'audience'     => 'required|in:all,department,employees,numbers',
             'departmentId' => 'required_if:audience,department',
         ], [
@@ -133,9 +147,9 @@ class SmsCenter extends Component
             'smsMessage.min'           => 'The message must be at least ' . SmsService::MIN_LENGTH . ' characters (UniSMS rejects shorter texts).',
         ]);
 
-        // The sender ID rejects messages that contain links.
-        if (preg_match('~https?://|www\.|\b[a-z0-9-]+\.(com|ph|net|org)\b~i', $this->smsMessage)) {
-            $this->addError('smsMessage', 'Links are not allowed by the SMS sender ID — remove the web address and try again.');
+        // The sender ID rejects texts that contain links (app notifications are fine).
+        if ($viaSms && preg_match('~https?://|www\.|\b[a-z0-9-]+\.(com|ph|net|org)\b~i', $this->smsMessage)) {
+            $this->addError('smsMessage', 'Links are not allowed in SMS by the sender ID — remove the web address, or untick SMS to send it as an app notification only.');
             return;
         }
 
@@ -155,15 +169,18 @@ class SmsCenter extends Component
                 return;
             }
             $type   = in_array($this->audience, ['all', 'department'], true) ? 'announcement' : 'custom';
-            $result = $notifier->broadcast($this->recipients, $this->smsMessage, $type);
+            $result = $notifier->broadcast($this->recipients, $this->smsMessage, $type, $this->notifTitle, $viaApp, $viaSms);
         }
 
-        ActivityLogService::log('sms_sent', "Sent SMS to {$this->audience}: {$result['queued']} queued, {$result['skipped']} skipped, {$result['failed']} failed");
+        $channels = implode(' + ', array_keys(array_filter(['app' => $viaApp, 'SMS' => $viaSms])));
+        ActivityLogService::log('sms_sent', "Sent {$channels} message to {$this->audience}: {$result['queued']} SMS queued, " . ($result['app'] ?? 0) . " app, {$result['skipped']} skipped, {$result['failed']} failed");
 
-        $this->reset('smsMessage', 'selectedEmployeeIds', 'customNumbers');
-        $this->credits = $sms->credits();
+        $this->reset('smsMessage', 'notifTitle', 'selectedEmployeeIds', 'customNumbers');
+        if ($viaSms) {
+            $this->credits = $sms->credits();
+        }
         unset($this->logs);
-        $this->flashResult($result);
+        $this->flashResult($result, $viaSms);
     }
 
     public function sendCredentials(SmsNotificationService $notifier): void
@@ -249,20 +266,25 @@ class SmsCenter extends Component
             ->get();
     }
 
-    private function flashResult(array $result): void
+    private function flashResult(array $result, bool $viaSms = true): void
     {
-        $text = "{$result['queued']} message(s) sent";
-        if ($result['skipped']) {
-            $text .= ", {$result['skipped']} skipped (missing or invalid number)";
-        }
-        if ($result['failed']) {
-            $text .= ", {$result['failed']} failed — see History";
-        }
-        $text .= '.';
+        $parts = [];
         if (isset($result['app'])) {
-            $text .= " {$result['app']} app notification(s) sent.";
+            $parts[] = "{$result['app']} app notification(s) sent"
+                . ($result['app'] === 0 ? ' (no recipient has a login account)' : '');
         }
-        session()->flash($result['queued'] || ! empty($result['app']) ? 'success' : 'error', $text);
+        if ($viaSms) {
+            $sms = "{$result['queued']} SMS sent";
+            if ($result['skipped']) {
+                $sms .= ", {$result['skipped']} skipped (missing or invalid number)";
+            }
+            if ($result['failed']) {
+                $sms .= ", {$result['failed']} failed — see History";
+            }
+            $parts[] = $sms;
+        }
+
+        session()->flash($result['queued'] || ! empty($result['app']) ? 'success' : 'error', implode('. ', $parts) . '.');
     }
 
     public function render()

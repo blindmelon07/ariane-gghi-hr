@@ -207,24 +207,32 @@ class SmsNotificationService
     }
 
     /**
-     * Send one message to many employees, by text and in the app. "{first_name}"
-     * and "{name}" are replaced per employee.
+     * Send one message to many employees, in the app and/or by text. "{first_name}"
+     * and "{name}" are replaced per employee in both the title and the message.
      *
      * @param  Collection<int, Employee>  $employees
+     * @param  ?string  $title  app notification title; defaults to "Announcement" / "Message from HR"
      * @return array{queued: int, failed: int, skipped: int, app: int}
      */
-    public function broadcast(Collection $employees, string $message, string $type): array
+    public function broadcast(Collection $employees, string $message, string $type, ?string $title = null, bool $viaApp = true, bool $viaSms = true): array
     {
-        $personal = fn ($e) => str_replace(['{first_name}', '{name}'], [$e->first_name, $e->full_name], $message);
+        $personal = fn ($e, string $text) => str_replace(['{first_name}', '{name}'], [$e->first_name, $e->full_name], $text);
+        $title    = trim((string) $title) ?: ($type === 'announcement' ? 'Announcement' : 'Message from HR');
 
         $app = 0;
-        foreach ($employees as $e) {
-            $app += (int) $this->notifyApp($e, $type === 'announcement' ? 'Announcement' : 'Message from HR', $personal($e), null, $type);
+        if ($viaApp) {
+            foreach ($employees as $e) {
+                $app += (int) $this->notifyApp($e, $personal($e, $title), $personal($e, $message), null, $type);
+            }
+        }
+
+        if (! $viaSms) {
+            return ['queued' => 0, 'failed' => 0, 'skipped' => 0, 'app' => $app];
         }
 
         $messages = $employees->map(fn ($e) => [
             'number'      => $e->cell_number,
-            'message'     => $personal($e),
+            'message'     => $personal($e, $message),
             'employee_id' => $e->id,
             'type'        => $type,
         ])->values()->all();

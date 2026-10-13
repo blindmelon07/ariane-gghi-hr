@@ -155,3 +155,22 @@ it('refreshes the bell badge when a notification arrives', function () {
 
     $bell->dispatch('notification-received')->assertSee('Test notification');
 });
+
+it('clears read notifications and removes single ones from the bell', function () {
+    [, $user] = appEmployee();
+    $user->notify(new HrAlert('Old one', 'Already read message'));
+    $user->notify(new HrAlert('New one', 'Still unread message'));
+    $user->notify(new HrAlert('Remove me', 'Dismiss this message'));
+    $user->notifications()->where('data->title', 'Old one')->first()->markAsRead();
+
+    $bell = \Livewire\Livewire::actingAs($user)->test(\App\Livewire\NotificationBell::class)
+        ->assertSee('Clear read')
+        ->call('clearRead');
+
+    expect($user->notifications()->pluck('data')->pluck('title')->sort()->values()->all())->toBe(['New one', 'Remove me']);
+
+    $bell->assertDontSee('Clear read')
+        ->call('remove', $user->notifications()->where('data->title', 'Remove me')->value('id'));
+
+    expect($user->notifications()->count())->toBe(1);
+});

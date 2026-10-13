@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gghi-hr-v7';
+const CACHE_NAME = 'gghi-hr-v8';
 const OFFLINE_URL = '/offline.html';
 
 // Pre-cache the offline page on install
@@ -34,6 +34,11 @@ self.addEventListener('push', event => {
             icon: data.icon || '/images/icon-192.png',
             badge: data.badge || '/images/icon-192.png',
             tag: data.tag,
+            // A notification that replaces one with the same tag is silent by default;
+            // renotify makes every new one ring and vibrate again.
+            renotify: !!data.tag,
+            silent: false,
+            vibrate: [200, 100, 200],
             data: { url: data.url || '/login' },
         }),
         // Number on the installed app's icon (Badging API; ignored where unsupported).

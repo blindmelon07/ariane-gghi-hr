@@ -28,13 +28,33 @@ class NotificationBell extends Component
     #[On('notification-received')]
     public function refreshNotifications(): void
     {
-        unset($this->unreadCount, $this->notifications);
+        unset($this->unreadCount, $this->notifications, $this->hasRead);
+    }
+
+    #[Computed]
+    public function hasRead(): bool
+    {
+        return auth()->user()->readNotifications()->exists();
+    }
+
+    /** Delete every notification the user has already read; unread ones stay. */
+    public function clearRead(): void
+    {
+        auth()->user()->readNotifications()->delete();
+        unset($this->unreadCount, $this->notifications, $this->hasRead);
+    }
+
+    /** Delete a single notification (the × on each item). */
+    public function remove(string $id): void
+    {
+        auth()->user()->notifications()->where('id', $id)->delete();
+        unset($this->unreadCount, $this->notifications, $this->hasRead);
     }
 
     public function markAllRead(): void
     {
         auth()->user()->unreadNotifications->markAsRead();
-        unset($this->unreadCount, $this->notifications);
+        unset($this->unreadCount, $this->notifications, $this->hasRead);
     }
 
     public function markAsRead(string $id): void
@@ -45,7 +65,7 @@ class NotificationBell extends Component
         }
 
         $notification->markAsRead();
-        unset($this->unreadCount, $this->notifications);
+        unset($this->unreadCount, $this->notifications, $this->hasRead);
 
         $url = $notification->data['url'] ?? $this->resolveUrl($notification);
         if ($url) {

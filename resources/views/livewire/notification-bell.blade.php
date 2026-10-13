@@ -41,19 +41,30 @@
 
         <div class="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b">
             <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Notifications</span>
-            @if ($this->unreadCount > 0)
-                <button wire:click="markAllRead" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Mark all read</button>
-            @endif
+            <div class="flex items-center gap-3">
+                @if ($this->unreadCount > 0)
+                    <button wire:click="markAllRead" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Mark all read</button>
+                @endif
+                @if ($this->hasRead)
+                    <button wire:click="clearRead" wire:confirm="Delete all notifications you've already read?"
+                            class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 font-medium">Clear read</button>
+                @endif
+            </div>
         </div>
 
         <div class="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
             @forelse ($this->notifications as $notification)
-                <div wire:click="markAsRead('{{ $notification->id }}')" class="px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 {{ !$notification->read_at ? 'bg-indigo-50 dark:bg-indigo-950/30/50' : '' }}">
+                <div wire:key="notif-{{ $notification->id }}" wire:click="markAsRead('{{ $notification->id }}')" class="relative px-4 py-3 pr-8 text-sm cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 {{ !$notification->read_at ? 'bg-indigo-50 dark:bg-indigo-950/30/50' : '' }}">
                     @if (! empty($notification->data['title']))
                         <p class="font-medium text-gray-900 dark:text-white">{{ $notification->data['title'] }}</p>
                     @endif
                     <p class="text-gray-700 dark:text-gray-200">{{ $notification->data['message'] ?? 'New notification' }}</p>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                    {{-- .stop so removing doesn't also open the notification --}}
+                    <button wire:click.stop="remove('{{ $notification->id }}')" title="Remove"
+                            class="absolute top-0 right-0 p-2 text-gray-400 rounded hover:text-red-600">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
             @empty
                 <div class="px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500">No notifications yet.</div>

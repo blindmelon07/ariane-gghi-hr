@@ -79,11 +79,34 @@
         };
     })();
 
-    // A push arrived while the portal is open (posted by sw.js) — refresh the bell now.
+    // Short two-note chime, generated in the browser (no sound file to download).
+    // Browsers only allow page audio after the user has tapped/clicked the page once,
+    // which is always true for someone already using the portal.
+    function gghiChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            [[880, 0], [1320, 0.15]].forEach(([freq, at]) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.0001, ctx.currentTime + at);
+                gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + at + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + at + 0.35);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(ctx.currentTime + at);
+                osc.stop(ctx.currentTime + at + 0.4);
+            });
+            setTimeout(() => ctx.close(), 1000);
+        } catch (e) {}
+    }
+
+    // A push arrived while the portal is open (posted by sw.js) — chime and refresh the bell now.
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'gghi-notification' && window.Livewire) {
-                window.Livewire.dispatch('notification-received');
+            if (event.data && event.data.type === 'gghi-notification') {
+                if (document.visibilityState === 'visible') gghiChime();
+                if (window.Livewire) window.Livewire.dispatch('notification-received');
             }
         });
     }

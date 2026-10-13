@@ -94,3 +94,45 @@ it('sends a test notification to every user with a registered device', function 
         ->and($noDevice->notifications()->count())->toBe(0);
     Http::assertNotSent(fn ($req) => str_ends_with($req->url(), '/bulk') || str_ends_with($req->url(), '/sms'));
 });
+
+it('sends a custom app-only notification with its own title and no SMS', function () {
+    $user = User::factory()->create(['role' => 'employee', 'employee_code' => '77']);
+    Employee::create(['emp_code' => '77', 'first_name' => 'Ana', 'last_name' => 'Cruz', 'is_active' => true, 'user_id' => $user->id, 'cell_number' => '09171234567']);
+
+    Livewire::actingAs(smsAdmin())
+        ->test(SmsCenter::class)
+        ->set('audience', 'all')
+        ->set('viaSms', false)
+        ->set('notifTitle', 'Holiday Notice')
+        ->set('smsMessage', 'Hi {first_name}, no work on Nov 1. See https://gghihris.com')   // links are fine in-app
+        ->call('send')
+        ->assertHasNoErrors();
+
+    expect($user->notifications()->sole()->data)->toMatchArray([
+        'title'   => 'Holiday Notice',
+        'message' => 'Hi Ana, no work on Nov 1. See https://gghihris.com',
+    ]);
+    Http::assertNotSent(fn ($req) => str_ends_with($req->url(), '/bulk'));
+    expect(SmsLog::count())->toBe(0);
+});
+
+it('requires at least one way to send', function () {
+    Livewire::actingAs(smsAdmin())
+        ->test(SmsCenter::class)
+        ->set('viaApp', false)
+        ->set('viaSms', false)
+        ->set('smsMessage', 'Hello everyone, test.')
+        ->call('send')
+        ->assertHasErrors('viaApp');
+});
+
+it('allows short app-only messages but not short SMS', function () {
+    $user = User::factory()->create(['role' => 'employee', 'employee_code' => '78']);
+    Employee::create(['emp_code' => '78', 'first_name' => 'Ben', 'last_name' => 'Reyes', 'is_active' => true, 'user_id' => $user->id]);
+
+    Livewire::actingAs(smsAdmin())->test(SmsCenter::class)
+        ->set('viaSms', false)->set('smsMessage', 'Hi!')->call('send')->assertHasNoErrors();
+
+    Livewire::actingAs(smsAdmin())->test(SmsCenter::class)
+        ->set('viaApp', false)->set('smsMessage', 'Hi!')->call('send')->assertHasErrors(['smsMessage' => 'min']);
+});

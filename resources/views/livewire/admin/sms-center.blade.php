@@ -95,6 +95,35 @@
                 </div>
             @endif
 
+            @if ($audience !== 'numbers')
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Send via</label>
+                    <div class="flex flex-wrap gap-2">
+                        <label class="inline-flex items-center gap-2 px-3 py-1.5 text-sm border rounded-lg cursor-pointer {{ $viaApp ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-300' }}">
+                            <input type="checkbox" wire:model.live="viaApp" class="text-blue-600 rounded">
+                            App notification <span class="text-xs opacity-75">(bell + phone pop-up, free)</span>
+                        </label>
+                        <label class="inline-flex items-center gap-2 px-3 py-1.5 text-sm border rounded-lg cursor-pointer {{ $viaSms ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-300' }}">
+                            <input type="checkbox" wire:model.live="viaSms" class="text-blue-600 rounded">
+                            SMS <span class="text-xs opacity-75">(uses credits)</span>
+                        </label>
+                    </div>
+                    @error('viaApp') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+
+                @if ($viaApp)
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Notification title <span class="font-normal text-gray-400">(optional — shown in bold on the pop-up)</span>
+                        </label>
+                        <input type="text" wire:model.live.debounce.300ms="notifTitle" maxlength="80"
+                               placeholder="{{ $audience === 'employees' ? 'Message from HR' : 'Announcement' }}"
+                               class="w-full text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        @error('notifTitle') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                @endif
+            @endif
+
             <div>
                 <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
                 <textarea wire:model.live.debounce.300ms="smsMessage" rows="4" maxlength="{{ \App\Services\SmsService::MAX_LENGTH }}"
@@ -102,7 +131,11 @@
                           class="w-full text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
                 <div class="flex justify-between mt-1 text-xs text-gray-400">
                     <span>@if ($audience !== 'numbers') <span class="font-mono">{first_name}</span> and <span class="font-mono">{name}</span> are replaced with each employee's name. @endif</span>
-                    <span class="{{ mb_strlen($smsMessage) > 0 && mb_strlen($smsMessage) < \App\Services\SmsService::MIN_LENGTH ? 'text-red-500' : '' }}">min {{ \App\Services\SmsService::MIN_LENGTH }} · {{ mb_strlen($smsMessage) }} / {{ \App\Services\SmsService::MAX_LENGTH }} · {{ max(1, (int) ceil(mb_strlen($smsMessage) / 160)) }} SMS part(s)</span>
+                    @if ($viaSms || $audience === 'numbers')
+                        <span class="{{ mb_strlen($smsMessage) > 0 && mb_strlen($smsMessage) < \App\Services\SmsService::MIN_LENGTH ? 'text-red-500' : '' }}">min {{ \App\Services\SmsService::MIN_LENGTH }} · {{ mb_strlen($smsMessage) }} / {{ \App\Services\SmsService::MAX_LENGTH }} · {{ max(1, (int) ceil(mb_strlen($smsMessage) / 160)) }} SMS part(s)</span>
+                    @else
+                        <span>{{ mb_strlen($smsMessage) }} / {{ \App\Services\SmsService::MAX_LENGTH }}</span>
+                    @endif
                 </div>
                 @error('smsMessage') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
@@ -110,15 +143,33 @@
             @php
                 $count = $audience === 'numbers' ? count($this->numberList) : $this->recipients->count();
                 $withNumber = $audience === 'numbers' ? $count : $this->recipients->filter(fn ($e) => \App\Services\SmsService::normalize($e->cell_number))->count();
+                $sendApp    = $viaApp && $audience !== 'numbers';
+                $sendSms    = $viaSms || $audience === 'numbers';
+                $withLogin  = $sendApp ? $this->recipients->filter(fn ($e) => $e->user_id)->count() : 0;
+                $buttonText = match (true) {
+                    $sendApp && $sendSms => 'Send Notification + SMS',
+                    $sendApp             => 'Send Notification',
+                    default              => 'Send SMS',
+                };
+                $confirm = collect([
+                    $sendApp ? "{$withLogin} app notification(s)" : null,
+                    $sendSms ? "{$withNumber} SMS" : null,
+                ])->filter()->implode(' and ');
             @endphp
             <div class="flex flex-col gap-3 pt-3 border-t border-gray-100 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ $count }} recipient(s)@if ($audience !== 'numbers' && $withNumber < $count) — <span class="text-amber-600">{{ $count - $withNumber }} without a valid number will be skipped</span>@endif
-                </p>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    <p>{{ $count }} recipient(s)</p>
+                    @if ($sendApp && $withLogin < $count)
+                        <p class="text-amber-600">{{ $count - $withLogin }} without a login account won't get the app notification</p>
+                    @endif
+                    @if ($sendSms && $audience !== 'numbers' && $withNumber < $count)
+                        <p class="text-amber-600">{{ $count - $withNumber }} without a valid number won't get the SMS</p>
+                    @endif
+                </div>
                 <button wire:click="send" wire:loading.attr="disabled"
-                        wire:confirm="Send this message to {{ $withNumber }} number(s)?"
+                        wire:confirm="Send {{ $confirm }}?"
                         class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
-                    <span wire:loading.remove wire:target="send">Send SMS</span>
+                    <span wire:loading.remove wire:target="send">{{ $buttonText }}</span>
                     <span wire:loading wire:target="send">Sending…</span>
                 </button>
             </div>
