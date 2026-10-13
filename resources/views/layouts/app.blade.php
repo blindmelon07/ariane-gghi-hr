@@ -311,6 +311,7 @@
 
         @include('layouts._mobile-nav')
         @include('layouts._pwa-install')
+        @include('layouts._confirm-dialog')
         @auth
             @include('layouts._push-notifications')
         @endauth
