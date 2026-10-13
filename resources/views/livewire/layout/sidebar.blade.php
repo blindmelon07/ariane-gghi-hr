@@ -233,29 +233,6 @@ new class extends Component
         </button>
     </div>
 
-    {{-- ── User Avatar ── --}}
-    <div class="shrink-0 border-b border-white/5"
-         :class="$store.sidebar.collapsed ? 'py-4 flex justify-center' : 'px-4 py-4'">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg">
-                <span class="text-xs font-bold text-white">
-                    {{ strtoupper(substr(Auth::user()?->name ?? 'U', 0, 2)) }}
-                </span>
-            </div>
-            <div x-show="!$store.sidebar.collapsed"
-                 x-transition:enter="transition-opacity duration-200 delay-75"
-                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition-opacity duration-100"
-                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                 class="min-w-0 overflow-hidden">
-                <p class="text-sm font-semibold text-white truncate leading-tight">{{ Auth::user()?->name }}</p>
-                <p class="text-[11px] text-blue-400 capitalize mt-0.5">
-                    {{ str_replace('_', ' ', Auth::user()?->role ?? '') }}
-                </p>
-            </div>
-        </div>
-    </div>
-
     {{-- ── Navigation ── --}}
     <nav class="flex-1 overflow-y-auto py-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
          :class="$store.sidebar.collapsed ? 'px-2' : 'px-3'">
