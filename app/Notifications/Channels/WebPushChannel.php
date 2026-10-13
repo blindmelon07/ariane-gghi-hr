@@ -36,7 +36,7 @@ class WebPushChannel
             ? $notification->toWebPush($notifiable)
             : ['title' => config('app.name'), 'body' => $notification->toArray($notifiable)['message'] ?? ''];
 
-        $payload += ['url' => url(method_exists($notifiable, 'dashboardRoute') ? $notifiable->dashboardRoute() : '/'), 'icon' => '/images/icon-192.png', 'badge' => '/images/icon-192.png'];
+        $payload += ['url' => url(method_exists($notifiable, 'dashboardRoute') ? $notifiable->dashboardRoute() : '/'), 'icon' => '/images/icon-192.png', 'badge' => '/images/badge-96.png'];
 
         // Unread count for the number on the app icon. The database channel runs
         // first (see via()), so this already includes the notification being sent.

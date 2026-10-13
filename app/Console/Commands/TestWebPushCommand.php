@@ -53,7 +53,7 @@ class TestWebPushCommand extends Command
             'body'  => 'Sent from the server at ' . now()->format('h:i:s A') . '. If you see this, phone notifications work.',
             'url'   => url('/login'),
             'icon'  => '/images/icon-192.png',
-            'badge' => '/images/icon-192.png',
+            'badge' => '/images/badge-96.png',
         ]);
 
         $failed = 0;

@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class GenerateAppIcons extends Command
 {
-    protected $signature   = 'app:generate-icons';
+    protected $signature   = 'app:generate-icons {--badge : Only regenerate badge-96.png (notification status-bar icon)}';
     protected $description = 'Generate PWA app icons with dark background from the logo PNG';
 
     public function handle(): int
@@ -16,6 +16,11 @@ class GenerateAppIcons extends Command
         if (! file_exists($source)) {
             $this->error('Source logo not found: ' . $source);
             return self::FAILURE;
+        }
+
+        if ($this->option('badge')) {
+            $this->generateBadge($source);
+            return self::SUCCESS;
         }
 
         // Background: #0d1b2e (dark navy matching the sidebar)
@@ -126,10 +131,65 @@ class GenerateAppIcons extends Command
 
         imagedestroy($logo);
 
+        $this->generateBadge($source);
+
         $this->newLine();
         $this->info('All icons and splash screens generated in public/images/');
         $this->line('  Upload <comment>public/images/</comment> folder to Hostinger.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * badge-96.png — the small icon Android shows in the status bar and next to
+     * the app name on a notification. Android uses only the alpha channel and
+     * paints the shape white, so an opaque icon becomes a white square. This is
+     * the logo's silhouette in white on transparent, with strokes thickened a
+     * little so they survive at 24dp.
+     */
+    private function generateBadge(string $source): void
+    {
+        $size = 96;
+        $pad  = 6;
+
+        $logo  = imagecreatefrompng($source);
+        $ratio = min(($size - 2 * $pad) / imagesx($logo), ($size - 2 * $pad) / imagesy($logo));
+        $w     = (int) round(imagesx($logo) * $ratio);
+        $h     = (int) round(imagesy($logo) * $ratio);
+
+        // Scale the logo down onto a transparent canvas, keeping its alpha.
+        $scaled = imagecreatetruecolor($size, $size);
+        imagealphablending($scaled, false);
+        imagesavealpha($scaled, true);
+        imagefill($scaled, 0, 0, imagecolorallocatealpha($scaled, 0, 0, 0, 127));
+        imagecopyresampled($scaled, $logo, (int) (($size - $w) / 2), (int) (($size - $h) / 2), 0, 0, $w, $h, imagesx($logo), imagesy($logo));
+        imagedestroy($logo);
+
+        // White silhouette; each pixel takes the strongest opacity within 1px (dilation).
+        $badge = imagecreatetruecolor($size, $size);
+        imagealphablending($badge, false);
+        imagesavealpha($badge, true);
+
+        for ($x = 0; $x < $size; $x++) {
+            for ($y = 0; $y < $size; $y++) {
+                $alpha = 127; // GD: 0 = opaque, 127 = transparent
+                for ($dx = -1; $dx <= 1; $dx++) {
+                    for ($dy = -1; $dy <= 1; $dy++) {
+                        $nx = $x + $dx;
+                        $ny = $y + $dy;
+                        if ($nx >= 0 && $ny >= 0 && $nx < $size && $ny < $size) {
+                            $alpha = min($alpha, (imagecolorat($scaled, $nx, $ny) >> 24) & 0x7F);
+                        }
+                    }
+                }
+                imagesetpixel($badge, $x, $y, imagecolorallocatealpha($badge, 255, 255, 255, $alpha));
+            }
+        }
+        imagedestroy($scaled);
+
+        imagepng($badge, public_path('images/badge-96.png'), 9);
+        imagedestroy($badge);
+
+        $this->line("  <info>✓</info> badge-96.png ({$size}×{$size}, notification status-bar icon)");
     }
 }
