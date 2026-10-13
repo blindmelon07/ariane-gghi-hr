@@ -311,6 +311,9 @@
 
         @include('layouts._mobile-nav')
         @include('layouts._pwa-install')
+        @auth
+            @include('layouts._push-notifications')
+        @endauth
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
         @livewireScripts
         <script>

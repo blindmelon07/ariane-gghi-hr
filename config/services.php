@@ -35,6 +35,13 @@ return [
         ],
     ],
 
+    // Browser/phone push notifications. Generate the keys with: php artisan webpush:vapid
+    'webpush' => [
+        'public_key'  => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject'     => env('VAPID_SUBJECT', env('APP_URL')),
+    ],
+
     'unisms' => [
         'secret_key'        => env('UNISMS_SECRET_KEY'),
         'sender_id'         => env('UNISMS_SENDER_ID'),

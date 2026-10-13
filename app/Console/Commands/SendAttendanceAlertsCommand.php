@@ -20,7 +20,7 @@ class SendAttendanceAlertsCommand extends Command
         $date   = $this->option('date') ?? now()->toDateString();
         $result = $notifier->attendanceAlerts($date);
 
-        $this->info("{$date}: {$result['late']} late, {$result['absent']} absent — {$result['queued']} sent, {$result['skipped']} skipped, {$result['failed']} failed.");
+        $this->info("{$date}: {$result['late']} late, {$result['absent']} absent — {$result['queued']} sent, {$result['skipped']} skipped, {$result['failed']} failed, {$result['app']} app notification(s).");
 
         return $result['failed'] > 0 ? self::FAILURE : self::SUCCESS;
     }

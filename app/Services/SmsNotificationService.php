@@ -8,37 +8,46 @@ use App\Models\PayrollPeriod;
 use App\Models\Payslip;
 use App\Models\SmsLog;
 use App\Models\User;
+use App\Notifications\HrAlert;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * Builds the HR text messages sent to employees and hands them to SmsService.
+ * Builds the HR messages sent to employees: a text through SmsService and an
+ * in-app/phone notification (HrAlert) for the same event.
  */
 class SmsNotificationService
 {
     public function __construct(private SmsService $sms) {}
 
     /**
-     * Tell each employee with a payslip in the period that it's ready.
-     * Employees already notified for this period are skipped unless $resend is true.
+     * Tell each employee with a payslip in the period that it's ready, by text
+     * and in the app. Employees already notified for this period are skipped
+     * unless $resend is true.
      *
-     * @return array{queued: int, failed: int, skipped: int, already: int}
+     * @return array{queued: int, failed: int, skipped: int, already: int, app: int}
      */
     public function payslipNotices(PayrollPeriod $period, bool $resend = false): array
     {
         $key      = "payslip:{$period->id}";
         $notified = $resend ? collect() : $this->alreadySent('payslip', $key);
+        $range    = $period->start_date->format('M d') . ' - ' . Carbon::parse($period->end_date)->format('M d, Y');
 
-        $payslips = Payslip::with('employee')
+        $payslips = Payslip::with('employee.user')
             ->where('payroll_period_id', $period->id)
             ->get()
-            ->filter(fn ($p) => $p->employee && ! $notified->contains($p->employee_id));
+            ->filter(fn ($p) => $p->employee);
 
-        $range = $period->start_date->format('M d') . ' - ' . Carbon::parse($period->end_date)->format('M d, Y');
+        $app = 0;
+        foreach ($payslips as $p) {
+            $app += (int) $this->notifyApp($p->employee, 'Payslip ready',
+                "Your payslip for {$period->name} ({$range}) is ready.",
+                route('payslips.index'), 'payslip', $resend ? null : $key);
+        }
 
-        $messages = $payslips->map(fn ($p) => [
+        $messages = $payslips->reject(fn ($p) => $notified->contains($p->employee_id))->map(fn ($p) => [
             'number'      => $p->employee->cell_number,
             'message'     => "GGHI HR: Hi {$p->employee->first_name}, your payslip for {$period->name} ({$range}) is ready. Log in to the HR portal to view it.",
             'employee_id' => $p->employee_id,
@@ -46,22 +55,30 @@ class SmsNotificationService
             'context_key' => $key,
         ])->values()->all();
 
-        return $this->sms->sendMany($messages) + ['already' => $notified->count()];
+        return $this->sms->sendMany($messages) + ['already' => $notified->count(), 'app' => $app];
     }
 
     public function overtimeDecision(OvertimeRequest $request): bool
     {
         $employee = $request->employee;
-        if (! $employee?->cell_number) {
+        if (! $employee) {
             return false;
         }
 
-        $date = $request->date->format('M d, Y');
-        $msg  = $request->status === 'approved'
-            ? "GGHI HR: Hi {$employee->first_name}, your overtime request for {$date} has been APPROVED ({$this->hours($request->approved_hours)} hr)."
-            : "GGHI HR: Hi {$employee->first_name}, your overtime request for {$date} has been REJECTED." . ($request->remarks ? " Reason: {$request->remarks}" : '');
+        $date     = $request->date->format('M d, Y');
+        $approved = $request->status === 'approved';
+        $detail   = $approved
+            ? "has been APPROVED ({$this->hours($request->approved_hours)} hr)."
+            : 'has been REJECTED.' . ($request->remarks ? " Reason: {$request->remarks}" : '');
 
-        return $this->sms->send($employee->cell_number, $msg, [
+        $this->notifyApp($employee, $approved ? 'Overtime approved' : 'Overtime rejected',
+            "Your overtime request for {$date} {$detail}", route('overtime.request'), 'overtime', "overtime:{$request->id}");
+
+        if (! $employee->cell_number) {
+            return false;
+        }
+
+        return $this->sms->send($employee->cell_number, "GGHI HR: Hi {$employee->first_name}, your overtime request for {$date} {$detail}", [
             'employee_id' => $employee->id,
             'type'        => 'overtime',
             'context_key' => "overtime:{$request->id}",
@@ -69,49 +86,60 @@ class SmsNotificationService
     }
 
     /**
-     * Text employees who were late or absent on $date. Nursing staff work rotating
-     * shifts, so they're excluded. Each employee gets at most one late and one
-     * absent alert per date.
+     * Alert employees who were late or absent on $date, by text and in the app.
+     * Nursing staff work rotating shifts, so they're excluded. Each employee gets
+     * at most one late and one absent alert per date.
      *
-     * @return array{queued: int, failed: int, skipped: int, late: int, absent: int}
+     * @return array{queued: int, failed: int, skipped: int, late: int, absent: int, app: int}
      */
     public function attendanceAlerts(string $date): array
     {
-        $day = Carbon::parse($date);
+        $day   = Carbon::parse($date);
+        $ymd   = $day->toDateString();
+        $label = $day->format('M d, Y');
 
-        $employees = Employee::where('is_active', true)
-            ->whereNotNull('cell_number')->where('cell_number', '<>', '')
+        $employees = Employee::with('user')->where('is_active', true)
             ->get()
             ->filter(fn ($e) => strcasecmp(trim((string) $e->department), 'Nursing') !== 0)
             ->filter(fn ($e) => $this->isWorkingDay($e, $day));
 
-        $sentLate   = $this->alreadySent('attendance', "late:{$day->toDateString()}");
-        $sentAbsent = $this->alreadySent('attendance', "absent:{$day->toDateString()}");
+        $sentLate   = $this->alreadySent('attendance', "late:{$ymd}");
+        $sentAbsent = $this->alreadySent('attendance', "absent:{$ymd}");
         $processor  = app(AttendanceProcessorService::class);
-        $label      = $day->format('M d, Y');
         $messages   = [];
-        $counts     = ['late' => 0, 'absent' => 0];
+        $counts     = ['late' => 0, 'absent' => 0, 'app' => 0];
 
         foreach ($employees as $e) {
-            $result = $processor->processDay($e, $day->toDateString());
+            $result = $processor->processDay($e, $ymd);
 
-            if ($result['status'] === 'Late' && ! $sentLate->contains($e->id)) {
-                $counts['late']++;
+            if ($result['status'] === 'Late') {
+                $kind = 'late';
+                $text = "You were recorded LATE on {$label} by {$result['minutes_late']} minute(s). Time in: {$result['time_in']}. If this is wrong, please file a time correction.";
+                $sent = $sentLate;
+            } elseif ($result['status'] === 'Absent') {
+                $kind = 'absent';
+                $text = "No attendance was recorded for you on {$label}. If you were at work, please file a time correction.";
+                $sent = $sentAbsent;
+            } else {
+                continue;
+            }
+
+            $newInApp = $this->notifyApp($e, $kind === 'late' ? 'Late arrival' : 'No attendance recorded',
+                $text, route('time-correction.request'), 'attendance', "{$kind}:{$ymd}");
+            $newSms = ! $sent->contains($e->id) && SmsService::normalize($e->cell_number);
+
+            if ($newInApp || $newSms) {
+                $counts[$kind]++;
+            }
+            $counts['app'] += (int) $newInApp;
+
+            if ($newSms) {
                 $messages[] = [
                     'number'      => $e->cell_number,
-                    'message'     => "GGHI HR: Hi {$e->first_name}, you were recorded LATE on {$label} by {$result['minutes_late']} minute(s). Time in: {$result['time_in']}. If this is wrong, please file a time correction.",
+                    'message'     => "GGHI HR: Hi {$e->first_name}, " . lcfirst($text),
                     'employee_id' => $e->id,
                     'type'        => 'attendance',
-                    'context_key' => "late:{$day->toDateString()}",
-                ];
-            } elseif ($result['status'] === 'Absent' && ! $sentAbsent->contains($e->id)) {
-                $counts['absent']++;
-                $messages[] = [
-                    'number'      => $e->cell_number,
-                    'message'     => "GGHI HR: Hi {$e->first_name}, no attendance was recorded for you on {$label}. If you were at work, please file a time correction.",
-                    'employee_id' => $e->id,
-                    'type'        => 'attendance',
-                    'context_key' => "absent:{$day->toDateString()}",
+                    'context_key' => "{$kind}:{$ymd}",
                 ];
             }
         }
@@ -179,22 +207,29 @@ class SmsNotificationService
     }
 
     /**
-     * Send one message to many employees. "{first_name}" and "{name}" are
-     * replaced per employee.
+     * Send one message to many employees, by text and in the app. "{first_name}"
+     * and "{name}" are replaced per employee.
      *
      * @param  Collection<int, Employee>  $employees
-     * @return array{queued: int, failed: int, skipped: int}
+     * @return array{queued: int, failed: int, skipped: int, app: int}
      */
     public function broadcast(Collection $employees, string $message, string $type): array
     {
+        $personal = fn ($e) => str_replace(['{first_name}', '{name}'], [$e->first_name, $e->full_name], $message);
+
+        $app = 0;
+        foreach ($employees as $e) {
+            $app += (int) $this->notifyApp($e, $type === 'announcement' ? 'Announcement' : 'Message from HR', $personal($e), null, $type);
+        }
+
         $messages = $employees->map(fn ($e) => [
             'number'      => $e->cell_number,
-            'message'     => str_replace(['{first_name}', '{name}'], [$e->first_name, $e->full_name], $message),
+            'message'     => $personal($e),
             'employee_id' => $e->id,
             'type'        => $type,
         ])->values()->all();
 
-        return $this->sms->sendMany($messages);
+        return $this->sms->sendMany($messages) + ['app' => $app];
     }
 
     /**
@@ -211,6 +246,27 @@ class SmsNotificationService
         $isProbationary = ($employee->employment_type ?? 'regular') === 'probationary';
 
         return ! (! $isProbationary && $employee->weekday_off === null && $day->isSaturday());
+    }
+
+    /**
+     * Put a notification in the employee's bell and push it to their devices.
+     * With a $contextKey, an employee is never notified twice for the same thing.
+     * Returns false when the employee has no login account or was already notified.
+     */
+    private function notifyApp(Employee $employee, string $title, string $body, ?string $url, string $type, ?string $contextKey = null): bool
+    {
+        $user = $employee->user ?? User::where('employee_code', $employee->emp_code)->first();
+        if (! $user) {
+            return false;
+        }
+
+        if ($contextKey && $user->notifications()->where('data->context_key', $contextKey)->exists()) {
+            return false;
+        }
+
+        $user->notify(new HrAlert($title, $body, $url, $type, $contextKey));
+
+        return true;
     }
 
     /** @return Collection<int, int> employee ids already sent a queued message with this key */

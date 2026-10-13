@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login')->name('home');
@@ -58,6 +59,11 @@ Route::view('head-nurse/roster', 'head-nurse.roster')
 // ── Shared ────────────────────────────────────────────────────────────────────
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::post('push/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+});
 
 Route::get('payslips/{payslip}/download', [PayslipController::class, 'download'])
     ->middleware(['auth'])

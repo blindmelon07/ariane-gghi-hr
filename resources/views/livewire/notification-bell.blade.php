@@ -26,6 +26,9 @@
         <div class="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
             @forelse ($this->notifications as $notification)
                 <div wire:click="markAsRead('{{ $notification->id }}')" class="px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 dark:bg-gray-800/50 {{ !$notification->read_at ? 'bg-indigo-50 dark:bg-indigo-950/30/50' : '' }}">
+                    @if (! empty($notification->data['title']))
+                        <p class="font-medium text-gray-900 dark:text-white">{{ $notification->data['title'] }}</p>
+                    @endif
                     <p class="text-gray-700 dark:text-gray-200">{{ $notification->data['message'] ?? 'New notification' }}</p>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
                 </div>
@@ -33,5 +36,36 @@
                 <div class="px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500">No notifications yet.</div>
             @endforelse
         </div>
+
+        {{-- Phone notifications toggle (script: layouts/_push-notifications) --}}
+        @if (\App\Notifications\Channels\WebPushChannel::isConfigured())
+            <div wire:ignore
+                 x-data="{ state: 'loading', busy: false }"
+                 x-init="window.gghiPush && window.gghiPush.status().then(s => state = s).catch(() => state = 'unsupported')"
+                 class="px-4 py-3 text-xs border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <template x-if="state === 'off'">
+                    <button @click="busy = true; gghiPush.enable().then(s => state = s).catch(() => alert('Could not turn on notifications. Please try again.')).finally(() => busy = false)"
+                            :disabled="busy"
+                            class="w-full px-3 py-2 font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                        <span x-text="busy ? 'Turning on…' : 'Turn on phone notifications'"></span>
+                    </button>
+                </template>
+                <template x-if="state === 'on'">
+                    <div class="flex items-center justify-between text-gray-500 dark:text-gray-400">
+                        <span>✓ Notifications are on for this device</span>
+                        <button @click="gghiPush.disable().then(s => state = s)" class="font-medium text-gray-500 underline hover:text-gray-700">Turn off</button>
+                    </div>
+                </template>
+                <template x-if="state === 'denied'">
+                    <p class="text-amber-600 dark:text-amber-400">Notifications are blocked. Allow them for this site in your browser settings.</p>
+                </template>
+                <template x-if="state === 'ios-install'">
+                    <p class="text-gray-500 dark:text-gray-400">On iPhone: tap <strong>Share</strong> → <strong>Add to Home Screen</strong>, open the app from there, then turn on notifications.</p>
+                </template>
+                <template x-if="state === 'unsupported'">
+                    <p class="text-gray-400">This browser doesn't support notifications.</p>
+                </template>
+            </div>
+        @endif
     </div>
 </div>

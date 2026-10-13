@@ -265,7 +265,7 @@ class PayrollProcessor extends Component
             $text .= ", {$sms['already']} already notified";
         }
 
-        return $text . '.';
+        return $text . ". App notifications: {$sms['app']}.";
     }
 
     public function openImport(int $periodId): void

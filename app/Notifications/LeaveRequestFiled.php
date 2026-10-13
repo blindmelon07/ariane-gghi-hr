@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\LeaveRequest;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -14,7 +15,14 @@ class LeaveRequestFiled extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', WebPushChannel::class];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        $data = $this->toArray($notifiable);
+
+        return ['title' => 'New leave request', 'body' => $data['message'], 'url' => $data['url'], 'tag' => 'leave-filed-' . $this->leaveRequest->id];
     }
 
     public function toArray(object $notifiable): array

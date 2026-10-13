@@ -191,7 +191,7 @@ class SmsCenter extends Component
 
         $this->credits = app(SmsService::class)->credits();
         unset($this->logs);
-        session()->flash('success', "{$this->alertDate}: {$result['late']} late, {$result['absent']} absent — {$result['queued']} sent, {$result['skipped']} skipped, {$result['failed']} failed. Employees already alerted for this date were not texted again.");
+        session()->flash('success', "{$this->alertDate}: {$result['late']} late, {$result['absent']} absent — {$result['queued']} sent, {$result['skipped']} skipped, {$result['failed']} failed, {$result['app']} app notification(s). Employees already alerted for this date were not alerted again.");
     }
 
     public function toggleAllCredentials(): void
@@ -221,7 +221,11 @@ class SmsCenter extends Component
         if ($result['failed']) {
             $text .= ", {$result['failed']} failed — see History";
         }
-        session()->flash($result['queued'] ? 'success' : 'error', $text . '.');
+        $text .= '.';
+        if (isset($result['app'])) {
+            $text .= " {$result['app']} app notification(s) sent.";
+        }
+        session()->flash($result['queued'] || ! empty($result['app']) ? 'success' : 'error', $text);
     }
 
     public function render()
