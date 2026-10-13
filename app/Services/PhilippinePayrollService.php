@@ -163,10 +163,12 @@ class PhilippinePayrollService
 
         // Count working days in period based on employment type:
         // probationary = Mon–Sat (exclude Sundays only)
-        // regular      = Mon–Fri (exclude Saturdays and Sundays)
+        // regular      = Mon–Sat minus their weekly rest day (weekday_off);
+        //                Mon–Fri when no weekday_off is set
         // Also exclude individual day-offs and company holidays — those are paid
         // non-working days that should not cause an absent deduction.
         $isProbationary = ($employee->employment_type ?? 'regular') === 'probationary';
+        $hasWeekdayOff  = $employee->weekday_off !== null;
         $isNurse        = $this->isNurse($employee);
 
         // Preload day-off dates for this employee in the period
@@ -195,7 +197,10 @@ class PhilippinePayrollService
                 if ($d->isSunday()) {
                     continue;
                 }
-                if (! $isProbationary && $d->isSaturday()) {
+                if (! $isProbationary && $hasWeekdayOff && $d->dayOfWeek === (int) $employee->weekday_off) {
+                    continue;
+                }
+                if (! $isProbationary && ! $hasWeekdayOff && $d->isSaturday()) {
                     continue;
                 }
                 if (in_array($d->toDateString(), $dayOffDates, true)) {
