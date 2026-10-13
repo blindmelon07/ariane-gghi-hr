@@ -2,22 +2,22 @@
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
         <a href="{{ route('admin.dashboard') }}" wire:navigate class="hover:text-indigo-600 dark:text-indigo-400">Dashboard</a>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <x-phosphor-caret-right-bold class="w-4 h-4" />
         <span class="text-gray-700 dark:text-gray-200 font-medium">Leave Report</span>
     </nav>
 
     {{-- Summary Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 flex items-center gap-4">
-            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg"><svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75"/></svg></div>
+            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg"><x-phosphor-calendar-blank class="w-5 h-5 text-blue-600 dark:text-blue-400" /></div>
             <div><p class="text-xs text-gray-500 dark:text-gray-400 uppercase">VL Used ({{ $year }})</p><p class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ $this->summaryCards['vl_used'] }} days</p></div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 flex items-center gap-4">
-            <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg"><svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg></div>
+            <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg"><x-phosphor-warning-circle class="w-5 h-5 text-red-600 dark:text-red-400" /></div>
             <div><p class="text-xs text-gray-500 dark:text-gray-400 uppercase">SL Used ({{ $year }})</p><p class="text-xl font-bold text-red-600 dark:text-red-400">{{ $this->summaryCards['sl_used'] }} days</p></div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 flex items-center gap-4">
-            <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg"><svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg></div>
+            <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg"><x-phosphor-warning class="w-5 h-5 text-orange-600 dark:text-orange-400" /></div>
             <div><p class="text-xs text-gray-500 dark:text-gray-400 uppercase">EL Used ({{ $year }})</p><p class="text-xl font-bold text-orange-600 dark:text-orange-400">{{ $this->summaryCards['el_used'] }} days</p></div>
         </div>
     </div>
@@ -63,11 +63,11 @@
             </div>
             <div class="flex gap-2 w-full sm:w-auto sm:ml-auto">
                 <button wire:click="exportExcel" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <x-phosphor-download-simple-bold class="w-4 h-4" />
                     Excel
                 </button>
                 <button onclick="window.print()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"/></svg>
+                    <x-phosphor-printer-bold class="w-4 h-4" />
                     Print
                 </button>
             </div>

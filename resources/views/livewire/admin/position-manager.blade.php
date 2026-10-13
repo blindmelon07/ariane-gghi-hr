@@ -2,13 +2,13 @@
 
     @if (session('success'))
         <div class="flex items-center gap-2 px-4 py-3 text-sm text-green-700 border border-green-200 rounded-lg bg-green-50 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <x-phosphor-check-bold class="w-4 h-4 shrink-0" />
             {{ session('success') }}
         </div>
     @endif
     @if (session('error'))
         <div class="flex items-center gap-2 px-4 py-3 text-sm text-red-700 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            <x-phosphor-warning-circle-bold class="w-4 h-4 shrink-0" />
             {{ session('error') }}
         </div>
     @endif
@@ -17,9 +17,7 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex flex-wrap gap-2">
             <div class="relative">
-                <svg class="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+                <x-phosphor-magnifying-glass-bold class="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-gray-400" />
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search positions…"
                        class="pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-56">
             </div>
@@ -32,7 +30,7 @@
         </div>
         <button wire:click="openCreate"
                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <x-phosphor-plus-bold class="w-4 h-4" />
             New Position
         </button>
     </div>
@@ -151,11 +149,11 @@
                             <div class="flex items-center justify-end gap-2">
                                 <button wire:click="openEdit({{ $pos->id }})"
                                         class="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Edit">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    <x-phosphor-pencil-simple-bold class="w-4 h-4" />
                                 </button>
                                 <button wire:click="confirmDelete({{ $pos->id }})"
                                         class="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <x-phosphor-trash-bold class="w-4 h-4" />
                                 </button>
                             </div>
                         </td>
@@ -246,9 +244,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div class="w-full max-w-sm p-6 mx-4 bg-white rounded-2xl shadow-xl dark:bg-gray-800">
                 <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                    </svg>
+                    <x-phosphor-warning-bold class="w-6 h-6 text-red-600" />
                 </div>
                 <h3 class="mb-2 text-base font-semibold text-center text-gray-900 dark:text-white">Delete Position</h3>
                 <p class="mb-5 text-sm text-center text-gray-500 dark:text-gray-400">

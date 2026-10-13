@@ -11,9 +11,7 @@
         {{-- Header --}}
         <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100 dark:border-gray-700">
             <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                </svg>
+                <x-phosphor-arrows-left-right-bold class="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Request Form for Vehicle and Driver</h3>
@@ -128,9 +126,7 @@
             <div class="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
                 @foreach (\App\Services\TripTicketService::APPROVAL_STEPS as $step => $config)
                     @if ($step > 1)
-                        <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
+                        <x-phosphor-caret-right-bold class="w-3 h-3 shrink-0" />
                     @endif
                     <span class="flex items-center gap-1">
                         <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center font-bold text-[10px]">{{ $step }}</span>

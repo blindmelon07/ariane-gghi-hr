@@ -3,13 +3,13 @@
     {{-- Flash messages --}}
     @if (session('success'))
         <div class="flex items-center gap-2 px-4 py-3 text-sm text-green-700 border border-green-200 rounded-lg bg-green-50 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <x-phosphor-check-bold class="w-4 h-4 shrink-0" />
             {{ session('success') }}
         </div>
     @endif
     @if (session('error'))
         <div class="flex items-center gap-2 px-4 py-3 text-sm text-red-700 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            <x-phosphor-warning-circle-bold class="w-4 h-4 shrink-0" />
             {{ session('error') }}
         </div>
     @endif
@@ -34,7 +34,7 @@
             <span>SMS credits:</span>
             <span class="font-semibold text-gray-900 dark:text-white">{{ $credits !== null ? number_format($credits) : '—' }}</span>
             <button wire:click="refreshCredits" class="p-1 text-gray-400 rounded hover:text-blue-600" title="Refresh">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <x-phosphor-arrows-clockwise-bold class="w-4 h-4" />
             </button>
         </div>
     </div>

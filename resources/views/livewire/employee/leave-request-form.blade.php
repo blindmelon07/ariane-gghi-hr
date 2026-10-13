@@ -79,7 +79,7 @@
                 <div class="rounded-lg px-4 py-3 text-sm flex items-center gap-2
                             {{ $is_half_day ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300' : 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300' }}">
                     @if ($is_half_day)
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/></svg>
+                        <x-phosphor-sun-bold class="w-4 h-4 shrink-0" />
                         <span>Half day leave — <span class="font-bold">0.5 day</span> will be deducted from your balance</span>
                     @else
                         Total working days: <span class="font-bold">{{ $this->totalDays }}</span>
@@ -101,7 +101,7 @@
             <div class="flex justify-end">
                 <button type="submit"
                         class="inline-flex items-center px-5 py-2.5 bg-indigo-600 dark:bg-indigo-500 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:ring-indigo-400 focus:ring-offset-2">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+                    <x-phosphor-paper-plane-right-bold class="w-4 h-4 mr-2" />
                     Submit Request
                 </button>
             </div>

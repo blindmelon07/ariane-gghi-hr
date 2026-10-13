@@ -41,7 +41,7 @@
         @php $myStep = $this->myStep; $steps = \App\Services\LeaveService::APPROVAL_STEPS; @endphp
         @if ($myStep)
         <div class="mb-4 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <x-phosphor-user-bold class="w-4 h-4 text-indigo-500" />
             You are <span class="font-semibold text-indigo-600 dark:text-indigo-400 mx-1">{{ $steps[$myStep]['label'] }}</span>
             — Step {{ $myStep }} of {{ count($steps) }} in the approval chain
         </div>
@@ -98,9 +98,9 @@
                                         {{ $stepCurrent  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 ring-1 ring-amber-400' : '' }}
                                         {{ (!$stepApproved && !$stepRejected && !$stepCurrent) ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : '' }}">
                                 @if ($stepApproved)
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                    <x-phosphor-check-bold class="w-3 h-3" />
                                 @elseif ($stepRejected)
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    <x-phosphor-x-bold class="w-3 h-3" />
                                 @else
                                     {{ $stepNum }}
                                 @endif
@@ -200,9 +200,9 @@
                                                     {{ $isCurrent  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 ring-1 ring-amber-400' : '' }}
                                                     {{ $isPending  ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : '' }}">
                                             @if ($isApproved)
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                                <x-phosphor-check-bold class="w-3 h-3" />
                                             @elseif ($isRejected)
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                <x-phosphor-x-bold class="w-3 h-3" />
                                             @else
                                                 {{ $stepNum }}
                                             @endif

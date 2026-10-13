@@ -32,11 +32,7 @@ new class extends Component
                 {{ str_replace('_', ' ', Auth::user()?->role ?? '') }}
             </p>
         </div>
-        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 hidden sm:block"
-             :class="open ? 'rotate-180' : ''"
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-        </svg>
+        <x-phosphor-caret-down-bold class="w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 hidden sm:block" ::class="open ? 'rotate-180' : ''" />
     </button>
 
     {{-- Dropdown --}}
@@ -71,9 +67,7 @@ new class extends Component
             <a href="{{ route('profile') }}" wire:navigate @click="open = false"
                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300
                       hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-                </svg>
+                <x-phosphor-user class="w-4 h-4 text-gray-400" />
                 My Profile
             </a>
             <button
@@ -83,9 +77,7 @@ new class extends Component
                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300
                        hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
             >
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15"/>
-                </svg>
+                <x-phosphor-export class="w-4 h-4 text-gray-400" />
                 Install App
             </button>
         </div>
@@ -97,10 +89,7 @@ new class extends Component
                     @click="open = false"
                     class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400
                            hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
-                          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-                </svg>
+                <x-phosphor-sign-out class="w-4 h-4" />
                 Sign Out
             </button>
         </div>

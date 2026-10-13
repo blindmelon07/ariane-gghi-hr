@@ -37,9 +37,7 @@
         @php $mySteps = $this->mySteps; $steps = \App\Services\TripTicketService::APPROVAL_STEPS; @endphp
         @if (count($mySteps))
             <div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <svg class="w-4 h-4 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
+                <x-phosphor-user-bold class="w-4 h-4 text-indigo-500 shrink-0" />
                 You act at:
                 @foreach ($mySteps as $s)
                     <span class="font-semibold text-indigo-600 dark:text-indigo-400">Step {{ $s }} — {{ $steps[$s]['label'] }}</span>
@@ -99,9 +97,9 @@
                                         {{ $stepCurrent  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 ring-1 ring-amber-400' : '' }}
                                         {{ (!$stepApproved && !$stepRejected && !$stepCurrent) ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : '' }}">
                                 @if ($stepApproved)
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                    <x-phosphor-check-bold class="w-3 h-3" />
                                 @elseif ($stepRejected)
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    <x-phosphor-x-bold class="w-3 h-3" />
                                 @else
                                     {{ $stepNum }}
                                 @endif
@@ -128,7 +126,7 @@
                             <button wire:click="markReturned({{ $ticket->id }})"
                                     wire:confirm="Mark this vehicle as returned and trip completed?"
                                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 transition">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <x-phosphor-check-bold class="w-3 h-3" />
                                 Mark Returned
                             </button>
                         @elseif ($ticket->status === 'completed')
@@ -216,9 +214,9 @@
                                                     {{ $isCurrent  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 ring-1 ring-amber-400' : '' }}
                                                     {{ $isPending  ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : '' }}">
                                             @if ($isApproved)
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                                <x-phosphor-check-bold class="w-3 h-3" />
                                             @elseif ($isRejected)
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                <x-phosphor-x-bold class="w-3 h-3" />
                                             @else
                                                 {{ $stepNum }}
                                             @endif
@@ -254,9 +252,7 @@
                                     <button wire:click="markReturned({{ $ticket->id }})"
                                             wire:confirm="Mark this vehicle as returned and trip completed?"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 transition">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                        </svg>
+                                        <x-phosphor-check-bold class="w-3 h-3" />
                                         Mark Returned
                                     </button>
                                 @elseif ($ticket->status === 'completed')

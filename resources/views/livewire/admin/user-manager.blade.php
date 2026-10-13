@@ -20,9 +20,7 @@
         </div>
         <button wire:click="openAdd"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
-            </svg>
+            <x-phosphor-plus-bold class="w-4 h-4" />
             Add Account
         </button>
     </div>

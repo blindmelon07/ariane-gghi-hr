@@ -12,13 +12,9 @@
         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5
                     {{ $isDeparting ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-amber-100 dark:bg-amber-900/30' }}">
             @if ($isDeparting)
-                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                </svg>
+                <x-phosphor-arrow-right-bold class="w-5 h-5 text-blue-500" />
             @else
-                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>
-                </svg>
+                <x-phosphor-truck-bold class="w-5 h-5 text-amber-500" />
             @endif
         </div>
 
@@ -51,19 +47,19 @@
             <div class="flex flex-wrap gap-3 mt-2">
                 @if ($isDeparting)
                     <span class="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-medium">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <x-phosphor-clock-bold class="w-3 h-3" />
                         Scheduled: {{ $ticket->departure_datetime->format('M d, Y g:i A') }}
                     </span>
                 @else
                     <span class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        <x-phosphor-arrow-right-bold class="w-3 h-3" />
                         Departed: {{ $ticket->departed_at->format('M d, Y g:i A') }}
                     </span>
                 @endif
 
                 @if ($ticket->return_datetime)
                     <span class="inline-flex items-center gap-1 text-xs {{ $overdue ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-gray-500 dark:text-gray-400' }}">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/></svg>
+                        <x-phosphor-arrow-left-bold class="w-3 h-3" />
                         Expected return: {{ $ticket->return_datetime->format('M d, Y g:i A') }}
                         @if ($overdue)
                             <span class="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-[10px]">OVERDUE</span>
@@ -81,10 +77,10 @@
             class="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold transition shadow-sm
                    {{ $isDeparting ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700' }}">
         @if ($isDeparting)
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            <x-phosphor-arrow-right-bold class="w-4 h-4" />
             Mark Departed
         @else
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <x-phosphor-check-bold class="w-4 h-4" />
             Mark Returned
         @endif
     </button>

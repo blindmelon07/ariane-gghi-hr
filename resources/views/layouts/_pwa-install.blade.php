@@ -39,7 +39,7 @@
             </div>
         </div>
         <button @click="$store.pwaInstall.dismiss()" class="shrink-0 text-gray-300 dark:text-slate-600 hover:text-gray-500 dark:hover:text-slate-400" aria-label="Dismiss">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <x-phosphor-x-bold class="w-4 h-4" />
         </button>
     </div>
 </div>
@@ -63,7 +63,7 @@
                 <span class="shrink-0 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold flex items-center justify-center">1</span>
                 <span class="flex items-center gap-1.5">
                     Tap the <strong>Share</strong> icon
-                    <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a2.25 2.25 0 01-2.25-2.25V7.5A2.25 2.25 0 016.75 5.25H9m6 0h2.25A2.25 2.25 0 0119.5 7.5v9.75a2.25 2.25 0 01-2.25 2.25H15"/></svg>
+                    <x-phosphor-export class="w-4 h-4 text-gray-500 dark:text-slate-400" />
                     in the Safari toolbar.
                 </span>
             </li>

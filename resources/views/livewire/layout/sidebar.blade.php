@@ -225,11 +225,7 @@ new class extends Component
                 class="flex items-center justify-center w-9 h-9 rounded-xl transition-colors
                        text-slate-400 hover:text-white hover:bg-white/10 shrink-0"
                 :title="$store.sidebar.collapsed ? 'Expand' : 'Collapse'">
-            <svg class="w-5 h-5 transition-transform duration-300"
-                 :class="$store.sidebar.collapsed ? 'rotate-180' : ''"
-                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-            </svg>
+            <x-phosphor-caret-double-left-bold class="w-5 h-5 transition-transform duration-300" ::class="$store.sidebar.collapsed ? 'rotate-180' : ''" />
         </button>
     </div>
 
@@ -298,12 +294,7 @@ new class extends Component
                               x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                               class="flex-1 text-left truncate font-medium">{{ $section }}</span>
                         {{-- Chevron --}}
-                        <svg x-show="!$store.sidebar.collapsed"
-                             :class="open ? 'rotate-180' : ''"
-                             class="w-3.5 h-3.5 shrink-0 text-slate-500 transition-transform duration-200"
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                        </svg>
+                        <x-phosphor-caret-down-bold x-show="!$store.sidebar.collapsed" ::class="open ? 'rotate-180' : ''" class="w-3.5 h-3.5 shrink-0 text-slate-500 transition-transform duration-200" />
                     </button>
 
                     {{-- Expanded: sub-items inline --}}

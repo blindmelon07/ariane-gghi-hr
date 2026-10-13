@@ -3,7 +3,7 @@
     {{-- Flash --}}
     @if (session('success'))
         <div class="flex items-center gap-2 px-4 py-3 text-sm text-green-700 border border-green-200 rounded-lg bg-green-50 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <x-phosphor-check-bold class="w-4 h-4 shrink-0" />
             {{ session('success') }}
         </div>
     @endif
@@ -17,7 +17,7 @@
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Roles</h3>
                     <button wire:click="$set('showNewRoleModal', true)"
                             class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <x-phosphor-plus-bold class="w-3 h-3" />
                         New Role
                     </button>
                 </div>
@@ -48,7 +48,7 @@
                                 <button wire:click.stop="confirmDelete({{ $role->id }})"
                                         class="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                         title="Delete role">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <x-phosphor-trash-bold class="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         </li>
@@ -72,16 +72,14 @@
                     </h3>
                     <button wire:click="$set('showNewPermissionModal', true)"
                             class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white rounded-lg bg-indigo-600 hover:bg-indigo-700 transition-colors">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <x-phosphor-plus-bold class="w-3 h-3" />
                         New Permission
                     </button>
                 </div>
 
                 @if (! $selectedRole)
                     <div class="flex flex-col items-center justify-center py-16 text-gray-400">
-                        <svg class="w-10 h-10 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
-                        </svg>
+                        <x-phosphor-shield-check class="w-10 h-10 mb-3 opacity-40" />
                         <p class="text-sm">Select a role to manage its permissions</p>
                     </div>
                 @else
@@ -109,10 +107,7 @@
                                 <button wire:click="saveRolePermissions"
                                         wire:loading.attr="disabled"
                                         class="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 transition-colors">
-                                    <svg wire:loading wire:target="saveRolePermissions" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                    </svg>
+                                    <x-phosphor-circle-notch wire:loading wire:target="saveRolePermissions" class="w-4 h-4 animate-spin" />
                                     Save Permissions
                                 </button>
                             </div>
@@ -180,9 +175,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div class="w-full max-w-sm p-6 mx-4 bg-white rounded-2xl shadow-xl dark:bg-gray-800">
                 <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                    </svg>
+                    <x-phosphor-warning-bold class="w-6 h-6 text-red-600" />
                 </div>
                 <h3 class="mb-2 text-base font-semibold text-center text-gray-900 dark:text-white">Delete Role</h3>
                 <p class="mb-5 text-sm text-center text-gray-500 dark:text-gray-400">

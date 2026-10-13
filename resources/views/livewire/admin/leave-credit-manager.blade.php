@@ -19,7 +19,7 @@
 
                 <button wire:click="openBulkAdd"
                         class="inline-flex items-center gap-1.5 px-3 py-2 bg-green-600 dark:bg-green-500 text-white text-xs font-medium rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    <x-phosphor-plus-bold class="w-4 h-4" />
                     Bulk Add Credits
                 </button>
 
@@ -37,9 +37,9 @@
                 <div class="flex items-start gap-3">
                     <div class="mt-0.5">
                         @if ($this->thisMonthAccrued)
-                            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <x-phosphor-check-circle-bold class="w-5 h-5 text-green-600 dark:text-green-400" />
                         @else
-                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <x-phosphor-clock-bold class="w-5 h-5 text-amber-600 dark:text-amber-400" />
                         @endif
                     </div>
                     <div>
@@ -70,13 +70,8 @@
                         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition
                                {{ $this->thisMonthAccrued ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-600 hover:bg-green-700' }}
                                disabled:opacity-60 shrink-0">
-                    <svg wire:loading wire:target="accrueThisMonth" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                    </svg>
-                    <svg wire:loading.remove wire:target="accrueThisMonth" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
+                    <x-phosphor-circle-notch wire:loading wire:target="accrueThisMonth" class="w-4 h-4 animate-spin" />
+                    <x-phosphor-arrows-clockwise-bold wire:loading.remove wire:target="accrueThisMonth" class="w-4 h-4" />
                     {{ $this->thisMonthAccrued ? 'Re-run Accrual' : 'Run Now' }}
                 </button>
             </div>

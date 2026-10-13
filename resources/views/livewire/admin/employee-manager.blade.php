@@ -9,7 +9,7 @@
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Employee Management</h3>
         </div>
         <button wire:click="syncBioTime" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 dark:bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+            <x-phosphor-arrows-clockwise-bold class="w-4 h-4" />
             <span wire:loading.remove wire:target="syncBioTime">Import from BioTime</span>
             <span wire:loading wire:target="syncBioTime">Syncing...</span>
         </button>

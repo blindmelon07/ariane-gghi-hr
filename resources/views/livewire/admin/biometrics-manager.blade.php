@@ -3,14 +3,14 @@
     {{-- Alerts --}}
     @if ($successMessage)
         <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-sm">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <x-phosphor-check-circle-bold class="w-4 h-4 shrink-0" />
             {{ $successMessage }}
         </div>
     @endif
 
     @if ($errorMessage)
         <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <x-phosphor-warning-circle-bold class="w-4 h-4 shrink-0" />
             {{ $errorMessage }}
         </div>
     @endif
@@ -22,7 +22,7 @@
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6">
             @if (!$this->deviceConfigured())
                 <div class="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <x-phosphor-info-bold class="w-4 h-4 shrink-0" />
                     ZKTeco sync is managed by the local machine. Attendance data is pushed here automatically every 15 minutes.
                 </div>
             @endif
@@ -79,13 +79,8 @@
                 wire:loading.attr="disabled"
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
-                <svg wire:loading wire:target="testConnection" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
-                <svg wire:loading.remove wire:target="testConnection" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
+                <x-phosphor-circle-notch wire:loading wire:target="testConnection" class="animate-spin w-4 h-4" />
+                <x-phosphor-lightning-bold wire:loading.remove wire:target="testConnection" class="w-4 h-4" />
                 Test Connection
             </button>
             @endif
@@ -135,13 +130,8 @@
                 wire:loading.attr="disabled"
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
-                <svg wire:loading wire:target="syncAttendance" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
-                <svg wire:loading.remove wire:target="syncAttendance" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
+                <x-phosphor-circle-notch wire:loading wire:target="syncAttendance" class="animate-spin w-4 h-4" />
+                <x-phosphor-arrows-clockwise-bold wire:loading.remove wire:target="syncAttendance" class="w-4 h-4" />
                 Sync Attendance
             </button>
         </div>
@@ -156,13 +146,8 @@
                 wire:loading.attr="disabled"
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
-                <svg wire:loading wire:target="syncUsers" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
-                <svg wire:loading.remove wire:target="syncUsers" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
+                <x-phosphor-circle-notch wire:loading wire:target="syncUsers" class="animate-spin w-4 h-4" />
+                <x-phosphor-users-three-bold wire:loading.remove wire:target="syncUsers" class="w-4 h-4" />
                 Sync Employees from BioTime
             </button>
 
@@ -208,13 +193,8 @@
                 wire:target="importAttendance"
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
-                <svg wire:loading wire:target="importAttendance" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
-                <svg wire:loading.remove wire:target="importAttendance" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                </svg>
+                <x-phosphor-circle-notch wire:loading wire:target="importAttendance" class="animate-spin w-4 h-4" />
+                <x-phosphor-download-simple-bold wire:loading.remove wire:target="importAttendance" class="w-4 h-4" />
                 Import Attendance
             </button>
         </form>
@@ -462,7 +442,7 @@
                         <p class="text-xs text-slate-400 mt-0.5">{{ $accountName }} &middot; <span class="font-mono">{{ $accountEmpCode }}</span></p>
                     </div>
                     <button wire:click="closeAccountModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <x-phosphor-x-bold class="w-5 h-5" />
                     </button>
                 </div>
 
@@ -533,12 +513,12 @@
                         <span>{{ \Carbon\Carbon::parse($log->punch_time)->format('M d, Y H:i:s') }}</span>
                         @if ($log->is_processed)
                             <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <x-phosphor-check-bold class="w-3.5 h-3.5" />
                                 Processed
                             </span>
                         @else
                             <span class="inline-flex items-center gap-1 text-slate-400">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <x-phosphor-clock-bold class="w-3.5 h-3.5" />
                                 Pending
                             </span>
                         @endif
@@ -588,12 +568,12 @@
                             <td class="px-6 py-3">
                                 @if ($log->is_processed)
                                     <span class="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <x-phosphor-check-bold class="w-3.5 h-3.5" />
                                         Yes
                                     </span>
                                 @else
                                     <span class="inline-flex items-center gap-1 text-xs text-slate-400">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <x-phosphor-clock-bold class="w-3.5 h-3.5" />
                                         Pending
                                     </span>
                                 @endif

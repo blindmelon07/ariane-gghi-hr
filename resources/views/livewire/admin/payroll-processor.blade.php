@@ -21,7 +21,7 @@
                 <option value="finalized">Finalized</option>
             </select>
             <button wire:click="$set('showCreate', true)" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 dark:bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <x-phosphor-plus-bold class="w-4 h-4" />
                 New Period
             </button>
         </div>
@@ -437,7 +437,7 @@
                     </p>
                 </div>
                 <button wire:click="closePayslips" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <x-phosphor-x-bold class="w-5 h-5" />
                 </button>
             </div>
 
@@ -466,9 +466,7 @@
                            target="_blank"
                            class="mt-2 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg
                                   {{ $slip ? 'bg-indigo-600 dark:bg-indigo-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' }}">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                            </svg>
+                            <x-phosphor-download-simple-bold class="w-3.5 h-3.5" />
                             {{ $slip ? 'Download' : 'Generate & Download' }}
                         </a>
                     </div>
@@ -510,9 +508,7 @@
                                        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg
                                               {{ $slip ? 'bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}
                                               transition">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                        </svg>
+                                        <x-phosphor-download-simple-bold class="w-3.5 h-3.5" />
                                         {{ $slip ? 'Download' : 'Generate & Download' }}
                                     </a>
                                 </td>

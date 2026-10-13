@@ -2,7 +2,7 @@
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
         <a href="{{ route('admin.dashboard') }}" wire:navigate class="hover:text-indigo-600 dark:text-indigo-400">Dashboard</a>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <x-phosphor-caret-right-bold class="w-4 h-4" />
         <span class="text-gray-700 dark:text-gray-200 font-medium">Attendance Report</span>
     </nav>
 
@@ -34,7 +34,7 @@
                             {{ \App\Models\Employee::find($employeeId)?->full_name }}
                         </span>
                         <button wire:click="clearEmployee" class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:text-red-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <x-phosphor-x-bold class="w-4 h-4" />
                         </button>
                     </div>
                 @else
@@ -57,15 +57,15 @@
             </div>
             <div class="flex gap-2 w-full sm:w-auto sm:ml-auto">
                 <button wire:click="exportExcel" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <x-phosphor-download-simple-bold class="w-4 h-4" />
                     Excel
                 </button>
                 <button wire:click="exportPdf" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <x-phosphor-download-simple-bold class="w-4 h-4" />
                     PDF
                 </button>
                 <button onclick="window.print()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"/></svg>
+                    <x-phosphor-printer-bold class="w-4 h-4" />
                     Print
                 </button>
             </div>
