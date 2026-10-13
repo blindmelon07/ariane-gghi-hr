@@ -45,32 +45,61 @@ class WebPushChannel
         }
 
         try {
-            $webPush = new WebPush(['VAPID' => [
-                'subject'    => config('services.webpush.subject'),
-                'publicKey'  => config('services.webpush.public_key'),
-                'privateKey' => config('services.webpush.private_key'),
-            ]], ['TTL' => 86400]);
-
-            foreach ($subscriptions as $sub) {
-                $webPush->queueNotification(Subscription::create([
-                    'endpoint'        => $sub->endpoint,
-                    'publicKey'       => $sub->public_key,
-                    'authToken'       => $sub->auth_token,
-                    'contentEncoding' => $sub->content_encoding,
-                ]), json_encode($payload));
-            }
-
-            foreach ($webPush->flush() as $report) {
-                // The user uninstalled the app or revoked permission — forget that device.
-                if ($report->isSubscriptionExpired()) {
-                    PushSubscription::where('endpoint_hash', hash('sha256', $report->getEndpoint()))->delete();
-                } elseif (! $report->isSuccess()) {
-                    Log::warning('Web push failed', ['reason' => $report->getReason()]);
+            foreach (self::deliver($subscriptions, $payload) as $result) {
+                if (! $result['ok'] && ! $result['expired']) {
+                    Log::warning('Web push failed', $result);
                 }
             }
         } catch (\Throwable $e) {
             // A push problem must never break the action that triggered it (approval, payroll, …).
             Log::error('Web push exception', ['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Send $payload to each subscription and report what the push service answered.
+     * Expired subscriptions (app uninstalled / permission revoked) are deleted.
+     *
+     * @param  iterable<PushSubscription>  $subscriptions
+     * @return array<int, array{id: int, ok: bool, expired: bool, status: ?int, reason: string}>
+     */
+    public static function deliver(iterable $subscriptions, array $payload): array
+    {
+        $webPush = new WebPush(['VAPID' => [
+            'subject'    => config('services.webpush.subject'),
+            'publicKey'  => config('services.webpush.public_key'),
+            'privateKey' => config('services.webpush.private_key'),
+        ]], ['TTL' => 86400, 'urgency' => 'high']);
+
+        $byEndpoint = [];
+        foreach ($subscriptions as $sub) {
+            $byEndpoint[$sub->endpoint] = $sub;
+            $webPush->queueNotification(Subscription::create([
+                'endpoint'        => $sub->endpoint,
+                'publicKey'       => $sub->public_key,
+                'authToken'       => $sub->auth_token,
+                'contentEncoding' => $sub->content_encoding,
+            ]), json_encode($payload));
+        }
+
+        $results = [];
+        foreach ($webPush->flush() as $report) {
+            $sub     = $byEndpoint[$report->getEndpoint()] ?? null;
+            $expired = $report->isSubscriptionExpired();
+
+            if ($expired) {
+                PushSubscription::where('endpoint_hash', hash('sha256', $report->getEndpoint()))->delete();
+            }
+
+            $results[] = [
+                'id'      => $sub?->id ?? 0,
+                'ok'      => $report->isSuccess(),
+                'expired' => $expired,
+                'status'  => $report->getResponse()?->getStatusCode(),
+                'reason'  => $report->isSuccess() ? 'accepted' : mb_substr(trim($report->getReason() . ' ' . (string) $report->getResponse()?->getBody()), 0, 300),
+            ];
+        }
+
+        return $results;
     }
 }
