@@ -193,6 +193,46 @@ class AttendanceProcessorService
         ];
     }
 
+    /**
+     * processDay() for calendars and monthly summaries: days that haven't
+     * happened yet are "Upcoming", and a no-punch day that is the employee's
+     * scheduled rest day (same rule as payroll) is "Day-off" rather than "Absent".
+     * Nursing staff rotate shifts, so only their explicit day-offs count.
+     */
+    public function processDayForDisplay(Employee $employee, string $date): array
+    {
+        $day = Carbon::parse($date);
+
+        if ($day->gt(now('Asia/Manila')->startOfDay())) {
+            return $this->emptyResult('Upcoming');
+        }
+
+        $result = $this->processDay($employee, $date);
+
+        if ($result['status'] === 'Absent' && $this->isScheduledRestDay($employee, $day)) {
+            $result['status'] = 'Day-off';
+        }
+
+        return $result;
+    }
+
+    private function isScheduledRestDay(Employee $employee, Carbon $day): bool
+    {
+        if (strcasecmp(trim((string) $employee->department), 'Nursing') === 0) {
+            return false;
+        }
+        if ($day->isSunday()) {
+            return true;
+        }
+        if (($employee->employment_type ?? 'regular') === 'probationary') {
+            return false;
+        }
+
+        return $employee->weekday_off !== null
+            ? $day->dayOfWeek === (int) $employee->weekday_off
+            : $day->isSaturday();
+    }
+
     private function emptyResult(string $status): array
     {
         return [

@@ -51,7 +51,7 @@ class AttendanceCalendar extends Component
 
         for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
             $dateStr = $day->toDateString();
-            $result  = $processor->processDay($employee, $dateStr);
+            $result  = $processor->processDayForDisplay($employee, $dateStr);
 
             $data[$dateStr] = array_merge($result, [
                 'day'       => $day->day,

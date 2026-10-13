@@ -33,7 +33,7 @@ class AttendanceSummary extends Component
         $data      = [];
 
         for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
-            $data[] = $processor->processDay($employee, $day->toDateString());
+            $data[] = $processor->processDayForDisplay($employee, $day->toDateString());
         }
 
         return $data;

@@ -80,7 +80,8 @@
             @foreach ($this->attendanceData as $date => $day)
                 @php
                     $cfg    = $statusConfig[$day['status']] ?? $statusConfig['Day-off'];
-                    $isToday = $date === now()->toDateString();
+                    $isToday = $date === now('Asia/Manila')->toDateString();
+                    $isUpcoming = $day['status'] === 'Upcoming';
                 @endphp
 
                 <div
@@ -109,15 +110,17 @@
                         ])>{{ $day['day'] }}</span>
 
                         {{-- Status dot (only when there's data) --}}
-                        @if ($day['status'] !== 'Day-off')
+                        @if ($day['status'] !== 'Day-off' && ! $isUpcoming)
                             <span class="w-2 h-2 rounded-full {{ $cfg['dot'] }} shrink-0"></span>
                         @endif
                     </div>
 
-                    {{-- Badge --}}
-                    <span class="inline-block px-1.5 py-0.5 text-[9px] font-semibold rounded-md {{ $cfg['badge'] }} leading-tight">
-                        {{ $day['status'] }}
-                    </span>
+                    {{-- Badge (none for days that haven't happened yet) --}}
+                    @unless ($isUpcoming)
+                        <span class="inline-block px-1.5 py-0.5 text-[9px] font-semibold rounded-md {{ $cfg['badge'] }} leading-tight">
+                            {{ $day['status'] }}
+                        </span>
+                    @endunless
 
                     {{-- Time --}}
                     @if ($day['time_in'])
@@ -219,7 +222,7 @@
                 </div>
 
                 {{-- Modal footer --}}
-                <div class="px-6 pb-5 space-y-2" x-show="selectedDayData.status !== 'Day-off'">
+                <div class="px-6 pb-5 space-y-2" x-show="selectedDayData.status !== 'Day-off' && selectedDayData.status !== 'Upcoming'">
                     {{-- Filing actions --}}
                     <div class="grid grid-cols-2 gap-2" x-show="selectedDay >= today">
                         <a :href="'{{ route('leave.request') }}?type=SL&date=' + selectedDay"

@@ -195,14 +195,14 @@
                     @php $valid = \App\Services\SmsService::normalize($emp->cell_number); @endphp
                     <label wire:key="ce-{{ $emp->id }}" class="flex items-center gap-3 px-3 py-2 text-sm {{ $valid ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/30' : 'opacity-60' }}">
                         <input type="checkbox" wire:model.live="credentialIds" value="{{ $emp->id }}" @disabled(! $valid) class="text-blue-600 rounded">
-                        <span class="font-mono text-xs text-gray-500 w-14">{{ $emp->emp_code }}</span>
-                        <span class="flex-1 text-gray-900 dark:text-white">{{ $emp->full_name }}</span>
+                        <span class="font-mono text-xs text-gray-500 w-14 shrink-0">{{ $emp->emp_code }}</span>
+                        <span class="flex-1 min-w-0 truncate text-gray-900 dark:text-white">{{ $emp->full_name }}</span>
                         @if ($emp->user)
-                            <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Has account</span>
+                            <span class="shrink-0 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Has account</span>
                         @else
-                            <span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">No account</span>
+                            <span class="shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">No account</span>
                         @endif
-                        <span class="font-mono text-xs w-28 text-right {{ $valid ? 'text-gray-500' : 'text-red-400' }}">{{ $emp->cell_number ?: 'no number' }}</span>
+                        <span class="shrink-0 font-mono text-xs w-24 text-right {{ $valid ? 'text-gray-500' : 'text-red-400' }}">{{ $emp->cell_number ?: 'no number' }}</span>
                     </label>
                 @empty
                     <p class="px-3 py-4 text-sm text-center text-gray-400">No employees found.</p>
