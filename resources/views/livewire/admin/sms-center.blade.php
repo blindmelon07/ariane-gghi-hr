@@ -102,7 +102,7 @@
                           class="w-full text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
                 <div class="flex justify-between mt-1 text-xs text-gray-400">
                     <span>@if ($audience !== 'numbers') <span class="font-mono">{first_name}</span> and <span class="font-mono">{name}</span> are replaced with each employee's name. @endif</span>
-                    <span>{{ mb_strlen($smsMessage) }} / {{ \App\Services\SmsService::MAX_LENGTH }} · {{ max(1, (int) ceil(mb_strlen($smsMessage) / 160)) }} SMS part(s)</span>
+                    <span class="{{ mb_strlen($smsMessage) > 0 && mb_strlen($smsMessage) < \App\Services\SmsService::MIN_LENGTH ? 'text-red-500' : '' }}">min {{ \App\Services\SmsService::MIN_LENGTH }} · {{ mb_strlen($smsMessage) }} / {{ \App\Services\SmsService::MAX_LENGTH }} · {{ max(1, (int) ceil(mb_strlen($smsMessage) / 160)) }} SMS part(s)</span>
                 </div>
                 @error('smsMessage') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>

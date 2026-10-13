@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Log;
  */
 class SmsService
 {
+    public const MIN_LENGTH = 10;   // UniSMS rejects shorter content
+
     public const MAX_LENGTH = 670;
 
     /** UniSMS allows one /bulk request every 2 seconds. */

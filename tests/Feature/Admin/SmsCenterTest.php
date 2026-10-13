@@ -63,3 +63,15 @@ it('requires a message', function () {
         ->call('send')
         ->assertHasErrors('smsMessage');
 });
+
+it('rejects messages shorter than 10 characters', function () {
+    Livewire::actingAs(smsAdmin())
+        ->test(SmsCenter::class)
+        ->set('audience', 'numbers')
+        ->set('customNumbers', '09171234567')
+        ->set('smsMessage', 'test')
+        ->call('send')
+        ->assertHasErrors(['smsMessage' => 'min']);
+
+    Http::assertNotSent(fn ($req) => str_ends_with($req->url(), '/bulk'));
+});

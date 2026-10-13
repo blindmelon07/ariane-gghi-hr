@@ -120,11 +120,13 @@ class SmsCenter extends Component
     public function send(SmsNotificationService $notifier, SmsService $sms): void
     {
         $this->validate([
-            'smsMessage'   => 'required|string|max:' . SmsService::MAX_LENGTH,
+            'smsMessage'   => 'required|string|min:' . SmsService::MIN_LENGTH . '|max:' . SmsService::MAX_LENGTH,
             'audience'     => 'required|in:all,department,employees,numbers',
             'departmentId' => 'required_if:audience,department',
         ], [
             'departmentId.required_if' => 'Choose a department.',
+            'smsMessage.required'      => 'Type a message.',
+            'smsMessage.min'           => 'The message must be at least ' . SmsService::MIN_LENGTH . ' characters (UniSMS rejects shorter texts).',
         ]);
 
         // The sender ID rejects messages that contain links.
