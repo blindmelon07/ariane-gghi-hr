@@ -16,3 +16,6 @@ Schedule::command('sync:employees')->dailyAt('00:00')->withoutOverlapping();
 
 // Accrue 2.5 VL + 2.5 SL to every active employee on the 1st of each month at 6 AM
 Schedule::command('leave:accrue')->monthlyOn(1, '06:00')->withoutOverlapping();
+
+// Text late/absent employees at 8 PM, after the day's punches have synced (needs UNISMS_ATTENDANCE_ALERTS=true)
+Schedule::command('sms:attendance-alerts')->dailyAt('20:00')->withoutOverlapping();

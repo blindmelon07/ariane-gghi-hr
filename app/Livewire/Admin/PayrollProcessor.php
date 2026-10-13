@@ -9,6 +9,7 @@ use App\Models\PayrollPeriod;
 use App\Models\Payslip;
 use App\Services\ActivityLogService;
 use App\Services\PayrollWorksheetImportService;
+use App\Services\SmsNotificationService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -226,8 +227,45 @@ class PayrollProcessor extends Component
 
         ActivityLogService::log('payroll_finalized', "Finalized payroll: {$period->name}", $period);
 
+        $sms = app(SmsNotificationService::class)->payslipNotices($period);
+
         unset($this->periods);
-        session()->flash('success', 'Payroll period finalized.');
+        session()->flash('success', 'Payroll period finalized. ' . $this->smsSummary($sms));
+    }
+
+    /**
+     * Text payslip notices for a finalized period. Employees already notified
+     * for this period are skipped, so it's safe to press again.
+     */
+    public function sendPayslipSms(int $periodId): void
+    {
+        $period = PayrollPeriod::findOrFail($periodId);
+
+        if ($period->status !== 'finalized') {
+            session()->flash('error', 'Payslip notices can only be sent for finalized periods.');
+            return;
+        }
+
+        $sms = app(SmsNotificationService::class)->payslipNotices($period);
+        ActivityLogService::log('payslip_sms', "Sent payslip SMS for {$period->name}: {$sms['queued']} queued", $period);
+
+        session()->flash('success', $this->smsSummary($sms));
+    }
+
+    private function smsSummary(array $sms): string
+    {
+        $text = "Payslip SMS: {$sms['queued']} sent";
+        if ($sms['skipped']) {
+            $text .= ", {$sms['skipped']} skipped (no valid number)";
+        }
+        if ($sms['failed']) {
+            $text .= ", {$sms['failed']} failed — see SMS Center";
+        }
+        if ($sms['already']) {
+            $text .= ", {$sms['already']} already notified";
+        }
+
+        return $text . '.';
     }
 
     public function openImport(int $periodId): void

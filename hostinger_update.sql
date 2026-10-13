@@ -1,5 +1,5 @@
 -- Ariane GGHI HR: employee cleanup + department assignments
--- Generated 2026-10-13 11:59:07 from local database arianefinal
+-- Generated 2026-10-13 12:14:07 from local database arianefinal
 -- BACK UP the live database (phpMyAdmin > Export) before running this.
 
 START TRANSACTION;
@@ -135,6 +135,73 @@ SELECT e.id, t.d, 'rest_day', IF(t.dow = 0, 'Sunday rest', 'Weekly rest day'), 1
        (SELECT id FROM `users` WHERE `role` = 'hr_admin' ORDER BY id LIMIT 1), NOW(), NOW()
 FROM `tmp_rest_days` t JOIN `employees` e ON e.emp_code = t.emp_code;
 DROP TEMPORARY TABLE `tmp_rest_days`;
+
+-- 6. Cellphone numbers (TRACKING OF EMPLOYEES, ACTIVE Employees sheet).
+UPDATE `employees` SET `cell_number` = '09152595056', `updated_at` = NOW() WHERE `emp_code` = '2'; -- Cedric John Bayoca
+UPDATE `employees` SET `cell_number` = '09150922886', `updated_at` = NOW() WHERE `emp_code` = '3'; -- Alvarado,John,Earl 
+UPDATE `employees` SET `cell_number` = '09508367473', `updated_at` = NOW() WHERE `emp_code` = '5'; -- John Matthew Paras
+UPDATE `employees` SET `cell_number` = '09958679578', `updated_at` = NOW() WHERE `emp_code` = '4'; -- Escurel, Mae
+UPDATE `employees` SET `cell_number` = '09516991997', `updated_at` = NOW() WHERE `emp_code` = '7'; -- Danica ferreras
+UPDATE `employees` SET `cell_number` = '09397762024', `updated_at` = NOW() WHERE `emp_code` = '8'; -- Kathlyn Enciso
+UPDATE `employees` SET `cell_number` = '09917236540', `updated_at` = NOW() WHERE `emp_code` = '9'; -- Raffy Camposano
+UPDATE `employees` SET `cell_number` = '09999461752', `updated_at` = NOW() WHERE `emp_code` = '10'; -- Jonathan Jimena
+UPDATE `employees` SET `cell_number` = '09107917086', `updated_at` = NOW() WHERE `emp_code` = '11'; -- Ronald Angelo Obsum
+UPDATE `employees` SET `cell_number` = '09193687777', `updated_at` = NOW() WHERE `emp_code` = '12'; -- Jhoanna Aycardo
+UPDATE `employees` SET `cell_number` = '09126449956', `updated_at` = NOW() WHERE `emp_code` = '13'; -- Marie Joy Deniega
+UPDATE `employees` SET `cell_number` = '09664077193', `updated_at` = NOW() WHERE `emp_code` = '14'; -- Dan Arvie Gapuen
+UPDATE `employees` SET `cell_number` = '09500458871', `updated_at` = NOW() WHERE `emp_code` = '15'; -- Marjo Cortez
+UPDATE `employees` SET `cell_number` = '09300077408', `updated_at` = NOW() WHERE `emp_code` = '16'; -- Jade Ayessa Jalmanzar
+UPDATE `employees` SET `cell_number` = '09295495720', `updated_at` = NOW() WHERE `emp_code` = '17'; -- Samuel Anthony Escobedo
+UPDATE `employees` SET `cell_number` = '09462946469', `updated_at` = NOW() WHERE `emp_code` = '18'; -- Jeorgie Pascual Hular
+UPDATE `employees` SET `cell_number` = '09092466205', `updated_at` = NOW() WHERE `emp_code` = '19'; -- Maria Paula Lovedorial
+UPDATE `employees` SET `cell_number` = '09483238249', `updated_at` = NOW() WHERE `emp_code` = '20'; -- Marimar Janoba
+UPDATE `employees` SET `cell_number` = '09460757924', `updated_at` = NOW() WHERE `emp_code` = '21'; -- Lara Conda
+UPDATE `employees` SET `cell_number` = '09073719560', `updated_at` = NOW() WHERE `emp_code` = '22'; -- Cheska Atractivo
+UPDATE `employees` SET `cell_number` = '09673916383', `updated_at` = NOW() WHERE `emp_code` = '23'; -- Carla Mae Ducay
+UPDATE `employees` SET `cell_number` = '09810188696', `updated_at` = NOW() WHERE `emp_code` = '24'; -- Emmanuel Janer
+UPDATE `employees` SET `cell_number` = '09514289440', `updated_at` = NOW() WHERE `emp_code` = '25'; -- Abner Dichoso
+UPDATE `employees` SET `cell_number` = '09387825306', `updated_at` = NOW() WHERE `emp_code` = '28'; -- Aldrin Osuyos
+UPDATE `employees` SET `cell_number` = '09278910415', `updated_at` = NOW() WHERE `emp_code` = '30'; -- Nova Gabrillo
+UPDATE `employees` SET `cell_number` = '09811765220', `updated_at` = NOW() WHERE `emp_code` = '31'; -- Clarissa Arcinue
+UPDATE `employees` SET `cell_number` = '09959567958', `updated_at` = NOW() WHERE `emp_code` = '32'; -- Joanne Demonteverde
+UPDATE `employees` SET `cell_number` = '09196530496', `updated_at` = NOW() WHERE `emp_code` = '33'; -- Jack Vergara
+UPDATE `employees` SET `cell_number` = '09812941961', `updated_at` = NOW() WHERE `emp_code` = '34'; -- Ernie Dairo
+UPDATE `employees` SET `cell_number` = '09318943750', `updated_at` = NOW() WHERE `emp_code` = '35'; -- Kevin Padlan
+UPDATE `employees` SET `cell_number` = '09267334798', `updated_at` = NOW() WHERE `emp_code` = '36'; -- Giselle Ferreras
+UPDATE `employees` SET `cell_number` = '09569338002', `updated_at` = NOW() WHERE `emp_code` = '37'; -- Salvacion Pelina
+UPDATE `employees` SET `cell_number` = '09092460074', `updated_at` = NOW() WHERE `emp_code` = '38'; -- Rechelle Espinola
+UPDATE `employees` SET `cell_number` = '09150659415', `updated_at` = NOW() WHERE `emp_code` = '39'; -- May Borromeo
+UPDATE `employees` SET `cell_number` = '09700234773', `updated_at` = NOW() WHERE `emp_code` = '40'; -- Regelia Imlani
+UPDATE `employees` SET `cell_number` = '09095141962', `updated_at` = NOW() WHERE `emp_code` = '41'; -- Angelica Shane Valino
+UPDATE `employees` SET `cell_number` = '09810795445', `updated_at` = NOW() WHERE `emp_code` = '44'; -- Shiela Millenas
+UPDATE `employees` SET `cell_number` = '09126779753', `updated_at` = NOW() WHERE `emp_code` = '45'; -- Ira Dollentas
+UPDATE `employees` SET `cell_number` = '09564004674', `updated_at` = NOW() WHERE `emp_code` = '46'; -- Joya Agustin
+UPDATE `employees` SET `cell_number` = '09388163876', `updated_at` = NOW() WHERE `emp_code` = '47'; -- Jessa Deuna
+UPDATE `employees` SET `cell_number` = '09685288833', `updated_at` = NOW() WHERE `emp_code` = '48'; -- Beatriz Gaufo
+UPDATE `employees` SET `cell_number` = '09207430598', `updated_at` = NOW() WHERE `emp_code` = '50'; -- Waje,Yhukie 
+UPDATE `employees` SET `cell_number` = '09388967662', `updated_at` = NOW() WHERE `emp_code` = '51'; -- Legaspi, Shane
+UPDATE `employees` SET `cell_number` = '09301390539', `updated_at` = NOW() WHERE `emp_code` = '52'; -- Dicen, Ronel
+UPDATE `employees` SET `cell_number` = '09515389036', `updated_at` = NOW() WHERE `emp_code` = '53'; -- Jomari Grampon
+UPDATE `employees` SET `cell_number` = '09151314203', `updated_at` = NOW() WHERE `emp_code` = '54'; -- Pura, Joel
+UPDATE `employees` SET `cell_number` = '09816740160', `updated_at` = NOW() WHERE `emp_code` = '55'; -- Dhan Kenneth Lovedorial
+UPDATE `employees` SET `cell_number` = '09949331892', `updated_at` = NOW() WHERE `emp_code` = '56'; -- Erick Dave Guban
+UPDATE `employees` SET `cell_number` = '09126785117', `updated_at` = NOW() WHERE `emp_code` = '58'; -- Larisse Gadais
+UPDATE `employees` SET `cell_number` = '09949625820', `updated_at` = NOW() WHERE `emp_code` = '61'; -- John Feratero
+UPDATE `employees` SET `cell_number` = '09275511046', `updated_at` = NOW() WHERE `emp_code` = '62'; -- Sharon Bellen
+UPDATE `employees` SET `cell_number` = '09937351426', `updated_at` = NOW() WHERE `emp_code` = '63'; -- Denise Bitancur
+UPDATE `employees` SET `cell_number` = '09673528157', `updated_at` = NOW() WHERE `emp_code` = '64'; -- CHRISTLYN MADEL ESPADERO
+UPDATE `employees` SET `cell_number` = '09103337402', `updated_at` = NOW() WHERE `emp_code` = '65'; -- ANGELA LUZ ENTAC
+UPDATE `employees` SET `cell_number` = '09662443303', `updated_at` = NOW() WHERE `emp_code` = '66'; -- Jyrie Ziga
+UPDATE `employees` SET `cell_number` = '09123157643', `updated_at` = NOW() WHERE `emp_code` = '67'; -- Christian Desalisa
+UPDATE `employees` SET `cell_number` = '09919049501', `updated_at` = NOW() WHERE `emp_code` = '68'; -- Alyssa Dalene Lusuegro
+UPDATE `employees` SET `cell_number` = '09484620160', `updated_at` = NOW() WHERE `emp_code` = '69'; -- Habolin, Christian
+UPDATE `employees` SET `cell_number` = '09544568201', `updated_at` = NOW() WHERE `emp_code` = '70'; -- Diether Go
+UPDATE `employees` SET `cell_number` = '09760213784', `updated_at` = NOW() WHERE `emp_code` = '71'; -- Azel Esquierra
+UPDATE `employees` SET `cell_number` = '09075347789', `updated_at` = NOW() WHERE `emp_code` = '72'; -- Bolima, Shamma
+UPDATE `employees` SET `cell_number` = '09309229880', `updated_at` = NOW() WHERE `emp_code` = '26'; -- Jhong Sumawang
+UPDATE `employees` SET `cell_number` = '09947408090', `updated_at` = NOW() WHERE `emp_code` = '27'; -- Edwin Esmena
+UPDATE `employees` SET `cell_number` = '09773736449', `updated_at` = NOW() WHERE `emp_code` = '42'; -- Antonio Andrew Farjardo
+UPDATE `employees` SET `cell_number` = '09971600058', `updated_at` = NOW() WHERE `emp_code` = '43'; -- Iui Quinones
 
 COMMIT;
 

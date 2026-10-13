@@ -338,7 +338,10 @@
                         </button>
                     @endif
                     @if ($period->status === 'processed')
-                        <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone." class="text-sm text-green-600 dark:text-green-400 font-medium">Finalize</button>
+                        <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone. Employees will be texted that their payslip is ready." class="text-sm text-green-600 dark:text-green-400 font-medium">Finalize</button>
+                    @endif
+                    @if ($period->status === 'finalized')
+                        <button wire:click="sendPayslipSms({{ $period->id }})" wire:confirm="Text a payslip notice to every employee in this period who hasn't been notified yet?" class="text-sm text-blue-600 dark:text-blue-400 font-medium">SMS Payslips</button>
                     @endif
                     @if (in_array($period->status, ['processed', 'finalized']))
                         <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 font-medium">Excel</button>
@@ -390,7 +393,10 @@
                                 </button>
                             @endif
                             @if ($period->status === 'processed')
-                                <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone." class="text-sm text-green-600 dark:text-green-400 hover:text-green-800 font-medium">Finalize</button>
+                                <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone. Employees will be texted that their payslip is ready." class="text-sm text-green-600 dark:text-green-400 hover:text-green-800 font-medium">Finalize</button>
+                            @endif
+                            @if ($period->status === 'finalized')
+                                <button wire:click="sendPayslipSms({{ $period->id }})" wire:confirm="Text a payslip notice to every employee in this period who hasn't been notified yet?" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 font-medium">SMS Payslips</button>
                             @endif
                             @if (in_array($period->status, ['processed', 'finalized']))
                                 <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 font-medium">Excel</button>

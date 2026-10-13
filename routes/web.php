@@ -94,6 +94,7 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::view('admin/day-offs', 'admin.day-offs')->name('admin.day-offs');
     Route::view('admin/schedules', 'admin.schedules')->name('admin.schedules');
     Route::view('admin/biometrics', 'admin.biometrics')->name('admin.biometrics');
+    Route::view('admin/sms', 'admin.sms')->name('admin.sms');
     Route::view('admin/leave/credits', 'admin.leave-credits')->name('admin.leave-credits');
     Route::view('admin/overtime', 'admin.overtime')->name('admin.overtime');
     Route::view('admin/reports/payroll', 'admin.reports.payroll')->name('admin.reports.payroll');

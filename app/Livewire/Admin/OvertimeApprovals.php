@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\OvertimeRequest;
+use App\Services\SmsNotificationService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -85,6 +86,8 @@ class OvertimeApprovals extends Component
                 'remarks'     => $this->remarks,
             ]);
         }
+
+        app(SmsNotificationService::class)->overtimeDecision($request->fresh('employee'));
 
         $this->selectedId    = null;
         $this->actionType    = '';

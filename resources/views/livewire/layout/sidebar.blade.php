@@ -22,6 +22,7 @@ new class extends Component
             'Fleet'          => 'truck',
             'Reports'        => 'chart-bar',
             'Administration' => 'shield-check',
+            'Messaging'      => 'chat-bubble',
             default          => 'dots',
         };
     }
@@ -71,6 +72,7 @@ new class extends Component
                 'Administration' => [
                     ['label' => 'User Accounts',       'route' => 'admin.accounts',          'icon' => 'users'],
                     ['label' => 'Roles & Permissions', 'route' => 'admin.roles-permissions', 'icon' => 'shield-check'],
+                    ['label' => 'SMS Center',          'route' => 'admin.sms',               'icon' => 'chat-bubble'],
                 ],
             ],
             'hr_admin' => [
@@ -109,6 +111,9 @@ new class extends Component
                     ['label' => 'Leave',             'route' => 'admin.reports.leave',      'icon' => 'document-text'],
                     ['label' => 'Payroll',           'route' => 'admin.reports.payroll',    'icon' => 'banknotes'],
                     ['label' => 'Overtime',          'route' => 'admin.reports.overtime',   'icon' => 'clock'],
+                ],
+                'Messaging' => [
+                    ['label' => 'SMS Center',        'route' => 'admin.sms',                'icon' => 'chat-bubble'],
                 ],
             ],
             'manager', 'department_head' => [

@@ -158,7 +158,11 @@ class LeaveService
                 $start     = $request->start_date->format('M d, Y');
                 $end       = $request->end_date->format('M d, Y');
                 $msg = "GGHI HR: Hi {$employee->first_name}, your {$leaveType} request ({$start} - {$end}) has been APPROVED. Thank you.";
-                app(SmsService::class)->send($employee->cell_number, $msg);
+                app(SmsService::class)->send($employee->cell_number, $msg, [
+                    'employee_id' => $employee->id,
+                    'type'        => 'leave',
+                    'context_key' => "leave:{$request->id}",
+                ]);
             }
 
             ActivityLogService::log('leave_approved', "Final approval ({$config['label']}) for leave #{$request->id} — {$employee->full_name}", $request);
@@ -212,7 +216,11 @@ class LeaveService
             $end       = $request->end_date->format('M d, Y');
             $remarksNote = $remarks ? " Reason: {$remarks}" : '';
             $msg = "GGHI HR: Hi {$employee->first_name}, your {$leaveType} request ({$start} - {$end}) has been REJECTED.{$remarksNote}";
-            app(SmsService::class)->send($employee->cell_number, $msg);
+            app(SmsService::class)->send($employee->cell_number, $msg, [
+                'employee_id' => $employee->id,
+                'type'        => 'leave',
+                'context_key' => "leave:{$request->id}",
+            ]);
         }
 
         ActivityLogService::log('leave_rejected', "Step {$step} ({$config['label']}) rejected leave #{$request->id} for {$employee->full_name}", $request);
