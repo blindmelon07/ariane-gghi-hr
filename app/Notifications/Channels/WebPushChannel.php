@@ -36,7 +36,7 @@ class WebPushChannel
             ? $notification->toWebPush($notifiable)
             : ['title' => config('app.name'), 'body' => $notification->toArray($notifiable)['message'] ?? ''];
 
-        $payload += ['url' => url('/dashboard'), 'icon' => '/images/icon-192.png', 'badge' => '/images/icon-192.png'];
+        $payload += ['url' => url(method_exists($notifiable, 'dashboardRoute') ? $notifiable->dashboardRoute() : '/'), 'icon' => '/images/icon-192.png', 'badge' => '/images/icon-192.png'];
 
         try {
             $webPush = new WebPush(['VAPID' => [

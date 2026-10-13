@@ -116,3 +116,31 @@ it('does nothing for push when VAPID keys are missing', function () {
 
     expect($user->notifications()->count())->toBe(1);   // bell still works
 });
+
+it('sends a logged-in user who reopens the app at /login to their own dashboard', function (string $role, string $path) {
+    \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+    $user = User::factory()->create(['role' => $role]);
+    $user->syncRoles($role);
+
+    $this->actingAs($user)->get('/login')->assertRedirect($path);
+})->with([
+    'HR admin'    => ['hr_admin', '/admin/dashboard'],
+    'super admin' => ['super_admin', '/admin/dashboard'],
+    'employee'    => ['employee', '/dashboard'],
+    'head nurse'  => ['head_nurse', '/head-nurse/roster'],
+]);
+
+it('opens an announcement push on the admin dashboard for HR', function () {
+    $hr = User::factory()->create(['role' => 'hr_admin']);
+
+    expect((new HrAlert('Announcement', 'Staff meeting at 3 PM'))->toWebPush($hr)['url'])
+        ->toBe(url('/admin/dashboard'));
+});
+
+it('sends the user a test notification', function () {
+    [, $user] = appEmployee();
+
+    $this->actingAs($user)->postJson(route('push.test'))->assertOk()->assertJson(['devices' => 0]);
+
+    expect($user->notifications()->sole()->data)->toMatchArray(['title' => 'Test notification', 'type' => 'test']);
+});

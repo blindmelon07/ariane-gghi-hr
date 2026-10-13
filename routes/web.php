@@ -63,6 +63,7 @@ Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 Route::middleware(['auth'])->group(function () {
     Route::post('push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
     Route::post('push/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('push/test', [PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
 });
 
 Route::get('payslips/{payslip}/download', [PayslipController::class, 'download'])

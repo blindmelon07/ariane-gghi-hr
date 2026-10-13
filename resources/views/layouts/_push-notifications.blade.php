@@ -58,6 +58,17 @@
                 return 'off';
             },
 
+            // Sends the logged-in user a test notification; resolves to the number of devices it went to.
+            async test() {
+                await this.sync();
+                const res = await fetch('/push/test', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                });
+                if (!res.ok) throw new Error(res.status === 429 ? 'Please wait a minute before testing again.' : 'Test failed.');
+                return (await res.json()).devices;
+            },
+
             // Re-link an existing subscription to whoever is logged in now (shared devices, re-logins).
             async sync() {
                 if (!supported() || Notification.permission !== 'granted') return;

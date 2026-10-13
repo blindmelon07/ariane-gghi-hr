@@ -56,7 +56,7 @@
         {{-- Phone notifications toggle (script: layouts/_push-notifications) --}}
         @if (\App\Notifications\Channels\WebPushChannel::isConfigured())
             <div wire:ignore
-                 x-data="{ state: 'loading', busy: false }"
+                 x-data="{ state: 'loading', busy: false, testMsg: '' }"
                  x-init="window.gghiPush && window.gghiPush.status().then(s => state = s).catch(() => state = 'unsupported')"
                  class="px-4 py-3 text-xs border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                 <template x-if="state === 'off'">
@@ -67,9 +67,20 @@
                     </button>
                 </template>
                 <template x-if="state === 'on'">
-                    <div class="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                        <span>✓ Notifications are on for this device</span>
-                        <button @click="gghiPush.disable().then(s => state = s)" class="font-medium text-gray-500 underline hover:text-gray-700">Turn off</button>
+                    <div class="space-y-2 text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center justify-between">
+                            <span>✓ Notifications are on for this device</span>
+                            <button @click="gghiPush.disable().then(s => state = s)" class="font-medium text-gray-500 underline hover:text-gray-700">Turn off</button>
+                        </div>
+                        <button @click="busy = true; testMsg = ''; gghiPush.test()
+                                    .then(n => { testMsg = 'Sent to ' + n + ' device(s). A pop-up should appear within a few seconds.'; $wire.$refresh() })
+                                    .catch(e => testMsg = e.message)
+                                    .finally(() => busy = false)"
+                                :disabled="busy"
+                                class="w-full px-3 py-2 font-medium text-indigo-600 border border-indigo-200 rounded-lg dark:border-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 disabled:opacity-50">
+                            <span x-text="busy ? 'Sending…' : 'Send test notification'"></span>
+                        </button>
+                        <p x-show="testMsg" x-text="testMsg" class="text-gray-500 dark:text-gray-400"></p>
                     </div>
                 </template>
                 <template x-if="state === 'denied'">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PushSubscription;
+use App\Notifications\HrAlert;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,24 @@ class PushSubscriptionController extends Controller
         );
 
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Send the logged-in user a test notification (bell + every device they enabled).
+     */
+    public function test(Request $request): JsonResponse
+    {
+        $user    = $request->user();
+        $devices = $user->pushSubscriptions()->count();
+
+        $user->notify(new HrAlert(
+            'Test notification',
+            'Notifications are working on this device. Sent ' . now()->format('M d, h:i A') . '.',
+            null,
+            'test'
+        ));
+
+        return response()->json(['ok' => true, 'devices' => $devices]);
     }
 
     public function destroy(Request $request): JsonResponse

@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'      => \App\Http\Middleware\EnsureRole::class,
             'auth.sync' => \App\Http\Middleware\AuthenticateSyncToken::class,
         ]);
+
+        // Logged-in users who open a guest page (e.g. the installed app starting at
+        // /login) go to their own dashboard. Laravel's default, /dashboard, is
+        // employee-only and returns 403 for admins and other roles.
+        $middleware->redirectUsersTo(fn ($request) => $request->user()?->dashboardRoute() ?? '/dashboard');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

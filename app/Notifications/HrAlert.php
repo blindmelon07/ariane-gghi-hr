@@ -43,7 +43,7 @@ class HrAlert extends Notification
         return [
             'title' => $this->title,
             'body'  => $this->body,
-            'url'   => $this->url ?? url('/dashboard'),
+            'url'   => $this->url ?? url(method_exists($notifiable, 'dashboardRoute') ? $notifiable->dashboardRoute() : '/'),
             'tag'   => $this->contextKey ?? $this->type,
         ];
     }

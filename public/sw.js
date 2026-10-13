@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gghi-hr-v4';
+const CACHE_NAME = 'gghi-hr-v5';
 const OFFLINE_URL = '/offline.html';
 
 // Pre-cache the offline page on install
@@ -34,7 +34,7 @@ self.addEventListener('push', event => {
             icon: data.icon || '/images/icon-192.png',
             badge: data.badge || '/images/icon-192.png',
             tag: data.tag,
-            data: { url: data.url || '/dashboard' },
+            data: { url: data.url || '/login' },
         })
     );
 });
@@ -42,7 +42,7 @@ self.addEventListener('push', event => {
 // Tapping a notification focuses an open portal tab, or opens one
 self.addEventListener('notificationclick', event => {
     event.notification.close();
-    const target = new URL(event.notification.data?.url || '/dashboard', self.location.origin).href;
+    const target = new URL(event.notification.data?.url || '/login', self.location.origin).href;
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windows => {
