@@ -76,24 +76,7 @@ class TripTicketService
         $isFinal  = ! isset(self::APPROVAL_STEPS[$nextStep]);
 
         if ($isFinal) {
-            $ticket->update([
-                'status'        => 'approved',
-                'approval_step' => null,
-                'approved_by'   => $approver->id,
-                'approved_at'   => now(),
-                'remarks'       => $remarks,
-            ]);
-
-            // Mark the assigned vehicle as in-use
-            if ($ticket->vehicle_id) {
-                $ticket->vehicle->update(['status' => 'in_use']);
-            }
-
-            ActivityLogService::log(
-                'trip_ticket_approved',
-                "Trip ticket #{$ticket->id} fully approved (Fleet) for {$ticket->employee->full_name}",
-                $ticket
-            );
+            $this->finalizeApproval($ticket, $approver, $remarks, 'Fleet');
         } else {
             $ticket->update(['approval_step' => $nextStep]);
 
@@ -105,16 +88,72 @@ class TripTicketService
         }
     }
 
+    /**
+     * Super admin override: approve a pending trip ticket at whatever step it's
+     * at, recording every remaining step (marked as an override where the step
+     * normally belongs to someone else), then fully approve it.
+     */
+    public function overrideApprove(TripTicket $ticket, User $approver, ?string $remarks = null): void
+    {
+        $from = $ticket->approval_step ?? 1;
+
+        foreach (self::APPROVAL_STEPS as $step => $config) {
+            if ($step < $from) {
+                continue;
+            }
+
+            $ownStep = in_array($approver->role, (array) $config['role'], true);
+
+            TripTicketApproval::updateOrCreate(
+                ['trip_ticket_id' => $ticket->id, 'step' => $step],
+                [
+                    'role'        => $approver->role,
+                    'label'       => $ownStep ? $config['label'] : "{$config['label']} (Super Admin override)",
+                    'approver_id' => $approver->id,
+                    'action'      => 'approved',
+                    'remarks'     => $remarks,
+                    'acted_at'    => now(),
+                ]
+            );
+        }
+
+        $this->finalizeApproval($ticket, $approver, $remarks, 'Super Admin override');
+    }
+
+    private function finalizeApproval(TripTicket $ticket, User $approver, ?string $remarks, string $label): void
+    {
+        $ticket->update([
+            'status'        => 'approved',
+            'approval_step' => null,
+            'approved_by'   => $approver->id,
+            'approved_at'   => now(),
+            'remarks'       => $remarks,
+        ]);
+
+        // Mark the assigned vehicle as in-use
+        if ($ticket->vehicle_id) {
+            $ticket->vehicle->update(['status' => 'in_use']);
+        }
+
+        ActivityLogService::log(
+            'trip_ticket_approved',
+            "Trip ticket #{$ticket->id} fully approved ({$label}) for {$ticket->employee->full_name}",
+            $ticket
+        );
+    }
+
     public function reject(TripTicket $ticket, User $approver, ?string $remarks = null): void
     {
         $step   = $ticket->approval_step ?? 1;
-        $config = self::APPROVAL_STEPS[$step] ?? ['label' => 'Approver'];
+        $config = self::APPROVAL_STEPS[$step] ?? ['label' => 'Approver', 'role' => []];
 
         TripTicketApproval::updateOrCreate(
             ['trip_ticket_id' => $ticket->id, 'step' => $step],
             [
                 'role'        => $approver->role,
-                'label'       => $config['label'],
+                'label'       => in_array($approver->role, (array) $config['role'], true) || $approver->role !== 'super_admin'
+                    ? $config['label']
+                    : "{$config['label']} (Super Admin override)",
                 'approver_id' => $approver->id,
                 'action'      => 'rejected',
                 'remarks'     => $remarks,

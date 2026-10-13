@@ -128,44 +128,7 @@ class LeaveService
         $isFinal  = ! isset(self::APPROVAL_STEPS[$nextStep]);
 
         if ($isFinal) {
-            // All steps done — fully approve and deduct credits
-            $request->update([
-                'status'        => 'approved',
-                'approval_step' => null,
-                'approved_by'   => $approver->id,
-                'approved_at'   => now(),
-                'remarks'       => $remarks,
-            ]);
-
-            $credit = LeaveCredit::where('employee_id', $request->employee_id)
-                ->where('leave_type_id', $request->leave_type_id)
-                ->where('year', $request->start_date->year)
-                ->first();
-
-            if ($credit) {
-                $credit->update([
-                    'used_credits' => $credit->used_credits + $request->total_days,
-                ]);
-            }
-
-            $employee = $request->employee;
-            $user = User::where('employee_code', $employee->emp_code)->first();
-            $user?->notify(new LeaveStatusUpdated($request));
-
-            // SMS notification
-            if ($employee->cell_number) {
-                $leaveType = $request->leaveType->name;
-                $start     = $request->start_date->format('M d, Y');
-                $end       = $request->end_date->format('M d, Y');
-                $msg = "GGHI HR: Hi {$employee->first_name}, your {$leaveType} request ({$start} - {$end}) has been APPROVED. Thank you.";
-                app(SmsService::class)->send($employee->cell_number, $msg, [
-                    'employee_id' => $employee->id,
-                    'type'        => 'leave',
-                    'context_key' => "leave:{$request->id}",
-                ]);
-            }
-
-            ActivityLogService::log('leave_approved', "Final approval ({$config['label']}) for leave #{$request->id} — {$employee->full_name}", $request);
+            $this->finalizeApproval($request, $approver, $remarks, $config['label']);
         } else {
             // Advance to next step
             $request->update(['approval_step' => $nextStep]);
@@ -178,18 +141,97 @@ class LeaveService
     }
 
     /**
+     * Super admin override: approve a pending leave at whatever step it's at,
+     * recording an approval for every remaining step (marked as an override where
+     * the step normally belongs to someone else), then fully approve it.
+     */
+    public function overrideApprove(LeaveRequest $request, User $approver, ?string $remarks = null): void
+    {
+        $from = $request->approval_step ?? 1;
+
+        foreach (self::APPROVAL_STEPS as $step => $config) {
+            if ($step < $from) {
+                continue;
+            }
+
+            $ownStep = in_array($approver->role, (array) $config['role'], true);
+
+            LeaveRequestApproval::updateOrCreate(
+                ['leave_request_id' => $request->id, 'step' => $step],
+                [
+                    'role'        => $approver->role,
+                    'label'       => $ownStep ? $config['label'] : "{$config['label']} (Super Admin override)",
+                    'approver_id' => $approver->id,
+                    'action'      => 'approved',
+                    'remarks'     => $remarks,
+                    'acted_at'    => now(),
+                ]
+            );
+        }
+
+        $this->finalizeApproval($request, $approver, $remarks, 'Super Admin override');
+    }
+
+    /**
+     * Mark a leave fully approved: deduct credits and notify the employee.
+     */
+    private function finalizeApproval(LeaveRequest $request, User $approver, ?string $remarks, string $label): void
+    {
+        $request->update([
+            'status'        => 'approved',
+            'approval_step' => null,
+            'approved_by'   => $approver->id,
+            'approved_at'   => now(),
+            'remarks'       => $remarks,
+        ]);
+
+        $credit = LeaveCredit::where('employee_id', $request->employee_id)
+            ->where('leave_type_id', $request->leave_type_id)
+            ->where('year', $request->start_date->year)
+            ->first();
+
+        if ($credit) {
+            $credit->update([
+                'used_credits' => $credit->used_credits + $request->total_days,
+            ]);
+        }
+
+        $employee = $request->employee;
+        $user = User::where('employee_code', $employee->emp_code)->first();
+        $user?->notify(new LeaveStatusUpdated($request));
+
+        // SMS notification
+        if ($employee->cell_number) {
+            $leaveType = $request->leaveType->name;
+            $start     = $request->start_date->format('M d, Y');
+            $end       = $request->end_date->format('M d, Y');
+            $msg = "GGHI HR: Hi {$employee->first_name}, your {$leaveType} request ({$start} - {$end}) has been APPROVED. Thank you.";
+            app(SmsService::class)->send($employee->cell_number, $msg, [
+                'employee_id' => $employee->id,
+                'type'        => 'leave',
+                'context_key' => "leave:{$request->id}",
+            ]);
+        }
+
+        ActivityLogService::log('leave_approved', "Final approval ({$label}) for leave #{$request->id} — {$employee->full_name}", $request);
+    }
+
+    /**
      * Reject a leave request at any step — terminates the chain.
      */
     public function reject(LeaveRequest $request, User $approver, ?string $remarks = null): void
     {
         $step   = $request->approval_step ?? 1;
-        $config = self::APPROVAL_STEPS[$step] ?? ['label' => 'Approver'];
+        $config = self::APPROVAL_STEPS[$step] ?? ['label' => 'Approver', 'role' => []];
+        $label  = in_array($approver->role, (array) ($config['role'] ?? []), true) || $approver->role !== 'super_admin'
+            ? $config['label']
+            : "{$config['label']} (Super Admin override)";
 
         LeaveRequestApproval::updateOrCreate(
             ['leave_request_id' => $request->id, 'step' => $step],
             [
                 'role'        => $approver->role,
-                'label'       => $config['label'],
+                'label'       => $label,
                 'approver_id' => $approver->id,
                 'action'      => 'rejected',
                 'remarks'     => $remarks,

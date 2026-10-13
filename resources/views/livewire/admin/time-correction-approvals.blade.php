@@ -50,9 +50,9 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 truncate">{{ $req->reason }}</p>
                 @endif
                 <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    @if ($req->status === 'pending' && $req->approval_step === $this->myStep)
+                    @if ($req->status === 'pending' && ($req->approval_step === $this->myStep || $this->canOverride))
                         <div class="flex gap-4">
-                            <button wire:click="openAction({{ $req->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">Approve</button>
+                            <button wire:click="openAction({{ $req->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">{{ $req->approval_step === $this->myStep ? 'Approve' : 'Approve (override)' }}</button>
                             <button wire:click="openAction({{ $req->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">Reject</button>
                         </div>
                     @elseif ($req->status === 'pending')
@@ -106,10 +106,10 @@
                                 <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $sc }}">{{ ucfirst($req->status) }}</span>
                             </td>
                             <td class="px-4 py-3">
-                                @if ($req->status === 'pending' && $req->approval_step === $this->myStep)
+                                @if ($req->status === 'pending' && ($req->approval_step === $this->myStep || $this->canOverride))
                                     <div class="flex gap-2">
                                         <button wire:click="openAction({{ $req->id }}, 'approve')"
-                                                class="text-green-600 dark:text-green-400 hover:text-green-800 text-xs font-medium">Approve</button>
+                                                class="text-green-600 dark:text-green-400 hover:text-green-800 text-xs font-medium">{{ $req->approval_step === $this->myStep ? 'Approve' : 'Approve (override)' }}</button>
                                         <button wire:click="openAction({{ $req->id }}, 'reject')"
                                                 class="text-red-600 dark:text-red-400 hover:text-red-800 text-xs font-medium">Reject</button>
                                     </div>
@@ -140,6 +140,12 @@
                 <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
                     {{ $actionType === 'approve' ? 'Approve' : 'Reject' }} Time Correction
                 </h4>
+                @if ($this->canOverride && $actionType === 'approve')
+                    <p class="mb-4 p-2 text-xs rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+                        Super Admin override: this approves all remaining steps now, without waiting for the other approvers. It is recorded as an override in the approval history.
+                    </p>
+                @endif
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         Remarks {{ $actionType === 'reject' ? '(required)' : '(optional)' }}

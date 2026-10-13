@@ -115,10 +115,10 @@
                     </div>
 
                     <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                        @if ($ticket->status === 'pending' && in_array($ticket->approval_step, $mySteps))
+                        @if ($ticket->status === 'pending' && (in_array($ticket->approval_step, $mySteps) || $this->canOverride))
                             <div class="flex gap-4">
                                 <button wire:click="openAction({{ $ticket->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">
-                                    {{ $ticket->approval_step === 3 ? 'Schedule' : 'Approve' }}
+                                    {{ $ticket->approval_step === 3 ? 'Schedule' : (in_array($ticket->approval_step, $mySteps) ? 'Approve' : 'Approve (override)') }}
                                 </button>
                                 <button wire:click="openAction({{ $ticket->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">
                                     {{ $ticket->approval_step === 3 ? 'Deny' : 'Reject' }}
@@ -239,11 +239,11 @@
                             </td>
 
                             <td class="px-4 py-3">
-                                @if ($ticket->status === 'pending' && in_array($ticket->approval_step, $mySteps))
+                                @if ($ticket->status === 'pending' && (in_array($ticket->approval_step, $mySteps) || $this->canOverride))
                                     <div class="flex gap-2">
                                         <button wire:click="openAction({{ $ticket->id }}, 'approve')"
                                                 class="text-green-600 dark:text-green-400 hover:text-green-800 text-xs font-medium">
-                                            {{ $ticket->approval_step === 3 ? 'Schedule' : 'Approve' }}
+                                            {{ $ticket->approval_step === 3 ? 'Schedule' : (in_array($ticket->approval_step, $mySteps) ? 'Approve' : 'Approve (override)') }}
                                         </button>
                                         <button wire:click="openAction({{ $ticket->id }}, 'reject')"
                                                 class="text-red-600 dark:text-red-400 hover:text-red-800 text-xs font-medium">
@@ -313,7 +313,7 @@
                 @endif
 
                 {{-- Fleet step: vehicle/driver assignment --}}
-                @if ($selStep === 3 && $actionType === 'approve')
+                @if (($selStep === 3 || $this->canOverride) && $actionType === 'approve')
                     <div class="grid grid-cols-1 gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <p class="text-xs font-medium text-gray-600 dark:text-gray-300">Assign Vehicle & Driver (optional)</p>
                         <div>
@@ -337,6 +337,12 @@
                             </select>
                         </div>
                     </div>
+                @endif
+
+                @if ($this->canOverride && $actionType === 'approve')
+                    <p class="mb-4 p-2 text-xs rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+                        Super Admin override: this approves all remaining steps now, without waiting for the other approvers. It is recorded as an override in the approval history.
+                    </p>
                 @endif
 
                 <div class="mb-4">

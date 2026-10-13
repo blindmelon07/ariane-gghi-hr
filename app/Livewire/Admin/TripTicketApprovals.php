@@ -35,13 +35,20 @@ class TripTicketApprovals extends Component
         return app(TripTicketService::class)->getApplicableSteps(Auth::user());
     }
 
+    /** Super admins can approve or reject at any step, without waiting for the others. */
+    #[Computed]
+    public function canOverride(): bool
+    {
+        return Auth::user()?->role === 'super_admin';
+    }
+
     #[Computed]
     public function tickets()
     {
         return TripTicket::with(['employee', 'vehicle', 'driver.employee', 'approvals.approver'])
             ->when($this->filterStatus === 'pending', function ($q) {
                 $q->where('status', 'pending')
-                  ->whereIn('approval_step', $this->mySteps);
+                  ->when(! $this->canOverride, fn ($q) => $q->whereIn('approval_step', $this->mySteps));
             })
             ->when($this->filterStatus !== 'pending' && $this->filterStatus !== 'all',
                 fn ($q) => $q->where('status', $this->filterStatus))
@@ -75,20 +82,24 @@ class TripTicketApprovals extends Component
         $service = app(TripTicketService::class);
         $user    = Auth::user();
 
-        if (! in_array($ticket->approval_step, $this->mySteps)) {
+        if (! in_array($ticket->approval_step, $this->mySteps) && ! $this->canOverride) {
             $this->addError('remarks', 'This request is not at your approval step.');
             return;
         }
 
-        // Fleet step: update vehicle/driver assignment if provided
-        if ($ticket->approval_step === 3) {
+        // Fleet step (or a super admin approving outright): update vehicle/driver assignment if provided
+        if ($ticket->approval_step === 3 || ($this->canOverride && $this->actionType === 'approve')) {
             $ticket->update([
                 'vehicle_id' => $this->assignVehicleId ?: $ticket->vehicle_id,
                 'driver_id'  => $this->assignDriverId ?: $ticket->driver_id,
             ]);
         }
 
-        if ($this->actionType === 'approve') {
+        if ($this->actionType === 'approve' && $this->canOverride) {
+            $skipped = ! in_array($ticket->approval_step, $this->mySteps);
+            $service->overrideApprove($ticket->fresh(), $user, $this->remarks ?: null);
+            $this->dispatch('toast', message: $skipped ? 'Trip ticket approved (Super Admin override).' : 'Trip ticket fully approved and scheduled.');
+        } elseif ($this->actionType === 'approve') {
             $service->approve($ticket->fresh(), $user, $this->remarks ?: null);
 
             $nextStep = ($ticket->approval_step ?? 0) + 1;

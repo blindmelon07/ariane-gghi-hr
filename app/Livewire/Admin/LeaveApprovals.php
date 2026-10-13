@@ -48,6 +48,13 @@ class LeaveApprovals extends Component
         return app(LeaveService::class)->getStepForUser(Auth::user());
     }
 
+    /** Super admins can approve or reject at any step, without waiting for the others. */
+    #[Computed]
+    public function canOverride(): bool
+    {
+        return Auth::user()?->role === 'super_admin';
+    }
+
     #[Computed]
     public function pendingRequests()
     {
@@ -55,7 +62,7 @@ class LeaveApprovals extends Component
             ->when($this->filterStatus === 'pending', function ($q) {
                 // Each approver only sees requests waiting at their step
                 $q->where('status', 'pending')
-                  ->where('approval_step', $this->myStep);
+                  ->when(! $this->canOverride, fn ($q) => $q->where('approval_step', $this->myStep));
             })
             ->when($this->filterStatus !== 'pending' && $this->filterStatus !== 'all',
                 fn ($q) => $q->where('status', $this->filterStatus))
@@ -87,12 +94,16 @@ class LeaveApprovals extends Component
         $user         = Auth::user();
 
         // Guard: user can only act on their designated step
-        if ($request->approval_step !== $this->myStep) {
+        if ($request->approval_step !== $this->myStep && ! $this->canOverride) {
             $this->addError('remarks', 'This request is not at your approval step.');
             return;
         }
 
-        if ($this->actionType === 'approve') {
+        if ($this->actionType === 'approve' && $this->canOverride) {
+            $skipped = $request->approval_step !== $this->myStep;
+            $leaveService->overrideApprove($request, $user, $this->remarks ?: null);
+            $this->dispatch('toast', message: $skipped ? 'Leave approved (Super Admin override).' : 'Leave fully approved.');
+        } elseif ($this->actionType === 'approve') {
             $leaveService->approve($request, $user, $this->remarks ?: null);
 
             $nextStep = ($request->approval_step ?? 0) + 1;

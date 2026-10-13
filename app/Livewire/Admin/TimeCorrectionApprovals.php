@@ -30,12 +30,19 @@ class TimeCorrectionApprovals extends Component
         return app(LeaveService::class)->getStepForUser(Auth::user());
     }
 
+    /** Super admins can approve or reject at any step, without waiting for the others. */
+    #[Computed]
+    public function canOverride(): bool
+    {
+        return Auth::user()?->role === 'super_admin';
+    }
+
     #[Computed]
     public function requests()
     {
         return TimeCorrection::with('employee')
             ->when($this->filterStatus === 'pending', fn ($q) =>
-                $q->where('status', 'pending')->where('approval_step', $this->myStep)
+                $q->where('status', 'pending')->when(! $this->canOverride, fn ($q) => $q->where('approval_step', $this->myStep))
             )
             ->when($this->filterStatus !== 'pending' && $this->filterStatus !== 'all',
                 fn ($q) => $q->where('status', $this->filterStatus)
@@ -64,7 +71,7 @@ class TimeCorrectionApprovals extends Component
         $tc = TimeCorrection::find($this->selectedId);
         if (! $tc || $tc->status !== 'pending') return;
 
-        if ($tc->approval_step !== $this->myStep) {
+        if ($tc->approval_step !== $this->myStep && ! $this->canOverride) {
             $this->addError('remarks', 'This request is not at your approval step.');
             return;
         }
@@ -74,7 +81,8 @@ class TimeCorrectionApprovals extends Component
 
         if ($this->actionType === 'approve') {
             $nextStep = $tc->approval_step + 1;
-            $isFinal  = ! isset($steps[$nextStep]);
+            $override = $this->canOverride && $tc->approval_step !== $this->myStep;
+            $isFinal  = ! isset($steps[$nextStep]) || $this->canOverride;   // super admin approves outright
 
             if ($isFinal) {
                 $tc->update([
@@ -84,8 +92,8 @@ class TimeCorrectionApprovals extends Component
                     'approved_at'   => now(),
                     'remarks'       => $this->remarks ?: null,
                 ]);
-                ActivityLogService::log('time_correction_approved', "Time correction approved for {$tc->employee->full_name} on {$tc->date->format('M d, Y')}", $tc->employee);
-                $message = 'Time correction fully approved.';
+                ActivityLogService::log('time_correction_approved', "Time correction approved" . ($override ? ' (Super Admin override)' : '') . " for {$tc->employee->full_name} on {$tc->date->format('M d, Y')}", $tc->employee);
+                $message = $override ? 'Time correction approved (Super Admin override).' : 'Time correction fully approved.';
             } else {
                 $tc->update(['approval_step' => $nextStep]);
                 ActivityLogService::log('time_correction_step', "Step {$tc->approval_step} approved time correction for {$tc->employee->full_name}", $tc->employee);
