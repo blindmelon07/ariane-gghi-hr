@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\TimeCorrection;
 use App\Services\ActivityLogService;
 use App\Services\LeaveService;
+use App\Services\SmsNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -76,8 +77,10 @@ class TimeCorrectionApprovals extends Component
             return;
         }
 
-        $steps = LeaveService::APPROVAL_STEPS;
-        $user  = Auth::user();
+        $steps    = LeaveService::APPROVAL_STEPS;
+        $user     = Auth::user();
+        $notifier = app(SmsNotificationService::class);
+        $what     = 'time correction for ' . $tc->date->format('M d, Y');
 
         if ($this->actionType === 'approve') {
             $nextStep = $tc->approval_step + 1;
@@ -94,10 +97,12 @@ class TimeCorrectionApprovals extends Component
                 ]);
                 ActivityLogService::log('time_correction_approved', "Time correction approved" . ($override ? ' (Super Admin override)' : '') . " for {$tc->employee->full_name} on {$tc->date->format('M d, Y')}", $tc->employee);
                 $message = $override ? 'Time correction approved (Super Admin override).' : 'Time correction fully approved.';
+                $notifier->requestDecision($tc->employee, $what, true, $this->remarks ?: null, route('time-correction.request'), "time-correction:{$tc->id}");
             } else {
                 $tc->update(['approval_step' => $nextStep]);
                 ActivityLogService::log('time_correction_step', "Step {$tc->approval_step} approved time correction for {$tc->employee->full_name}", $tc->employee);
                 $message = 'Approved — forwarded to ' . $steps[$nextStep]['label'] . '.';
+                $notifier->requestProgress($tc->employee, $what, $steps[$nextStep - 1]['label'], $steps[$nextStep]['label'], route('time-correction.request'), "time-correction:{$tc->id}");
             }
 
             $this->dispatch('toast', message: $message);
@@ -115,6 +120,7 @@ class TimeCorrectionApprovals extends Component
                 'remarks'       => $this->remarks,
             ]);
             ActivityLogService::log('time_correction_rejected', "Time correction rejected for {$tc->employee->full_name} on {$tc->date->format('M d, Y')}", $tc->employee);
+            $notifier->requestDecision($tc->employee, $what, false, $this->remarks, route('time-correction.request'), "time-correction:{$tc->id}");
             $this->dispatch('toast', message: 'Time correction rejected.');
         }
 

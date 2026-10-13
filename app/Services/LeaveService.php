@@ -137,6 +137,15 @@ class LeaveService
                 "Step {$step} ({$config['label']}) approved leave #{$request->id} for {$request->employee->full_name}",
                 $request
             );
+
+            app(SmsNotificationService::class)->requestProgress(
+                $request->employee,
+                "{$request->leaveType->name} request ({$request->start_date->format('M d')} - {$request->end_date->format('M d, Y')})",
+                $config['label'],
+                self::APPROVAL_STEPS[$nextStep]['label'],
+                route('leave.my-requests'),
+                "leave:{$request->id}"
+            );
         }
     }
 

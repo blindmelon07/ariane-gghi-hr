@@ -86,6 +86,38 @@ class SmsNotificationService
     }
 
     /**
+     * Final decision on any request (time correction, trip ticket, …): bell +
+     * phone notification, plus an SMS. $what reads like "time correction for Oct 05, 2026".
+     */
+    public function requestDecision(Employee $employee, string $what, bool $approved, ?string $remarks, string $url, string $contextKey): void
+    {
+        $status = $approved ? 'APPROVED' : 'REJECTED';
+        $reason = ! $approved && $remarks ? " Reason: {$remarks}" : '';
+        $body   = "Your {$what} has been {$status}.{$reason}";
+
+        $this->notifyApp($employee, ucfirst($what) . ($approved ? ' — approved' : ' — rejected'), $body, $url, 'request', "{$contextKey}:decision");
+
+        if ($employee->cell_number) {
+            $this->sms->send($employee->cell_number, "GGHI HR: Hi {$employee->first_name}, your {$what} has been {$status}.{$reason}", [
+                'employee_id' => $employee->id,
+                'type'        => 'request',
+                'context_key' => "{$contextKey}:decision",
+            ]);
+        }
+    }
+
+    /**
+     * A multi-step request moved to the next approver: app notification only
+     * (no SMS), so the employee can follow it without spending credits.
+     */
+    public function requestProgress(Employee $employee, string $what, string $approvedBy, string $nextApprover, string $url, string $contextKey): void
+    {
+        $this->notifyApp($employee, ucfirst($what) . ' — in progress',
+            "Your {$what} was approved by {$approvedBy} and is now waiting for {$nextApprover}.",
+            $url, 'request', "{$contextKey}:step:{$approvedBy}");
+    }
+
+    /**
      * Alert employees who were late or absent on $date, by text and in the app.
      * Nursing staff work rotating shifts, so they're excluded. Each employee gets
      * at most one late and one absent alert per date.

@@ -85,6 +85,11 @@ class TripTicketService
                 "Trip ticket #{$ticket->id} step {$step} ({$config['label']}) approved for {$ticket->employee->full_name}",
                 $ticket
             );
+
+            app(SmsNotificationService::class)->requestProgress(
+                $ticket->employee, $this->describe($ticket), $config['label'],
+                self::APPROVAL_STEPS[$nextStep]['label'], route('trip-ticket.list'), "trip:{$ticket->id}"
+            );
         }
     }
 
@@ -140,6 +145,18 @@ class TripTicketService
             "Trip ticket #{$ticket->id} fully approved ({$label}) for {$ticket->employee->full_name}",
             $ticket
         );
+
+        app(SmsNotificationService::class)->requestDecision(
+            $ticket->employee, $this->describe($ticket), true, $remarks, route('trip-ticket.list'), "trip:{$ticket->id}"
+        );
+    }
+
+    /** "trip ticket to DOH Regional Office on Oct 14, 2026" */
+    private function describe(TripTicket $ticket): string
+    {
+        $when = $ticket->departure_datetime ? ' on ' . $ticket->departure_datetime->format('M d, Y') : '';
+
+        return "trip ticket to {$ticket->destination_to}{$when}";
     }
 
     public function reject(TripTicket $ticket, User $approver, ?string $remarks = null): void
@@ -173,6 +190,10 @@ class TripTicketService
             'trip_ticket_rejected',
             "Trip ticket #{$ticket->id} rejected at step {$step} ({$config['label']}) for {$ticket->employee->full_name}",
             $ticket
+        );
+
+        app(SmsNotificationService::class)->requestDecision(
+            $ticket->employee, $this->describe($ticket), false, $remarks, route('trip-ticket.list'), "trip:{$ticket->id}"
         );
     }
 

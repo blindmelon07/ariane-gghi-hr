@@ -319,7 +319,7 @@
         <div class="flex flex-wrap gap-2">
             <select wire:model.live="filterType" class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 <option value="">All types</option>
-                @foreach (['announcement', 'custom', 'payslip', 'leave', 'overtime', 'attendance', 'credentials'] as $t)
+                @foreach (['announcement', 'custom', 'payslip', 'leave', 'overtime', 'request', 'attendance', 'credentials'] as $t)
                     <option value="{{ $t }}">{{ ucfirst($t) }}</option>
                 @endforeach
             </select>
