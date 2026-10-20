@@ -9,6 +9,7 @@ use App\Models\Position;
 use App\Models\User;
 use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -202,7 +203,7 @@ class EmployeeManager extends Component
         $this->accountEmpCode      = $emp->emp_code;
         $this->accountName         = $emp->full_name;
         $this->accountPassword     = '';
-        $this->accountNewUsername  = $emp->user?->employee_code ?? $emp->emp_code;
+        $this->accountNewUsername  = $emp->user?->username ?? '';
         $this->hasExistingAccount  = (bool) $emp->user;
 
         if ($emp->user) {
@@ -273,21 +274,28 @@ class EmployeeManager extends Component
     {
         $emp = Employee::with('user')->findOrFail($this->accountEmployeeId);
 
-        $this->validate([
-            'accountNewUsername' => [
-                'required', 'string', 'max:50',
-                Rule::unique('users', 'employee_code')->ignore($emp->user->id),
-            ],
-        ]);
-
-        if ($emp->user) {
-            $old = $emp->user->employee_code;
-            $emp->user->update(['employee_code' => $this->accountNewUsername]);
-            ActivityLogService::log('username_changed', "Changed username from {$old} to {$this->accountNewUsername} for {$emp->full_name}", $emp);
-            $this->showAccountModal = false;
-            unset($this->employees);
-            session()->flash('success', "Username updated for {$emp->full_name}. New login code: {$this->accountNewUsername}");
+        if (! $emp->user) {
+            return;
         }
+
+        // Sets the optional username only. employee_code links the account to
+        // the employee record, so changing it would orphan their attendance,
+        // leave and payslips.
+        $this->accountNewUsername = Str::lower(trim($this->accountNewUsername));
+
+        $this->validate(
+            ['accountNewUsername' => User::usernameRules($emp->user->id, required: false)],
+            ['accountNewUsername.regex' => 'Use only letters, numbers, dots, dashes and underscores.'],
+        );
+
+        $old = $emp->user->username ?? '(none)';
+        $emp->user->update(['username' => $this->accountNewUsername ?: null]);
+        ActivityLogService::log('username_changed', "Changed username from {$old} to " . ($this->accountNewUsername ?: '(none)') . " for {$emp->full_name}", $emp);
+        $this->showAccountModal = false;
+        unset($this->employees);
+        session()->flash('success', $this->accountNewUsername
+            ? "Username updated for {$emp->full_name}. They can sign in with {$this->accountNewUsername} or {$emp->user->employee_code}."
+            : "Username removed for {$emp->full_name}. They sign in with {$emp->user->employee_code}.");
     }
 
     public function updateRole(): void

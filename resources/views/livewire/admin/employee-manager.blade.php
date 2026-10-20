@@ -324,19 +324,19 @@
 
                     {{-- Change Username --}}
                     <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Change Username (Login Code)</p>
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Login Username</p>
                         <div class="flex gap-2">
-                            <input wire:model.live="accountNewUsername" type="text"
-                                placeholder="New employee code"
+                            <input wire:model="accountNewUsername" type="text"
+                                placeholder="e.g. maria.santos (blank to remove)"
                                 class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
                             <button wire:click="changeUsername"
-                                wire:confirm="This will change the login code. The employee must use the new code to sign in. Proceed?"
+                                wire:confirm="Set this as the employee's login username? Their employee code will still work for signing in."
                                 class="px-3 py-2 bg-blue-600 dark:bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition whitespace-nowrap">
                                 Update
                             </button>
                         </div>
                         @error('accountNewUsername') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
-                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1.5">Current: <span class="font-mono font-medium">{{ $accountNewUsername }}</span></p>
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1.5">Employees can also set this themselves under My Profile. Employee code <span class="font-mono font-medium">{{ $accountEmpCode }}</span> always works for sign-in.</p>
                     </div>
 
                     {{-- Change Password --}}

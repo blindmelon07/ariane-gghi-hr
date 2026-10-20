@@ -34,7 +34,7 @@ new #[Layout('layouts.guest')] class extends Component
         {{-- Employee Code --}}
         <div>
             <label for="employee_code" class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">
-                Employee Code
+                Employee Code or Username
             </label>
             <div class="relative">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -48,7 +48,7 @@ new #[Layout('layouts.guest')] class extends Component
                     required
                     autofocus
                     autocomplete="username"
-                    placeholder="e.g. EMP001"
+                    placeholder="e.g. EMP001 or maria.santos"
                     class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-slate-700
                            bg-white dark:bg-slate-800 text-gray-900 dark:text-white
                            placeholder-gray-400 dark:placeholder-slate-500

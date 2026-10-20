@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -30,7 +31,7 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(['employee_code' => $this->employee_code, 'password' => $this->password], $this->remember)) {
+        if (! Auth::attempt([...$this->loginCredential(), 'password' => $this->password], $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -49,6 +50,21 @@ class LoginForm extends Form
         }
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * Users sign in with their employee code or the username they chose.
+     * An exact employee code match wins; anything else is tried as a username.
+     *
+     * @return array<string, string>
+     */
+    protected function loginCredential(): array
+    {
+        $login = trim($this->employee_code);
+
+        return User::where('employee_code', $login)->exists()
+            ? ['employee_code' => $login]
+            : ['username' => Str::lower($login)];
     }
 
     /**

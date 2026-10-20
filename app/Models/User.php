@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'employee_code', 'email', 'password', 'role', 'is_active'])]
+#[Fillable(['name', 'employee_code', 'username', 'email', 'password', 'role', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -39,6 +41,42 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
             'is_active'         => 'boolean',
+        ];
+    }
+
+    /**
+     * Usernames are stored lowercase so sign-in is case-insensitive.
+     */
+    protected function username(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => filled($value) ? Str::lower(trim($value)) : null,
+        );
+    }
+
+    /**
+     * Validation for a self-chosen login name. It must not collide with
+     * another user's username or employee code, since both work at sign-in.
+     */
+    public static function usernameRules(?int $ignoreUserId = null, bool $required = true): array
+    {
+        return [
+            $required ? 'required' : 'nullable',
+            'string',
+            'min:3',
+            'max:30',
+            'regex:/^[A-Za-z0-9._-]+$/',
+            Rule::unique('users', 'username')->ignore($ignoreUserId),
+            function (string $attribute, mixed $value, \Closure $fail) use ($ignoreUserId) {
+                $taken = static::query()
+                    ->whereRaw('LOWER(employee_code) = ?', [Str::lower(trim((string) $value))])
+                    ->when($ignoreUserId, fn ($q) => $q->where('id', '!=', $ignoreUserId))
+                    ->exists();
+
+                if ($taken) {
+                    $fail('This username is already used as an employee code.');
+                }
+            },
         ];
     }
 
