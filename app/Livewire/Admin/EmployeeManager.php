@@ -90,7 +90,7 @@ class EmployeeManager extends Component
                    ->orWhere('last_name', 'like', "%{$this->search}%")
                    ->orWhere('emp_code', 'like', "%{$this->search}%");
             }))
-            ->orderBy('last_name')
+            ->orderByFullName()
             ->paginate(25);
     }
 

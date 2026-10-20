@@ -11,15 +11,24 @@ use Illuminate\Http\Request;
 
 class PayslipController extends Controller
 {
+    /**
+     * Roles cleared to see any employee's payroll, matching the middleware on the
+     * admin payroll routes. Everyone else — including head_nurse, security_guard,
+     * manager, department_head and approver — gets their own payslips only.
+     */
+    private const PAYROLL_ROLES = ['hr_admin', 'super_admin'];
+
     public function download(Request $request, Payslip $payslip)
     {
         $user = $request->user();
 
-        // Employees can only download their own payslips
-        if ($user->role === 'employee') {
+        // Anyone without company-wide payroll access may only fetch their own
+        // payslips. Checking for the 'employee' role alone let every other
+        // non-payroll role download any payslip by guessing its id.
+        if (! in_array($user->role, self::PAYROLL_ROLES, true)) {
             $employee = Employee::where('emp_code', $user->employee_code)->first();
 
-            if (!$employee || $payslip->employee_id !== $employee->id) {
+            if (! $employee || $payslip->employee_id !== $employee->id) {
                 abort(403);
             }
         }

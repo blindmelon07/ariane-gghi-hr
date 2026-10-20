@@ -1,0 +1,385 @@
+- generic [ref=f14e2]:
+  - complementary [ref=f14e3]:
+    - generic [ref=f14e4]:
+      - img "GGHI" [ref=f14e6]
+      - button "Collapse" [ref=f14e7] [cursor=pointer]
+    - navigation [ref=f14e10]:
+      - generic [ref=f14e11]:
+        - button "Main" [ref=f14e12] [cursor=pointer]
+        - generic [ref=f14e19]:
+          - link "Dashboard" [ref=f14e20] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/dashboard
+          - link "Employees" [ref=f14e23] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/employees
+          - link "Departments" [ref=f14e26] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/departments
+          - link "Positions" [ref=f14e29] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/admin/positions
+      - button "Payroll" [ref=f14e33] [cursor=pointer]
+      - button "Attendance" [ref=f14e41] [cursor=pointer]
+      - button "Leave" [ref=f14e49] [cursor=pointer]
+      - button "Fleet" [ref=f14e57] [cursor=pointer]
+      - button "Reports" [ref=f14e65] [cursor=pointer]
+      - button "Administration" [ref=f14e73] [cursor=pointer]
+    - paragraph [ref=f14e81]: EMP-T04 · ● Online
+  - generic [ref=f14e82]:
+    - banner [ref=f14e83]:
+      - generic [ref=f14e84]:
+        - heading "Employee Manager" [level=2] [ref=f14e87]
+        - generic [ref=f14e88]:
+          - button "Toggle theme" [ref=f14e89] [cursor=pointer]
+          - button [ref=f14e93] [cursor=pointer]
+          - generic [ref=f14e96]: Oct 20, 2026
+          - button "User menu" [ref=f14e100] [cursor=pointer]:
+            - generic [ref=f14e101]: DR
+            - generic [ref=f14e103]:
+              - paragraph [ref=f14e104]: Dr. Dela Cruz
+              - paragraph [ref=f14e105]: super admin
+    - main [ref=f14e108]:
+      - generic [ref=f14e110]:
+        - generic [ref=f14e111]:
+          - heading "Employee Management" [level=3] [ref=f14e113]
+          - button "Import from BioTime" [ref=f14e114] [cursor=pointer]
+        - generic [ref=f14e118]:
+          - textbox "Search name or code..." [ref=f14e119]
+          - combobox [ref=f14e120]:
+            - option "All Departments" [selected]
+            - option "Accounting"
+            - option "Administration"
+            - option "Community Pharmacy"
+            - option "Dietary"
+            - option "Hemodialysis"
+            - option "Housekeeping Department"
+            - option "Human Resources"
+            - option "Information Technology"
+            - option "Laboratory"
+            - option "Nursing"
+            - option "Pharmacy"
+            - option "Procurement"
+            - option "Radiology"
+          - combobox [ref=f14e121]:
+            - option "All Status"
+            - option "Active" [selected]
+            - option "Inactive"
+        - table [ref=f14e124]:
+          - rowgroup [ref=f14e125]:
+            - row [ref=f14e126]:
+              - columnheader "Code" [ref=f14e127]
+              - columnheader "Name" [ref=f14e128]
+              - columnheader "Department" [ref=f14e129]
+              - columnheader "Position" [ref=f14e130]
+              - columnheader "Type" [ref=f14e131]
+              - columnheader "Account" [ref=f14e132]
+              - columnheader "Status" [ref=f14e133]
+              - columnheader "Actions" [ref=f14e134]
+          - rowgroup [ref=f14e135]:
+            - row [ref=f14e136]:
+              - cell "1" [ref=f14e137]
+              - cell "Bryan Detera" [ref=f14e138]
+              - cell "Administration" [ref=f14e139]
+              - cell "—" [ref=f14e140]
+              - cell "Regular" [ref=f14e141]
+              - cell "Employee" [ref=f14e143]
+              - cell "Active" [ref=f14e146]
+              - cell [ref=f14e148]:
+                - generic [ref=f14e149]:
+                  - button "Account" [ref=f14e150] [cursor=pointer]
+                  - button "Edit" [ref=f14e151] [cursor=pointer]
+            - row [ref=f14e152]:
+              - cell "3" [ref=f14e153]
+              - cell "John Earl Alvarado" [ref=f14e154]
+              - cell "Administration" [ref=f14e155]
+              - cell "Project Based It" [ref=f14e156]
+              - cell "Regular" [ref=f14e157]
+              - cell "—" [ref=f14e159]
+              - cell "Active" [ref=f14e160]
+              - cell [ref=f14e162]:
+                - generic [ref=f14e163]:
+                  - button "Create Account" [ref=f14e164] [cursor=pointer]
+                  - button "Edit" [ref=f14e165] [cursor=pointer]
+            - row [ref=f14e166]:
+              - cell "50" [ref=f14e167]
+              - cell "Yhukie Waje" [ref=f14e168]
+              - cell "Administration" [ref=f14e169]
+              - cell "—" [ref=f14e170]
+              - cell "Regular" [ref=f14e171]
+              - cell "—" [ref=f14e173]
+              - cell "Active" [ref=f14e174]
+              - cell [ref=f14e176]:
+                - generic [ref=f14e177]:
+                  - button "Create Account" [ref=f14e178] [cursor=pointer]
+                  - button "Edit" [ref=f14e179] [cursor=pointer]
+            - row [ref=f14e180]:
+              - cell "999999" [ref=f14e181]
+              - cell "Super Admin" [ref=f14e182]
+              - cell "—" [ref=f14e183]
+              - cell "—" [ref=f14e184]
+              - cell "Regular" [ref=f14e185]
+              - cell "—" [ref=f14e187]
+              - cell "Active" [ref=f14e188]
+              - cell [ref=f14e190]:
+                - generic [ref=f14e191]:
+                  - button "Create Account" [ref=f14e192] [cursor=pointer]
+                  - button "Edit" [ref=f14e193] [cursor=pointer]
+            - row [ref=f14e194]:
+              - cell "46" [ref=f14e195]
+              - cell "Joya Agustin" [ref=f14e196]
+              - cell "Administration" [ref=f14e197]
+              - cell "—" [ref=f14e198]
+              - cell "Regular" [ref=f14e199]
+              - cell "—" [ref=f14e201]
+              - cell "Active" [ref=f14e202]
+              - cell [ref=f14e204]:
+                - generic [ref=f14e205]:
+                  - button "Create Account" [ref=f14e206] [cursor=pointer]
+                  - button "Edit" [ref=f14e207] [cursor=pointer]
+            - row [ref=f14e208]:
+              - cell "42" [ref=f14e209]
+              - cell "Antonio Andrew Farjardo" [ref=f14e210]
+              - cell "Hemodialysis" [ref=f14e211]
+              - cell "—" [ref=f14e212]
+              - cell "Regular" [ref=f14e213]
+              - cell "—" [ref=f14e215]
+              - cell "Active" [ref=f14e216]
+              - cell [ref=f14e218]:
+                - generic [ref=f14e219]:
+                  - button "Create Account" [ref=f14e220] [cursor=pointer]
+                  - button "Edit" [ref=f14e221] [cursor=pointer]
+            - row [ref=f14e222]:
+              - cell "11" [ref=f14e223]
+              - cell "Ronald Angelo Obsum" [ref=f14e224]
+              - cell "Administration" [ref=f14e225]
+              - cell "—" [ref=f14e226]
+              - cell "Regular" [ref=f14e227]
+              - cell "—" [ref=f14e229]
+              - cell "Active" [ref=f14e230]
+              - cell [ref=f14e232]:
+                - generic [ref=f14e233]:
+                  - button "Create Account" [ref=f14e234] [cursor=pointer]
+                  - button "Edit" [ref=f14e235] [cursor=pointer]
+            - row [ref=f14e236]:
+              - cell "17" [ref=f14e237]
+              - cell "Samuel Anthony Escobedo" [ref=f14e238]
+              - cell "Administration" [ref=f14e239]
+              - cell "—" [ref=f14e240]
+              - cell "Regular" [ref=f14e241]
+              - cell "—" [ref=f14e243]
+              - cell "Active" [ref=f14e244]
+              - cell [ref=f14e246]:
+                - generic [ref=f14e247]:
+                  - button "Create Account" [ref=f14e248] [cursor=pointer]
+                  - button "Edit" [ref=f14e249] [cursor=pointer]
+            - row [ref=f14e250]:
+              - cell "31" [ref=f14e251]
+              - cell "Clarissa Arcinue" [ref=f14e252]
+              - cell "Hemodialysis" [ref=f14e253]
+              - cell "—" [ref=f14e254]
+              - cell "Regular" [ref=f14e255]
+              - cell "—" [ref=f14e257]
+              - cell "Active" [ref=f14e258]
+              - cell [ref=f14e260]:
+                - generic [ref=f14e261]:
+                  - button "Create Account" [ref=f14e262] [cursor=pointer]
+                  - button "Edit" [ref=f14e263] [cursor=pointer]
+            - row [ref=f14e264]:
+              - cell "14" [ref=f14e265]
+              - cell "Dan Arvie Gapuen" [ref=f14e266]
+              - cell "Administration" [ref=f14e267]
+              - cell "—" [ref=f14e268]
+              - cell "Regular" [ref=f14e269]
+              - cell "—" [ref=f14e271]
+              - cell "Active" [ref=f14e272]
+              - cell [ref=f14e274]:
+                - generic [ref=f14e275]:
+                  - button "Create Account" [ref=f14e276] [cursor=pointer]
+                  - button "Edit" [ref=f14e277] [cursor=pointer]
+            - row [ref=f14e278]:
+              - cell "22" [ref=f14e279]
+              - cell "Cheska Atractivo" [ref=f14e280]
+              - cell "Administration" [ref=f14e281]
+              - cell "—" [ref=f14e282]
+              - cell "Regular" [ref=f14e283]
+              - cell "—" [ref=f14e285]
+              - cell "Active" [ref=f14e286]
+              - cell [ref=f14e288]:
+                - generic [ref=f14e289]:
+                  - button "Create Account" [ref=f14e290] [cursor=pointer]
+                  - button "Edit" [ref=f14e291] [cursor=pointer]
+            - row [ref=f14e292]:
+              - cell "12" [ref=f14e293]
+              - cell "Jhoanna Aycardo" [ref=f14e294]
+              - cell "—" [ref=f14e295]
+              - cell "—" [ref=f14e296]
+              - cell "Regular" [ref=f14e297]
+              - cell "—" [ref=f14e299]
+              - cell "Active" [ref=f14e300]
+              - cell [ref=f14e302]:
+                - generic [ref=f14e303]:
+                  - button "Create Account" [ref=f14e304] [cursor=pointer]
+                  - button "Edit" [ref=f14e305] [cursor=pointer]
+            - row [ref=f14e306]:
+              - cell "16" [ref=f14e307]
+              - cell "Jade Ayessa Jalmanzar" [ref=f14e308]
+              - cell "Administration" [ref=f14e309]
+              - cell "—" [ref=f14e310]
+              - cell "Regular" [ref=f14e311]
+              - cell "—" [ref=f14e313]
+              - cell "Active" [ref=f14e314]
+              - cell [ref=f14e316]:
+                - generic [ref=f14e317]:
+                  - button "Create Account" [ref=f14e318] [cursor=pointer]
+                  - button "Edit" [ref=f14e319] [cursor=pointer]
+            - row [ref=f14e320]:
+              - cell "62" [ref=f14e321]
+              - cell "Sharon Bellen" [ref=f14e322]
+              - cell "Hemodialysis" [ref=f14e323]
+              - cell "—" [ref=f14e324]
+              - cell "Regular" [ref=f14e325]
+              - cell "—" [ref=f14e327]
+              - cell "Active" [ref=f14e328]
+              - cell [ref=f14e330]:
+                - generic [ref=f14e331]:
+                  - button "Create Account" [ref=f14e332] [cursor=pointer]
+                  - button "Edit" [ref=f14e333] [cursor=pointer]
+            - row [ref=f14e334]:
+              - cell "63" [ref=f14e335]
+              - cell "Denise Bitancur" [ref=f14e336]
+              - cell "Hemodialysis" [ref=f14e337]
+              - cell "—" [ref=f14e338]
+              - cell "Regular" [ref=f14e339]
+              - cell "—" [ref=f14e341]
+              - cell "Active" [ref=f14e342]
+              - cell [ref=f14e344]:
+                - generic [ref=f14e345]:
+                  - button "Create Account" [ref=f14e346] [cursor=pointer]
+                  - button "Edit" [ref=f14e347] [cursor=pointer]
+            - row [ref=f14e348]:
+              - cell "39" [ref=f14e349]
+              - cell "May Borromeo" [ref=f14e350]
+              - cell "Hemodialysis" [ref=f14e351]
+              - cell "—" [ref=f14e352]
+              - cell "Regular" [ref=f14e353]
+              - cell "—" [ref=f14e355]
+              - cell "Active" [ref=f14e356]
+              - cell [ref=f14e358]:
+                - generic [ref=f14e359]:
+                  - button "Create Account" [ref=f14e360] [cursor=pointer]
+                  - button "Edit" [ref=f14e361] [cursor=pointer]
+            - row [ref=f14e362]:
+              - cell "9" [ref=f14e363]
+              - cell "Raffy Camposano" [ref=f14e364]
+              - cell "Administration" [ref=f14e365]
+              - cell "—" [ref=f14e366]
+              - cell "Regular" [ref=f14e367]
+              - cell "—" [ref=f14e369]
+              - cell "Active" [ref=f14e370]
+              - cell [ref=f14e372]:
+                - generic [ref=f14e373]:
+                  - button "Create Account" [ref=f14e374] [cursor=pointer]
+                  - button "Edit" [ref=f14e375] [cursor=pointer]
+            - row [ref=f14e376]:
+              - cell "6" [ref=f14e377]
+              - cell "Mark Chester Deniega" [ref=f14e378]
+              - cell "Administration" [ref=f14e379]
+              - cell "It Staff" [ref=f14e380]
+              - cell "Regular" [ref=f14e381]
+              - cell "—" [ref=f14e383]
+              - cell "Active" [ref=f14e384]
+              - cell [ref=f14e386]:
+                - generic [ref=f14e387]:
+                  - button "Create Account" [ref=f14e388] [cursor=pointer]
+                  - button "Edit" [ref=f14e389] [cursor=pointer]
+            - row [ref=f14e390]:
+              - cell "69" [ref=f14e391]
+              - cell "Habolin, Christian" [ref=f14e392]
+              - cell "Hemodialysis" [ref=f14e393]
+              - cell "—" [ref=f14e394]
+              - cell "Regular" [ref=f14e395]
+              - cell "—" [ref=f14e397]
+              - cell "Active" [ref=f14e398]
+              - cell [ref=f14e400]:
+                - generic [ref=f14e401]:
+                  - button "Create Account" [ref=f14e402] [cursor=pointer]
+                  - button "Edit" [ref=f14e403] [cursor=pointer]
+            - row [ref=f14e404]:
+              - cell "21" [ref=f14e405]
+              - cell "Lara Conda" [ref=f14e406]
+              - cell "Administration" [ref=f14e407]
+              - cell "—" [ref=f14e408]
+              - cell "Regular" [ref=f14e409]
+              - cell "—" [ref=f14e411]
+              - cell "Active" [ref=f14e412]
+              - cell [ref=f14e414]:
+                - generic [ref=f14e415]:
+                  - button "Create Account" [ref=f14e416] [cursor=pointer]
+                  - button "Edit" [ref=f14e417] [cursor=pointer]
+            - row [ref=f14e418]:
+              - cell "15" [ref=f14e419]
+              - cell "Marjo Cortez" [ref=f14e420]
+              - cell "—" [ref=f14e421]
+              - cell "—" [ref=f14e422]
+              - cell "Regular" [ref=f14e423]
+              - cell "—" [ref=f14e425]
+              - cell "Active" [ref=f14e426]
+              - cell [ref=f14e428]:
+                - generic [ref=f14e429]:
+                  - button "Create Account" [ref=f14e430] [cursor=pointer]
+                  - button "Edit" [ref=f14e431] [cursor=pointer]
+            - row [ref=f14e432]:
+              - cell "34" [ref=f14e433]
+              - cell "Ernie Dairo" [ref=f14e434]
+              - cell "Hemodialysis" [ref=f14e435]
+              - cell "—" [ref=f14e436]
+              - cell "Regular" [ref=f14e437]
+              - cell "—" [ref=f14e439]
+              - cell "Active" [ref=f14e440]
+              - cell [ref=f14e442]:
+                - generic [ref=f14e443]:
+                  - button "Create Account" [ref=f14e444] [cursor=pointer]
+                  - button "Edit" [ref=f14e445] [cursor=pointer]
+            - row [ref=f14e446]:
+              - cell "68" [ref=f14e447]
+              - cell "Alyssa Dalene Lusuegro" [ref=f14e448]
+              - cell "Administration" [ref=f14e449]
+              - cell "—" [ref=f14e450]
+              - cell "Regular" [ref=f14e451]
+              - cell "—" [ref=f14e453]
+              - cell "Active" [ref=f14e454]
+              - cell [ref=f14e456]:
+                - generic [ref=f14e457]:
+                  - button "Create Account" [ref=f14e458] [cursor=pointer]
+                  - button "Edit" [ref=f14e459] [cursor=pointer]
+            - row [ref=f14e460]:
+              - cell "56" [ref=f14e461]
+              - cell "Erick Dave Guban" [ref=f14e462]
+              - cell "Dietary" [ref=f14e463]
+              - cell "—" [ref=f14e464]
+              - cell "Regular" [ref=f14e465]
+              - cell "—" [ref=f14e467]
+              - cell "Active" [ref=f14e468]
+              - cell [ref=f14e470]:
+                - generic [ref=f14e471]:
+                  - button "Create Account" [ref=f14e472] [cursor=pointer]
+                  - button "Edit" [ref=f14e473] [cursor=pointer]
+            - row [ref=f14e474]:
+              - cell "32" [ref=f14e475]
+              - cell "Joanne Demonteverde" [ref=f14e476]
+              - cell "Hemodialysis" [ref=f14e477]
+              - cell "—" [ref=f14e478]
+              - cell "Regular" [ref=f14e479]
+              - cell "—" [ref=f14e481]
+              - cell "Active" [ref=f14e482]
+              - cell [ref=f14e484]:
+                - generic [ref=f14e485]:
+                  - button "Create Account" [ref=f14e486] [cursor=pointer]
+                  - button "Edit" [ref=f14e487] [cursor=pointer]
+        - navigation "Pagination Navigation" [ref=f14e490]:
+          - generic [ref=f14e491]:
+            - paragraph [ref=f14e493]: Showing 1 to 25 of 74 results
+            - generic [ref=f14e495]:
+              - generic "&laquo; Previous" [ref=f14e497]
+              - generic [ref=f14e501]: "1"
+              - button "Go to page 2" [ref=f14e505] [cursor=pointer]: "2"
+              - button "Go to page 3" [ref=f14e507] [cursor=pointer]: "3"
+              - button "Next &raquo;" [ref=f14e509] [cursor=pointer]
+    - contentinfo [ref=f14e512]: © 2026 GGHI — All rights reserved.

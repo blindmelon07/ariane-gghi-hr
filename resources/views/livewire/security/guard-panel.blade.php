@@ -3,7 +3,7 @@
 
     {{-- Header --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
                     <x-phosphor-shield-check-bold class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -15,7 +15,7 @@
             </div>
             <input type="text" wire:model.live.debounce.300ms="search"
                    placeholder="Search employee or plate..."
-                   class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100 w-64">
+                   class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100 w-full sm:w-64">
         </div>
     </div>
 
@@ -63,7 +63,7 @@
         <div class="space-y-2">
             @foreach ($this->recentReturns as $r)
                 <div class="flex items-center justify-between py-2 border-b border-gray-50 dark:border-gray-700/50 last:border-0">
-                    <div class="text-sm">
+                    <div class="text-sm min-w-0">
                         <span class="font-medium text-gray-700 dark:text-gray-300">{{ $r->vehicle?->display_name ?? 'No vehicle' }}</span>
                         <span class="text-gray-400 mx-1">·</span>
                         <span class="text-gray-500 dark:text-gray-400">{{ $r->employee->full_name }}</span>

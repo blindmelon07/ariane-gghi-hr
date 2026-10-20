@@ -307,7 +307,25 @@
         @auth
             @include('layouts._push-notifications')
         @endauth
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+        {{-- Chart.js — data-navigate-once keeps the global across wire:navigate swaps so
+             Livewire does not re-fetch it (and briefly blank out window.Chart) on every page. --}}
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" data-navigate-once></script>
+        <script data-navigate-once>
+            // Resolves once Chart.js has finished loading. Chart blocks await this
+            // instead of assuming window.Chart is already there on init().
+            window.chartReady = function () {
+                if (window.Chart) return Promise.resolve(window.Chart);
+                window.__chartReadyPromise ||= new Promise(function (resolve) {
+                    const timer = setInterval(function () {
+                        if (window.Chart) {
+                            clearInterval(timer);
+                            resolve(window.Chart);
+                        }
+                    }, 20);
+                });
+                return window.__chartReadyPromise;
+            };
+        </script>
         @livewireScripts
         <script>
             if ('serviceWorker' in navigator) {

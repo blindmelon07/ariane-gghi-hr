@@ -81,7 +81,8 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-4 sm:p-6"
              x-data="{
                 chart: null,
-                init() {
+                async init() {
+                    await window.chartReady();
                     const isDark = document.documentElement.classList.contains('dark');
                     const gridColor  = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
                     const labelColor = isDark ? '#94a3b8' : '#6b7280';
@@ -124,7 +125,8 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-4 sm:p-6"
              x-data="{
                 chart: null,
-                init() {
+                async init() {
+                    await window.chartReady();
                     const isDark = document.documentElement.classList.contains('dark');
                     const labelColor = isDark ? '#94a3b8' : '#6b7280';
                     const raw = @js($this->leaveStatusChart);
@@ -160,6 +162,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 border border-transparent dark:border-gray-700 p-6">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Quick Actions</h4>
             <div class="space-y-2">
+                @if ($this->canManageHr)
                 <button wire:click="syncBioTime" class="w-full flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-600 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <x-phosphor-arrows-clockwise class="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
                     <span wire:loading.remove wire:target="syncBioTime">Sync BioTime Employees</span>
@@ -169,6 +172,7 @@
                     <x-phosphor-currency-circle-dollar class="w-5 h-5 text-green-500 dark:text-green-400" />
                     Process Payroll
                 </a>
+                @endif
                 <a href="{{ route('admin.reports.attendance') }}" wire:navigate class="w-full flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-600 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <x-phosphor-chart-bar class="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
                     Attendance Reports

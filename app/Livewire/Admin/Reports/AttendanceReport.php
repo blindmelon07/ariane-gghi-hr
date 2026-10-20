@@ -72,6 +72,9 @@ class AttendanceReport extends Component
 
         $rows = collect();
 
+        // One bulk load for the whole grid instead of five queries per employee-day.
+        $processor->preload($employees->pluck('id'), $this->dateFrom, $this->dateTo);
+
         foreach ($employees as $emp) {
             $start = \Carbon\Carbon::parse($this->dateFrom);
             $end   = \Carbon\Carbon::parse($this->dateTo);

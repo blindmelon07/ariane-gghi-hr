@@ -1,0 +1,119 @@
+- generic [active] [ref=f14e524]:
+  - generic [ref=f14e525]:
+    - complementary [ref=f14e526]:
+      - generic [ref=f14e527]:
+        - img "GGHI" [ref=f14e529]
+        - button "Collapse" [ref=f14e530] [cursor=pointer]
+      - navigation [ref=f14e533]:
+        - generic [ref=f14e534]:
+          - button "Main" [ref=f14e535] [cursor=pointer]
+          - generic [ref=f14e542]:
+            - link "Dashboard" [ref=f14e543] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/dashboard
+            - link "Employees" [ref=f14e546] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/employees
+            - link "Departments" [ref=f14e549] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/departments
+            - link "Positions" [ref=f14e552] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/positions
+        - button "Payroll" [ref=f14e556] [cursor=pointer]
+        - button "Attendance" [ref=f14e564] [cursor=pointer]
+        - button "Leave" [ref=f14e572] [cursor=pointer]
+        - button "Fleet" [ref=f14e580] [cursor=pointer]
+        - button "Reports" [ref=f14e588] [cursor=pointer]
+        - button "Administration" [ref=f14e596] [cursor=pointer]
+      - paragraph [ref=f14e604]: EMP-T04 · ● Online
+    - generic [ref=f14e605]:
+      - banner [ref=f14e606]:
+        - generic [ref=f14e607]:
+          - heading "HR Admin Dashboard" [level=2] [ref=f14e610]
+          - generic [ref=f14e611]:
+            - button "Toggle theme" [ref=f14e612] [cursor=pointer]
+            - button [ref=f14e616] [cursor=pointer]
+            - generic [ref=f14e619]: Oct 20, 2026
+            - button "User menu" [ref=f14e623] [cursor=pointer]:
+              - generic [ref=f14e624]: DR
+              - generic [ref=f14e626]:
+                - paragraph [ref=f14e627]: Dr. Dela Cruz
+                - paragraph [ref=f14e628]: super admin
+      - main [ref=f14e631]:
+        - generic [ref=f14e633]:
+          - generic [ref=f14e634]:
+            - heading "Welcome, Dr. Dela Cruz" [level=3] [ref=f14e635]
+            - paragraph [ref=f14e636]: Super admin · Tuesday, October 20, 2026
+          - generic [ref=f14e637]:
+            - generic [ref=f14e642]:
+              - paragraph [ref=f14e643]: Employees
+              - paragraph [ref=f14e644]: "74"
+            - generic [ref=f14e649]:
+              - paragraph [ref=f14e650]: Present
+              - paragraph [ref=f14e651]: "0"
+            - generic [ref=f14e656]:
+              - paragraph [ref=f14e657]: Absent
+              - paragraph [ref=f14e658]: "74"
+            - generic [ref=f14e663]:
+              - paragraph [ref=f14e664]: Late
+              - paragraph [ref=f14e665]: "0"
+            - generic [ref=f14e670]:
+              - paragraph [ref=f14e671]: Pending Leaves
+              - paragraph [ref=f14e672]: "0"
+            - generic [ref=f14e677]:
+              - paragraph [ref=f14e678]: Pending Payroll
+              - paragraph [ref=f14e679]: "1"
+          - generic [ref=f14e680]:
+            - heading "Weekly Attendance (Last 7 Days)" [level=4] [ref=f14e682]
+            - heading "Leave Requests 2026" [level=4] [ref=f14e685]
+          - generic [ref=f14e688]:
+            - generic [ref=f14e689]:
+              - heading "Quick Actions" [level=4] [ref=f14e690]
+              - generic [ref=f14e691]:
+                - button "Sync BioTime Employees" [ref=f14e692] [cursor=pointer]
+                - link "Process Payroll" [ref=f14e696] [cursor=pointer]:
+                  - /url: http://127.0.0.1:8000/admin/payroll
+                - link "Attendance Reports" [ref=f14e699] [cursor=pointer]:
+                  - /url: http://127.0.0.1:8000/admin/reports/attendance
+            - generic [ref=f14e702]:
+              - heading "🎂 Birthdays Today" [level=4] [ref=f14e703]
+              - paragraph [ref=f14e704]: No birthdays today.
+            - generic [ref=f14e705]:
+              - heading "Recent Activity" [level=4] [ref=f14e706]
+              - generic [ref=f14e707]:
+                - generic [ref=f14e710]:
+                  - paragraph [ref=f14e711]: Imported 1051 punch(es) for 35 employee(s) from Excel.
+                  - paragraph [ref=f14e712]: HR Administrator · 6 days ago
+                - generic [ref=f14e715]:
+                  - paragraph [ref=f14e716]: Imported 1051 punch(es) for 35 employee(s) from Excel.
+                  - paragraph [ref=f14e717]: HR Administrator · 6 days ago
+                - generic [ref=f14e720]:
+                  - paragraph [ref=f14e721]: Reset password for Cedric John Bayoca (2)
+                  - paragraph [ref=f14e722]: HR Administrator · 6 days ago
+                - generic [ref=f14e725]:
+                  - paragraph [ref=f14e726]: "Generated payslips for 1 employee(s): Sample"
+                  - paragraph [ref=f14e727]: HR Administrator · 6 days ago
+                - generic [ref=f14e730]:
+                  - paragraph [ref=f14e731]: Created account for Escurel, Mae (4)
+                  - paragraph [ref=f14e732]: HR Administrator · 1 week ago
+                - generic [ref=f14e735]:
+                  - paragraph [ref=f14e736]: "Updated employee: Cedric John Bayoca (2)"
+                  - paragraph [ref=f14e737]: HR Administrator · 1 week ago
+                - generic [ref=f14e740]:
+                  - paragraph [ref=f14e741]: Assigned 14 recurring day offs to Raffy Camposano
+                  - paragraph [ref=f14e742]: HR Administrator · 3 weeks ago
+                - generic [ref=f14e745]:
+                  - paragraph [ref=f14e746]: Assigned 14 recurring day offs to Marie Joy Deniega
+                  - paragraph [ref=f14e747]: HR Administrator · 3 weeks ago
+                - generic [ref=f14e750]:
+                  - paragraph [ref=f14e751]: Assigned 14 recurring day offs to Kathlyn Mae Enciso
+                  - paragraph [ref=f14e752]: HR Administrator · 3 weeks ago
+                - generic [ref=f14e755]:
+                  - paragraph [ref=f14e756]: Assigned 14 recurring day offs to Danica Mae Ferreras
+                  - paragraph [ref=f14e757]: HR Administrator · 3 weeks ago
+      - contentinfo [ref=f14e758]: © 2026 GGHI — All rights reserved.
+  - generic [ref=f14e760]:
+    - generic [ref=f14e761]:
+      - paragraph [ref=f14e762]: Install GGHI HR
+      - paragraph [ref=f14e763]: Add it to your home screen for quick, full-screen access — no browser bar, works like an app.
+      - generic [ref=f14e764]:
+        - button "Install" [ref=f14e765] [cursor=pointer]
+        - button "Not now" [ref=f14e766] [cursor=pointer]
+    - button "Dismiss" [ref=f14e767] [cursor=pointer]

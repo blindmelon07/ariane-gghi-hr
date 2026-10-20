@@ -1,0 +1,95 @@
+[  325158ms] [WARNING] Alpine Expression Error: Chart is not defined
+
+Expression: "init() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const gridColor  = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+                    const labelColor = isDark ? '#94a3b8' : '#6b7280';
+                    const data = JSON.parse('[{\u0022label\u0022:\u0022Wed Oct 14\u0022,\u0022present\u0022:0,\u0022late\u0022:0,\u0022onTime\u0022:0},{\u0022label\u0022:\u0022Thu Oct 15\u0022,\u0022present\u0022:0,\u0022late\u0022:0,\u0022onTime\u0022:0},{\u0022label\u0022:\u0022Fri Oct 16\u0022,\u0022present\u0022:0,\u0022late\u0022:0,\u0022onTime\u0022:0},{\u0022label\u0022:\u0022Sat Oct 17\u0022,\u0022present\u0022:0,\u0022late\u0022:0,\u0022onTime\u0022:0},{\u0022label\u0022:\u0022Sun Oct 18\u0022,\u0022present\u0022:0,\u0022late\u0022:0,\u0022onTime\u0022:0},{\u0022label\u0022:\u0022Mon Oct 19\u0022,\u0022present\u0022:0,\u0022late\u0022:0,\u0022onTime\u0022:0},{\u0022label\u0022:\u0022Tue Oct 20\u0022,\u0022present\u0022:0,\u0022late\u0022:0,\u0022onTime\u0022:0}]');
+                    this.chart = new Chart(this.$refs.canvas, {
+                        type: 'bar',
+                        data: {
+                            labels: data.map(d => d.label),
+                            datasets: [
+                                {
+                                    label: 'On Time',
+                                    data: data.map(d => d.onTime),
+                                    backgroundColor: 'rgba(99,102,241,0.8)',
+                                    borderRadius: 4,
+                                },
+                                {
+                                    label: 'Late',
+                                    data: data.map(d => d.late),
+                                    backgroundColor: 'rgba(234,179,8,0.8)',
+                                    borderRadius: 4,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { labels: { color: labelColor, font: { size: 11 } } } },
+                            scales: {
+                                x: { stacked: true, ticks: { color: labelColor }, grid: { color: gridColor } },
+                                y: { stacked: true, ticks: { color: labelColor, precision: 0 }, grid: { color: gridColor } },
+                            },
+                        },
+                    });
+                }"
+
+ JSHandle@node @ http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1178
+[  325161ms] [WARNING] Alpine Expression Error: Chart is not defined
+
+Expression: "init() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const labelColor = isDark ? '#94a3b8' : '#6b7280';
+                    const raw = JSON.parse('{\u0022approved\u0022:1,\u0022rejected\u0022:1}');
+                    const colorMap = { approved: '#22c55e', pending: '#eab308', rejected: '#ef4444' };
+                    const labels = Object.keys(raw).map(k => k.charAt(0).toUpperCase() + k.slice(1));
+                    const values = Object.values(raw);
+                    const colors = Object.keys(raw).map(k => colorMap[k] ?? '#94a3b8');
+                    this.chart = new Chart(this.$refs.canvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{ data: values, backgroundColor: colors, borderWidth: 2 }],
+                        },
+                        options: {
+                            responsive: true,
+                            cutout: '65%',
+                            plugins: {
+                                legend: { position: 'bottom', labels: { color: labelColor, font: { size: 11 }, padding: 16 } },
+                            },
+                        },
+                    });
+                }"
+
+ JSHandle@node @ http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1178
+[  325566ms] ReferenceError: Chart is not defined
+    at Proxy.init (eval at safeAsyncFunction (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1239:21), <anonymous>:10:38)
+    at http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1225:25
+    at tryCatch (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1165:14)
+    at evaluate (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1196:34)
+    at Function.<anonymous> (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:3735:29)
+    at flushHandlers (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1372:48)
+    at stopDeferring (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1377:7)
+    at deferHandlingDirectives (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1380:5)
+    at Object.initTree (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1576:5)
+    at nowInitializeAlpineOnTheNewPage (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:8941:13)
+[  325567ms] ReferenceError: Chart is not defined
+    at Proxy.init (eval at safeAsyncFunction (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1239:21), <anonymous>:13:38)
+    at http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1225:25
+    at tryCatch (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1165:14)
+    at evaluate (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1196:34)
+    at Function.<anonymous> (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:3735:29)
+    at flushHandlers (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1372:48)
+    at stopDeferring (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1377:7)
+    at deferHandlingDirectives (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1380:5)
+    at Object.initTree (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:1576:5)
+    at nowInitializeAlpineOnTheNewPage (http://127.0.0.1:8000/livewire/livewire.js?id=54e05a98:8941:13)
+[  332199ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0
+[  339577ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0
+[  343540ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0
+[  344326ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0
+[  354245ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0
+[  361415ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0
+[  384369ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0
+[  385867ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://127.0.0.1:8000/admin/dashboard:0

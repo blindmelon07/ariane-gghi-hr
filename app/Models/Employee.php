@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -98,6 +99,34 @@ class Employee extends Model
     public function pos(): BelongsTo
     {
         return $this->belongsTo(Position::class, 'position_id');
+    }
+
+    /**
+     * Order by the surname actually shown in the UI.
+     *
+     * Rows imported from BioTime can arrive as "Last,First[,Middle]" packed into
+     * first_name with last_name left empty — fullName() unpacks those for display,
+     * but a plain orderBy('last_name') sorts them on an empty string and dumps them
+     * at the top of the list, out of order with everyone else. This mirrors the
+     * accessor's rule in SQL so the list order matches what the user reads.
+     *
+     * INSTR/SUBSTR/COALESCE are available on both MySQL and SQLite.
+     */
+    public function scopeOrderByFullName(Builder $query, string $direction = 'asc'): Builder
+    {
+        $dir = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+
+        return $query
+            ->orderByRaw(
+                "CASE
+                    WHEN COALESCE(last_name, '') = '' AND INSTR(first_name, ',') > 0
+                        THEN SUBSTR(first_name, 1, INSTR(first_name, ',') - 1)
+                    WHEN COALESCE(last_name, '') = ''
+                        THEN first_name
+                    ELSE last_name
+                 END {$dir}"
+            )
+            ->orderBy('first_name', $dir);
     }
 
     protected function fullName(): Attribute

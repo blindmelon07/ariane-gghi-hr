@@ -111,8 +111,20 @@ class Dashboard extends Component
             ->get();
     }
 
+    /**
+     * BioTime sync and payroll processing are HR-only; managers, department heads
+     * and approvers share this dashboard but not those routes.
+     */
+    #[Computed]
+    public function canManageHr(): bool
+    {
+        return auth()->user()->hasAnyRole(['super_admin', 'hr_admin']);
+    }
+
     public function syncBioTime(): void
     {
+        abort_unless($this->canManageHr, 403);
+
         SyncEmployeesJob::dispatch();
         $this->dispatch('toast', message: 'BioTime sync dispatched.');
     }

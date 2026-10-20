@@ -21,7 +21,8 @@ class TimeCorrectionForm extends Component
     {
         // Allow deep-linking from the attendance calendar, e.g.
         // /time-correction?date=2026-09-07
-        if ($date = request()->query('date')) {
+        $date = request()->query('date');
+        if (is_string($date) && \Carbon\Carbon::canBeCreatedFromFormat($date, 'Y-m-d')) {
             $this->date = $date;
         }
     }

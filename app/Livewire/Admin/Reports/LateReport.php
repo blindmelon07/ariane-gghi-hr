@@ -72,9 +72,41 @@ class LateReport extends Component
         $start = Carbon::parse($this->dateFrom);
         $end   = Carbon::parse($this->dateTo);
 
+        // Only days with punches (or an approved correction supplying them) can be
+        // late — holidays, day-offs, leave and absences all come back with
+        // minutes_late = 0 and get skipped below. Pre-loading the two keys lets us
+        // skip processDay() entirely for those, instead of spending ~5 queries per
+        // employee-day to rediscover it. Two queries replace thousands.
+        $employeeIds = $employees->pluck('id');
+        $from        = $start->toDateString();
+        $to          = $end->toDateString();
+
+        $hasPunch = \App\Models\AttendanceLog::whereIn('employee_id', $employeeIds)
+            ->whereBetween('punch_date', [$from, $to])
+            ->get(['employee_id', 'punch_date'])
+            ->map(fn ($l) => $l->employee_id.'|'.Carbon::parse($l->punch_date)->toDateString())
+            ->unique()
+            ->flip();
+
+        $hasCorrection = \App\Models\TimeCorrection::whereIn('employee_id', $employeeIds)
+            ->where('status', 'approved')
+            ->whereBetween('date', [$from, $to])
+            ->get(['employee_id', 'date'])
+            ->map(fn ($c) => $c->employee_id.'|'.Carbon::parse($c->date)->toDateString())
+            ->unique()
+            ->flip();
+
+        $processor->preload($employeeIds, $from, $to);
+
         foreach ($employees as $emp) {
             for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
                 if ($d->isSunday()) {
+                    continue;
+                }
+
+                $key = $emp->id.'|'.$d->toDateString();
+
+                if (! $hasPunch->has($key) && ! $hasCorrection->has($key)) {
                     continue;
                 }
 

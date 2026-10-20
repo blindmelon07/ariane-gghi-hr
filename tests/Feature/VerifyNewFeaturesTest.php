@@ -206,6 +206,21 @@ test('dashboard page includes chart.js cdn', function () {
         ->assertSee('chart.js');
 });
 
+test('chart.js script survives wire:navigate instead of being refetched per page', function () {
+    // Without data-navigate-once Livewire re-executes the CDN tag on every SPA
+    // navigation, and the canvases' x-init ran before window.Chart existed —
+    // "Chart is not defined", blank charts on any navigated-to dashboard.
+    $this->actingAs(vfUser('super_admin'))
+        ->get(route('admin.dashboard'))
+        ->assertSeeHtml('chart.umd.min.js" data-navigate-once');
+});
+
+test('dashboard chart blocks wait for chart.js before constructing', function () {
+    $this->actingAs(vfUser('super_admin'))
+        ->get(route('admin.dashboard'))
+        ->assertSeeHtml('await window.chartReady()');
+});
+
 // ── Notification Click ────────────────────────────────────────────────────────
 
 test('LeaveRequestFiled notification data includes url pointing to admin.leave', function () {

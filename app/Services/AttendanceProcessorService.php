@@ -15,6 +15,114 @@ use Illuminate\Support\Carbon;
 class AttendanceProcessorService
 {
     /**
+     * Holiday lookups depend only on the date, not the employee, but reports call
+     * processDay() once per employee per day. Memoising per instance turns two
+     * queries per call into two queries per distinct date.
+     *
+     * @var array<string, ?Holiday>
+     */
+    private array $holidayCache = [];
+
+    /**
+     * Bulk-loaded employee/date data, populated by preload(). Reports that walk
+     * every employee across a date range would otherwise issue five queries per
+     * employee-day; preloading replaces that with five queries total. processDay()
+     * only reads these when isPreloadedFor() confirms the employee and date are
+     * inside the loaded window, so uncached callers keep their old behaviour.
+     */
+    private bool $preloaded = false;
+    private array $preloadedEmployees = [];
+    private string $preloadFrom = '';
+    private string $preloadTo = '';
+    private array $preDayOffs = [];
+    private array $preLeaves = [];
+    private array $preLogs = [];
+    private array $preCorrections = [];
+    private array $preSchedules = [];
+
+    /**
+     * Warm the per-employee/date caches for a whole range up front.
+     *
+     * @param  iterable<int>  $employeeIds
+     */
+    public function preload(iterable $employeeIds, string $from, string $to): void
+    {
+        $ids = collect($employeeIds)->map(fn ($id) => (int) $id)->unique()->values();
+
+        $this->preloadedEmployees = $ids->mapWithKeys(fn ($id) => [$id => true])->all();
+        $this->preloadFrom = $from;
+        $this->preloadTo   = $to;
+        $this->preDayOffs  = [];
+        $this->preLeaves   = [];
+        $this->preLogs     = [];
+        $this->preCorrections = [];
+        $this->preSchedules   = [];
+
+        // Holidays are employee-independent, so warm them even when no employees were
+        // passed: one query for the fixed dates in range, one for recurring entries.
+        $this->warmHolidayCache($from, $to);
+
+        if ($ids->isEmpty()) {
+            $this->preloaded = true;
+
+            return;
+        }
+
+        foreach (DayOff::whereIn('employee_id', $ids)->whereBetween('date', [$from, $to])->get(['employee_id', 'date']) as $off) {
+            $this->preDayOffs[$this->key($off->employee_id, $off->date)] = true;
+        }
+
+        // Leave spans a range, so fan each approved request out over the days it covers.
+        $leaves = LeaveRequest::with('leaveType')
+            ->whereIn('employee_id', $ids)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $to)
+            ->whereDate('end_date', '>=', $from)
+            ->get();
+
+        $windowStart = Carbon::parse($from);
+        $windowEnd   = Carbon::parse($to);
+
+        foreach ($leaves as $leave) {
+            $cursor = Carbon::parse($leave->start_date)->max($windowStart);
+            $last   = Carbon::parse($leave->end_date)->min($windowEnd);
+
+            for ($d = $cursor->copy(); $d->lte($last); $d->addDay()) {
+                $k = $this->key($leave->employee_id, $d->toDateString());
+                $this->preLeaves[$k] ??= $leave;
+            }
+        }
+
+        foreach (AttendanceLog::whereIn('employee_id', $ids)->whereBetween('punch_date', [$from, $to])->orderBy('punch_time')->get() as $log) {
+            $this->preLogs[$this->key($log->employee_id, $log->punch_date)][] = $log;
+        }
+
+        // latest() per employee/date: ordering ascending and overwriting leaves the newest.
+        foreach (TimeCorrection::whereIn('employee_id', $ids)->where('status', 'approved')->whereBetween('date', [$from, $to])->orderBy('created_at')->orderBy('id')->get() as $tc) {
+            $this->preCorrections[$this->key($tc->employee_id, $tc->date)] = $tc;
+        }
+
+        foreach (\App\Models\EmployeeSchedule::whereIn('employee_id', $ids)->with('schedule')->orderByDesc('effective_from')->get() as $assignment) {
+            $this->preSchedules[$assignment->employee_id][] = $assignment;
+        }
+
+        $this->preloaded = true;
+    }
+
+    private function key(int|string $employeeId, mixed $date): string
+    {
+        return ((int) $employeeId).'|'.Carbon::parse($date)->toDateString();
+    }
+
+    private function isPreloadedFor(int $employeeId, string $date): bool
+    {
+        return $this->preloaded
+            && isset($this->preloadedEmployees[$employeeId])
+            && $date >= $this->preloadFrom
+            && $date <= $this->preloadTo;
+    }
+
+    /**
      * @return array{
      *   am_time_in: ?string, am_time_out: ?string,
      *   pm_time_in: ?string, pm_time_out: ?string,
@@ -25,53 +133,55 @@ class AttendanceProcessorService
     public function processDay(Employee $employee, string $date): array
     {
         // 1. Company-wide holiday (highest priority)
-        $holiday = Holiday::whereDate('date', $date)->first();
-
-        // Also check recurring holidays (same month+day, any year)
-        if (! $holiday) {
-            $parsed = Carbon::parse($date);
-            $holiday = Holiday::where('is_recurring', true)
-                ->whereMonth('date', $parsed->month)
-                ->whereDay('date', $parsed->day)
-                ->first();
-        }
+        $holiday = $this->holidayFor($date);
 
         if ($holiday) {
             return $this->emptyResult($holiday->name);
         }
 
+        $cached = $this->isPreloadedFor($employee->id, $date);
+        $cacheKey = $cached ? $this->key($employee->id, $date) : '';
+
         // 2. Individual day-off
-        $hasDayOff = DayOff::where('employee_id', $employee->id)
-            ->whereDate('date', $date)
-            ->exists();
+        $hasDayOff = $cached
+            ? isset($this->preDayOffs[$cacheKey])
+            : DayOff::where('employee_id', $employee->id)
+                ->whereDate('date', $date)
+                ->exists();
 
         if ($hasDayOff) {
             return $this->emptyResult('Day-off');
         }
 
         // 3. Approved leave
-        $leave = LeaveRequest::with('leaveType')
-            ->where('employee_id', $employee->id)
-            ->where('status', 'approved')
-            ->whereDate('start_date', '<=', $date)
-            ->whereDate('end_date', '>=', $date)
-            ->first();
+        $leave = $cached
+            ? ($this->preLeaves[$cacheKey] ?? null)
+            : LeaveRequest::with('leaveType')
+                ->where('employee_id', $employee->id)
+                ->where('status', 'approved')
+                ->whereDate('start_date', '<=', $date)
+                ->whereDate('end_date', '>=', $date)
+                ->first();
 
         if ($leave) {
             return $this->emptyResult($leave->leaveType->name);
         }
 
-        $logs = AttendanceLog::where('employee_id', $employee->id)
-            ->whereDate('punch_date', $date)
-            ->orderBy('punch_time')
-            ->get();
+        $logs = $cached
+            ? collect($this->preLogs[$cacheKey] ?? [])
+            : AttendanceLog::where('employee_id', $employee->id)
+                ->whereDate('punch_date', $date)
+                ->orderBy('punch_time')
+                ->get();
 
         // 4. Approved time correction — may supplement or replace biometric punches
-        $correction = TimeCorrection::where('employee_id', $employee->id)
-            ->where('status', 'approved')
-            ->whereDate('date', $date)
-            ->latest()
-            ->first();
+        $correction = $cached
+            ? ($this->preCorrections[$cacheKey] ?? null)
+            : TimeCorrection::where('employee_id', $employee->id)
+                ->where('status', 'approved')
+                ->whereDate('date', $date)
+                ->latest()
+                ->first();
 
         if ($logs->isEmpty() && ! $correction) {
             return $this->emptyResult('Absent');
@@ -114,14 +224,18 @@ class AttendanceProcessorService
         $scheduleOut  = Carbon::parse($date)->setTime(17, 0, 0);
         $pmScheduleIn = Carbon::parse($date)->setTime(13, 0, 0);
 
-        $assignment = \App\Models\EmployeeSchedule::where('employee_id', $employee->id)
-            ->whereDate('effective_from', '<=', $date)
-            ->where(function ($q) use ($date) {
-                $q->whereNull('effective_to')->orWhereDate('effective_to', '>=', $date);
-            })
-            ->orderByDesc('effective_from')
-            ->with('schedule')
-            ->first();
+        $assignment = $cached
+            ? collect($this->preSchedules[$employee->id] ?? [])
+                ->first(fn ($a) => Carbon::parse($a->effective_from)->toDateString() <= $date
+                    && ($a->effective_to === null || Carbon::parse($a->effective_to)->toDateString() >= $date))
+            : \App\Models\EmployeeSchedule::where('employee_id', $employee->id)
+                ->whereDate('effective_from', '<=', $date)
+                ->where(function ($q) use ($date) {
+                    $q->whereNull('effective_to')->orWhereDate('effective_to', '>=', $date);
+                })
+                ->orderByDesc('effective_from')
+                ->with('schedule')
+                ->first();
 
         if ($assignment?->schedule) {
             $schedule = $assignment->schedule;
@@ -236,6 +350,53 @@ class AttendanceProcessorService
         };
 
         return $scheduled && ! DayOffSwap::isSwappedWorkday($employee->id, $day);
+    }
+
+    /**
+     * Resolve every date in [$from, $to] into the holiday cache using two queries,
+     * instead of letting holidayFor() spend up to two queries per distinct date.
+     */
+    private function warmHolidayCache(string $from, string $to): void
+    {
+        $fixed = Holiday::whereBetween('date', [$from, $to])
+            ->get()
+            ->keyBy(fn ($h) => Carbon::parse($h->date)->toDateString());
+
+        $recurring = Holiday::where('is_recurring', true)
+            ->get()
+            ->keyBy(fn ($h) => Carbon::parse($h->date)->format('m-d'));
+
+        for ($d = Carbon::parse($from); $d->lte(Carbon::parse($to)); $d->addDay()) {
+            $key = $d->toDateString();
+
+            if (array_key_exists($key, $this->holidayCache)) {
+                continue;
+            }
+
+            $this->holidayCache[$key] = $fixed->get($key) ?? $recurring->get($d->format('m-d'));
+        }
+    }
+
+    /**
+     * Fixed-date holiday for $date, else a recurring holiday matching its month+day.
+     */
+    private function holidayFor(string $date): ?Holiday
+    {
+        if (array_key_exists($date, $this->holidayCache)) {
+            return $this->holidayCache[$date];
+        }
+
+        $holiday = Holiday::whereDate('date', $date)->first();
+
+        if (! $holiday) {
+            $parsed = Carbon::parse($date);
+            $holiday = Holiday::where('is_recurring', true)
+                ->whereMonth('date', $parsed->month)
+                ->whereDay('date', $parsed->day)
+                ->first();
+        }
+
+        return $this->holidayCache[$date] = $holiday;
     }
 
     private function emptyResult(string $status): array

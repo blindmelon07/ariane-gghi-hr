@@ -31,7 +31,10 @@ class LeaveRequestForm extends Component
     {
         // Allow deep-linking from the attendance calendar, e.g.
         // /leave/request?date=2026-09-07&type=SL
-        if ($date = request()->query('date')) {
+        // Ignore anything that isn't a real Y-m-d date — a malformed value would
+        // otherwise reach Carbon::parse() during render and 500 the page.
+        $date = request()->query('date');
+        if (is_string($date) && \Carbon\Carbon::canBeCreatedFromFormat($date, 'Y-m-d')) {
             $this->start_date = $date;
             $this->end_date   = $date;
         }

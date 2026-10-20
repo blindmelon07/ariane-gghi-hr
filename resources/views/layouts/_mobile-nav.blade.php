@@ -21,6 +21,10 @@
             ['route' => 'admin.reports.attendance',  'label' => 'Reports', 'icon' => 'chart'],
             ['route' => 'profile',                   'label' => 'Profile', 'icon' => 'profile'],
         ],
+        in_array($role, ['security_guard']) => [
+            ['route' => 'security.fleet-return',     'label' => 'Returns', 'icon' => 'check'],
+            ['route' => 'profile',                   'label' => 'Profile', 'icon' => 'profile'],
+        ],
         in_array($role, ['head_nurse']) => [
             ['route' => 'head-nurse.roster',         'label' => 'Roster',  'icon' => 'chart'],
             ['route' => 'leave.request',             'label' => 'Leave',   'icon' => 'leave'],
@@ -65,6 +69,7 @@
                             'requests' => 'file-text',
                             'payslip'  => 'money',
                             'chart'    => 'chart-bar',
+                            'check'    => 'check-circle',
                         ][$item['icon']] ?? 'user';
                     @endphp
                     <x-dynamic-component :component="'phosphor-' . $phIcon . ($active ? '-fill' : '')" class="w-5 h-5" />
