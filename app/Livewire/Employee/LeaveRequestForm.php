@@ -91,7 +91,7 @@ class LeaveRequestForm extends Component
 
         $employee = Employee::where('emp_code', auth()->user()->employee_code)->first();
 
-        return app(LeaveService::class)->computeTotalDays($this->start_date, $this->end_date, $employee?->weekday_off);
+        return app(LeaveService::class)->computeTotalDays($this->start_date, $this->end_date, $employee?->weekday_off, $employee?->id);
     }
 
     #[Computed]
@@ -153,7 +153,7 @@ class LeaveRequestForm extends Component
         $leaveService = app(LeaveService::class);
         $totalDays    = $this->is_half_day
             ? 0.5
-            : $leaveService->computeTotalDays($this->start_date, $this->end_date, $employee->weekday_off);
+            : $leaveService->computeTotalDays($this->start_date, $this->end_date, $employee->weekday_off, $employee->id);
 
         // Check overlap
         if ($leaveService->hasOverlap($employee->id, $this->start_date, $this->end_date)) {

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\DayOffSwap;
 use App\Models\Employee;
 use App\Models\OvertimeRequest;
 use App\Models\PayrollPeriod;
@@ -274,18 +275,16 @@ class SmsNotificationService
 
     /**
      * Whether $day is a scheduled working day: never Sunday, and not Saturday for
-     * regular staff without a weekly rest day. Day-offs, holidays and leave are
-     * handled by AttendanceProcessorService.
+     * regular staff without a weekly rest day — unless the employee swapped that
+     * rest day away. Day-offs, holidays and leave are handled by
+     * AttendanceProcessorService.
      */
     private function isWorkingDay(Employee $employee, Carbon $day): bool
     {
-        if ($day->isSunday()) {
-            return false;
-        }
-
         $isProbationary = ($employee->employment_type ?? 'regular') === 'probationary';
+        $isRestDay      = $day->isSunday() || (! $isProbationary && $employee->weekday_off === null && $day->isSaturday());
 
-        return ! (! $isProbationary && $employee->weekday_off === null && $day->isSaturday());
+        return ! $isRestDay || DayOffSwap::isSwappedWorkday($employee->id, $day);
     }
 
     /**

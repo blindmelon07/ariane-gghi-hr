@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\DayOff;
+use App\Models\DayOffSwap;
 use App\Models\Employee;
 use App\Services\ActivityLogService;
 use Illuminate\Support\Carbon;
@@ -411,6 +412,14 @@ class DayOffManager extends Component
         $end       = Carbon::parse($this->genDateTo);
         $count     = 0;
 
+        // Rest days swapped away through an approved DayOffSwap stay working days
+        $swappedWorkdays = DayOffSwap::approved()
+            ->whereDate('original_date', '>=', $start->toDateString())
+            ->whereDate('original_date', '<=', $end->toDateString())
+            ->get(['employee_id', 'original_date'])
+            ->map(fn ($s) => $s->employee_id . '|' . $s->original_date->toDateString())
+            ->all();
+
         for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
             $dow = $d->dayOfWeek; // 0=Sun, 1=Mon … 6=Sat
 
@@ -420,6 +429,10 @@ class DayOffManager extends Component
                 $isWeekdayOff = $emp->weekday_off !== null && $dow === (int) $emp->weekday_off;
 
                 if (! $isSunday && ! $isWeekdayOff) {
+                    continue;
+                }
+
+                if (in_array($emp->id . '|' . $d->format('Y-m-d'), $swappedWorkdays, true)) {
                     continue;
                 }
 

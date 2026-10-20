@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AttendanceLog;
 use App\Models\DayOff;
+use App\Models\DayOffSwap;
 use App\Models\Employee;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
@@ -179,6 +180,9 @@ class PhilippinePayrollService
             ->map(fn ($d) => is_string($d) ? substr($d, 0, 10) : $d->format('Y-m-d'))
             ->toArray();
 
+        // Scheduled rest days the employee swapped away are working days
+        $swappedWorkdays = DayOffSwap::swappedWorkdays($employee->id, $period->start_date, $period->end_date);
+
         // Preload holiday dates (one-time + recurring) in the period
         $holidayDates = $this->getHolidayDates($period->start_date, $period->end_date);
 
@@ -194,13 +198,15 @@ class PhilippinePayrollService
             $workingDays = round($requiredHours / 8, 2);
         } else {
             for ($d = Carbon::parse($period->start_date); $d->lte($period->end_date); $d->addDay()) {
-                if ($d->isSunday()) {
+                $isSwappedWorkday = in_array($d->toDateString(), $swappedWorkdays, true);
+
+                if ($d->isSunday() && ! $isSwappedWorkday) {
                     continue;
                 }
-                if (! $isProbationary && $hasWeekdayOff && $d->dayOfWeek === (int) $employee->weekday_off) {
+                if (! $isProbationary && $hasWeekdayOff && $d->dayOfWeek === (int) $employee->weekday_off && ! $isSwappedWorkday) {
                     continue;
                 }
-                if (! $isProbationary && ! $hasWeekdayOff && $d->isSaturday()) {
+                if (! $isProbationary && ! $hasWeekdayOff && $d->isSaturday() && ! $isSwappedWorkday) {
                     continue;
                 }
                 if (in_array($d->toDateString(), $dayOffDates, true)) {

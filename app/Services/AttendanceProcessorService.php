@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Models\AttendanceLog;
 use App\Models\DayOff;
+use App\Models\DayOffSwap;
 use App\Models\Employee;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\TimeCorrection;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
 class AttendanceProcessorService
@@ -216,21 +218,24 @@ class AttendanceProcessorService
         return $result;
     }
 
-    private function isScheduledRestDay(Employee $employee, Carbon $day): bool
+    /**
+     * Sunday, plus weekday_off (or Saturday when unset) for non-probationary
+     * staff — unless the employee swapped that rest day away (DayOffSwap).
+     */
+    public function isScheduledRestDay(Employee $employee, CarbonInterface $day): bool
     {
         if (strcasecmp(trim((string) $employee->department), 'Nursing') === 0) {
             return false;
         }
-        if ($day->isSunday()) {
-            return true;
-        }
-        if (($employee->employment_type ?? 'regular') === 'probationary') {
-            return false;
-        }
 
-        return $employee->weekday_off !== null
-            ? $day->dayOfWeek === (int) $employee->weekday_off
-            : $day->isSaturday();
+        $scheduled = match (true) {
+            $day->isSunday()                                             => true,
+            ($employee->employment_type ?? 'regular') === 'probationary' => false,
+            $employee->weekday_off !== null                              => $day->dayOfWeek === (int) $employee->weekday_off,
+            default                                                      => $day->isSaturday(),
+        };
+
+        return $scheduled && ! DayOffSwap::isSwappedWorkday($employee->id, $day);
     }
 
     private function emptyResult(string $status): array

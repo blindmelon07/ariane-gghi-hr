@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\DayOffSwap;
 use App\Models\LeaveCredit;
 use App\Models\LeaveRequest;
 use App\Models\LeaveRequestApproval;
@@ -52,19 +53,22 @@ class LeaveService
      * Compute working days between two dates.
      * Excludes Sunday (company-wide rest day) plus the employee's own
      * configured weekly rest day (Employee::weekday_off, 0=Sun..6=Sat),
-     * matching the rest-day rules used by DayOffManager.
+     * matching the rest-day rules used by DayOffManager. With $employeeId,
+     * rest days the employee swapped away (DayOffSwap) count as working days.
      */
-    public function computeTotalDays(string $startDate, string $endDate, ?int $weekdayOff = null): float
+    public function computeTotalDays(string $startDate, string $endDate, ?int $weekdayOff = null, ?int $employeeId = null): float
     {
         $start = Carbon::parse($startDate);
         $end   = Carbon::parse($endDate);
         $days  = 0;
 
+        $swappedWorkdays = $employeeId ? DayOffSwap::swappedWorkdays($employeeId, $start, $end) : [];
+
         for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
             $isSunday     = $day->isSunday();
             $isWeekdayOff = $weekdayOff !== null && $day->dayOfWeek === $weekdayOff;
 
-            if (!$isSunday && !$isWeekdayOff) {
+            if ((!$isSunday && !$isWeekdayOff) || in_array($day->toDateString(), $swappedWorkdays, true)) {
                 $days++;
             }
         }
