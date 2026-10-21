@@ -5,5 +5,6 @@
 
     <div class="max-w-4xl mx-auto">
         <livewire:security.guard-panel />
+        <livewire:security.patient-transport-log />
     </div>
 </x-app-layout>

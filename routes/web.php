@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GatePassController;
+use App\Http\Controllers\PatientTransportController;
 use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,17 @@ Route::middleware(['auth'])->group(function () {
 Route::view('admin/gate-passes', 'admin.gate-passes')
     ->middleware(['auth', 'role:super_admin,hr_admin'])
     ->name('admin.gate-passes');
+
+// Patient transport slip — filed by Drivers and Institutional Workers only
+// (checked by position inside the form), approved by HR, logged by the guard
+Route::middleware(['auth'])->group(function () {
+    Route::view('patient-transport', 'patient-transport')->name('patient-transport.request');
+    Route::get('patient-transport/{patientTransport}', [PatientTransportController::class, 'show'])->name('patient-transport.show');
+});
+
+Route::view('admin/patient-transports', 'admin.patient-transports')
+    ->middleware(['auth', 'role:super_admin,hr_admin'])
+    ->name('admin.patient-transports');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe');

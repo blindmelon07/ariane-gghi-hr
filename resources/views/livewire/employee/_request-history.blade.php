@@ -5,7 +5,7 @@
 --}}
 @php
     $statusClass = fn ($status) => match ($status) {
-        'approved'  => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+        'approved', 'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
         'rejected'  => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
         'cancelled' => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
         default     => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -32,7 +32,7 @@
                 @if ($req->status === 'pending')
                     <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
                             class="mt-2 text-xs font-medium text-red-600 dark:text-red-400">Cancel</button>
-                @elseif ($req->status === 'approved' && ! empty($viewRoute))
+                @elseif (in_array($req->status, ['approved', 'completed'], true) && ! empty($viewRoute))
                     <a href="{{ route($viewRoute, $req) }}" class="mt-2 inline-block text-xs font-medium text-indigo-600 dark:text-indigo-400">View Pass</a>
                 @endif
             </div>
@@ -71,7 +71,7 @@
                             @if ($req->status === 'pending')
                                 <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
                                         class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Cancel</button>
-                            @elseif ($req->status === 'approved' && ! empty($viewRoute))
+                            @elseif (in_array($req->status, ['approved', 'completed'], true) && ! empty($viewRoute))
                                 <a href="{{ route($viewRoute, $req) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">View Pass</a>
                             @endif
                         </td>

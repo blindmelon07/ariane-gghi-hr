@@ -19,6 +19,7 @@
         'arrows-left-right' => 'arrows-left-right',
         'clock-countdown' => 'clock-countdown',
         'door'            => 'door-open',
+        'first-aid'       => 'first-aid-kit',
         'office-building' => 'buildings',
         'briefcase'       => 'briefcase',
         'truck'           => 'truck',

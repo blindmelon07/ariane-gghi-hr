@@ -31,7 +31,7 @@ new class extends Component
     {
         $role = Auth::user()?->role;
 
-        return match ($role) {
+        $items = match ($role) {
             'super_admin' => [
                 'Main' => [
                     ['label' => 'Dashboard',        'route' => 'admin.dashboard',          'icon' => 'home'],
@@ -226,6 +226,19 @@ new class extends Component
                 ],
             ],
         };
+
+        if (in_array($role, ['super_admin', 'hr_admin'], true)) {
+            $items['Fleet'][] = ['label' => 'Patient Transports', 'route' => 'admin.patient-transports', 'icon' => 'first-aid'];
+        }
+
+        // Patient transport slips go by position (Driver / Institutional Worker), not by role.
+        $code = Auth::user()?->employee_code;
+        if ($code && \App\Models\PatientTransport::canFile(\App\Models\Employee::where('emp_code', $code)->first())) {
+            $section = isset($items['Fleet']) ? 'Fleet' : 'Main';
+            $items[$section][] = ['label' => 'Patient Transport', 'route' => 'patient-transport.request', 'icon' => 'first-aid'];
+        }
+
+        return $items;
     }
 }; ?>
 
