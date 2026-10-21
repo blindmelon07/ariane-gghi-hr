@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CoeRequestController;
+use App\Http\Controllers\CommodityAllowanceFormController;
 use App\Http\Controllers\GatePassController;
 use App\Http\Controllers\OvertimeFormController;
 use App\Http\Controllers\PatientTransportController;
@@ -70,6 +72,26 @@ Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 Route::get('overtime/form/{overtimeForm}', [OvertimeFormController::class, 'show'])
     ->middleware(['auth'])
     ->name('overtime.show');
+
+// Commodity allowance form — regular employees only (checked in the form); HR reviews
+Route::middleware(['auth'])->group(function () {
+    Route::view('commodity-allowance-form', 'commodity-form')->name('commodity-form');
+    Route::get('commodity-allowance-form/{commodityForm}', [CommodityAllowanceFormController::class, 'show'])->name('commodity-form.show');
+});
+
+Route::view('admin/commodity-allowance-forms', 'admin.commodity-forms')
+    ->middleware(['auth', 'role:super_admin,hr_admin'])
+    ->name('admin.commodity-forms');
+
+// COE request — every employee requests; HR releases and records receipt
+Route::middleware(['auth'])->group(function () {
+    Route::view('coe-request', 'coe-request')->name('coe.request');
+    Route::get('coe-request/{coeRequest}', [CoeRequestController::class, 'show'])->name('coe.show');
+});
+
+Route::view('admin/coe-requests', 'admin.coe-requests')
+    ->middleware(['auth', 'role:super_admin,hr_admin'])
+    ->name('admin.coe-requests');
 
 // Salary deduction form — every employee files; HR approval creates the payroll deductions
 Route::middleware(['auth'])->group(function () {

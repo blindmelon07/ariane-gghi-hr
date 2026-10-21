@@ -20,6 +20,8 @@
         'clock-countdown' => 'clock-countdown',
         'door'            => 'door-open',
         'first-aid'       => 'first-aid-kit',
+        'clipboard'       => 'clipboard-text',
+        'certificate'     => 'certificate',
         'office-building' => 'buildings',
         'briefcase'       => 'briefcase',
         'truck'           => 'truck',

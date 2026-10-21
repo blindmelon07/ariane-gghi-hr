@@ -73,6 +73,11 @@ class Employee extends Model
         return $this->hasMany(LeaveCredit::class);
     }
 
+    public function commodityAllowanceForm(): HasOne
+    {
+        return $this->hasOne(CommodityAllowanceForm::class);
+    }
+
     public function salaryDetail(): HasOne
     {
         return $this->hasOne(SalaryDetail::class);

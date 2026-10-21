@@ -44,6 +44,7 @@ new class extends Component
                     ['label' => 'Salary Setup',      'route' => 'admin.salary',             'icon' => 'banknotes'],
                     ['label' => 'Deductions',        'route' => 'admin.deductions',         'icon' => 'minus-circle'],
                     ['label' => 'Deduction Requests', 'route' => 'admin.salary-deductions', 'icon' => 'document-check'],
+                    ['label' => 'COE Requests',       'route' => 'admin.coe-requests',      'icon' => 'certificate'],
                 ],
                 'Attendance' => [
                     ['label' => 'Schedules',         'route' => 'admin.schedules',          'icon' => 'clock'],
@@ -88,12 +89,14 @@ new class extends Component
                     ['label' => 'Positions',         'route' => 'admin.positions',          'icon' => 'briefcase'],
                     ['label' => 'My Gate Pass',      'route' => 'gate-pass.request',        'icon' => 'door'],
                     ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
+                    ['label' => 'COE Request',       'route' => 'coe.request',              'icon' => 'certificate'],
                 ],
                 'Payroll' => [
                     ['label' => 'Payroll',           'route' => 'admin.payroll',            'icon' => 'currency-dollar'],
                     ['label' => 'Salary Setup',      'route' => 'admin.salary',             'icon' => 'banknotes'],
                     ['label' => 'Deductions',        'route' => 'admin.deductions',         'icon' => 'minus-circle'],
                     ['label' => 'Deduction Requests', 'route' => 'admin.salary-deductions', 'icon' => 'document-check'],
+                    ['label' => 'COE Requests',       'route' => 'admin.coe-requests',      'icon' => 'certificate'],
                 ],
                 'Attendance' => [
                     ['label' => 'Schedules',         'route' => 'admin.schedules',          'icon' => 'clock'],
@@ -151,6 +154,7 @@ new class extends Component
                     ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                     ['label' => 'Gate Pass',         'route' => 'gate-pass.request',        'icon' => 'door'],
                     ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
+                    ['label' => 'COE Request',       'route' => 'coe.request',              'icon' => 'certificate'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
@@ -173,6 +177,7 @@ new class extends Component
                     ['label' => 'Trip Requests',       'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                     ['label' => 'My Gate Pass',        'route' => 'gate-pass.request',        'icon' => 'door'],
                     ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
+                    ['label' => 'COE Request',       'route' => 'coe.request',              'icon' => 'certificate'],
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',          'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
@@ -184,6 +189,7 @@ new class extends Component
                     ['label' => 'Vehicle Returns',   'route' => 'security.fleet-return',    'icon' => 'check-circle'],
                     ['label' => 'My Gate Pass',      'route' => 'gate-pass.request',        'icon' => 'door'],
                     ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
+                    ['label' => 'COE Request',       'route' => 'coe.request',              'icon' => 'certificate'],
                 ],
             ],
             'head_nurse' => [
@@ -203,6 +209,7 @@ new class extends Component
                     ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                     ['label' => 'Gate Pass',         'route' => 'gate-pass.request',        'icon' => 'door'],
                     ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
+                    ['label' => 'COE Request',       'route' => 'coe.request',              'icon' => 'certificate'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
@@ -229,6 +236,7 @@ new class extends Component
                     ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                     ['label' => 'Gate Pass',         'route' => 'gate-pass.request',        'icon' => 'door'],
                     ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
+                    ['label' => 'COE Request',       'route' => 'coe.request',              'icon' => 'certificate'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
@@ -239,13 +247,21 @@ new class extends Component
 
         if (in_array($role, ['super_admin', 'hr_admin'], true)) {
             $items['Fleet'][] = ['label' => 'Patient Transports', 'route' => 'admin.patient-transports', 'icon' => 'first-aid'];
+            $items['Payroll'][] = ['label' => 'Commodity Forms', 'route' => 'admin.commodity-forms', 'icon' => 'clipboard'];
         }
 
-        // Patient transport slips go by position (Driver / Institutional Worker), not by role.
-        $code = Auth::user()?->employee_code;
-        if ($code && \App\Models\PatientTransport::canFile(\App\Models\Employee::where('emp_code', $code)->first())) {
+        // These go by the employee record (position / employment type), not by role.
+        $code     = Auth::user()?->employee_code;
+        $employee = $code ? \App\Models\Employee::where('emp_code', $code)->first() : null;
+
+        if (\App\Models\PatientTransport::canFile($employee)) {
             $section = isset($items['Fleet']) ? 'Fleet' : 'Main';
             $items[$section][] = ['label' => 'Patient Transport', 'route' => 'patient-transport.request', 'icon' => 'first-aid'];
+        }
+
+        if (\App\Models\CommodityAllowanceForm::appliesTo($employee)) {
+            $section = isset($items['Payroll']) ? 'Payroll' : 'Main';
+            $items[$section][] = ['label' => 'Commodity Allowance', 'route' => 'commodity-form', 'icon' => 'clipboard'];
         }
 
         return $items;

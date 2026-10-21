@@ -1,15 +1,16 @@
 {{--
     "My requests" list for employee request forms.
     Expects: $title, $empty, $columns (labels), $rows ([req, values]), $confirm (cancel prompt).
-    Optional: $viewRoute — route (taking the request) linked as $viewLabel ("View Pass") once approved,
+    Optional: $statusLabels — status => label overrides.
+              $viewRoute — route (taking the request) linked as $viewLabel ("View Pass") once approved,
               or for every status when $viewAlways is true.
 --}}
 @php
     $viewLabel ??= 'View Pass';
     $canView = fn ($req) => ! empty($viewRoute) && (! empty($viewAlways) || in_array($req->status, ['approved', 'completed'], true));
     $statusClass = fn ($status) => match ($status) {
-        'approved', 'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-        'rejected'  => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+        'approved', 'completed', 'released', 'received' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+        'rejected', 'declined' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
         'cancelled' => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
         default     => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
     };
@@ -26,7 +27,7 @@
             <div class="px-4 py-3">
                 <div class="flex items-start justify-between gap-2">
                     <p class="text-sm font-medium text-gray-800 dark:text-gray-100">{{ implode(' · ', $row['values']) }}</p>
-                    <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $statusClass($req->status) }}">{{ ucfirst($req->status) }}</span>
+                    <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $statusClass($req->status) }}">{{ ($statusLabels ?? [])[$req->status] ?? ucfirst($req->status) }}</span>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ $req->reason }}</p>
                 @if ($req->remarks)
@@ -70,7 +71,7 @@
                         @endforeach
                         <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-[200px] truncate">{{ $req->reason }}</td>
                         <td class="px-4 py-3">
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $statusClass($req->status) }}">{{ ucfirst($req->status) }}</span>
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $statusClass($req->status) }}">{{ ($statusLabels ?? [])[$req->status] ?? ucfirst($req->status) }}</span>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-[180px] truncate">{{ $req->remarks ?? '—' }}</td>
                         <td class="px-4 py-3 text-right">

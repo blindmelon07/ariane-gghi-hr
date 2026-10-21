@@ -290,6 +290,16 @@
 
                 {{-- ── Page content ── --}}
                 <main class="flex-1 p-4 sm:p-6 mobile-content-pb">
+                    @auth
+                        @if (! request()->routeIs('commodity-form') && \App\Models\CommodityAllowanceForm::isDueFor(\App\Models\CommodityAllowanceForm::employeeForCurrentUser()))
+                            <a href="{{ route('commodity-form') }}" wire:navigate
+                               class="mb-4 flex items-center gap-3 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/30">
+                                <x-phosphor-clipboard-text-bold class="w-5 h-5 shrink-0" />
+                                <span class="flex-1"><strong>Action needed:</strong> please fill in your Commodity Allowance Form.</span>
+                                <span class="font-semibold whitespace-nowrap">Fill in now →</span>
+                            </a>
+                        @endif
+                    @endauth
                     {{ $slot }}
                 </main>
 
