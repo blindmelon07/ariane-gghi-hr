@@ -1,9 +1,12 @@
 {{--
     "My requests" list for employee request forms.
     Expects: $title, $empty, $columns (labels), $rows ([req, values]), $confirm (cancel prompt).
-    Optional: $viewRoute — route (taking the request) linked as "View Pass" once approved.
+    Optional: $viewRoute — route (taking the request) linked as $viewLabel ("View Pass") once approved,
+              or for every status when $viewAlways is true.
 --}}
 @php
+    $viewLabel ??= 'View Pass';
+    $canView = fn ($req) => ! empty($viewRoute) && (! empty($viewAlways) || in_array($req->status, ['approved', 'completed'], true));
     $statusClass = fn ($status) => match ($status) {
         'approved', 'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
         'rejected'  => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
@@ -29,12 +32,15 @@
                 @if ($req->remarks)
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">Remarks: {{ $req->remarks }}</p>
                 @endif
-                @if ($req->status === 'pending')
-                    <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
-                            class="mt-2 text-xs font-medium text-red-600 dark:text-red-400">Cancel</button>
-                @elseif (in_array($req->status, ['approved', 'completed'], true) && ! empty($viewRoute))
-                    <a href="{{ route($viewRoute, $req) }}" class="mt-2 inline-block text-xs font-medium text-indigo-600 dark:text-indigo-400">View Pass</a>
-                @endif
+                <div class="flex gap-4">
+                    @if ($canView($req))
+                        <a href="{{ route($viewRoute, $req) }}" class="mt-2 inline-block text-xs font-medium text-indigo-600 dark:text-indigo-400">{{ $viewLabel }}</a>
+                    @endif
+                    @if ($req->status === 'pending')
+                        <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
+                                class="mt-2 text-xs font-medium text-red-600 dark:text-red-400">Cancel</button>
+                    @endif
+                </div>
             </div>
         @empty
             <div class="px-4 py-10 text-center text-gray-400 dark:text-gray-500 text-sm">{{ $empty }}</div>
@@ -68,11 +74,12 @@
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-[180px] truncate">{{ $req->remarks ?? '—' }}</td>
                         <td class="px-4 py-3 text-right">
+                            @if ($canView($req))
+                                <a href="{{ route($viewRoute, $req) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">{{ $viewLabel }}</a>
+                            @endif
                             @if ($req->status === 'pending')
                                 <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
-                                        class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Cancel</button>
-                            @elseif (in_array($req->status, ['approved', 'completed'], true) && ! empty($viewRoute))
-                                <a href="{{ route($viewRoute, $req) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">View Pass</a>
+                                        class="ml-3 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Cancel</button>
                             @endif
                         </td>
                     </tr>

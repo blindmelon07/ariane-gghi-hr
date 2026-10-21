@@ -41,6 +41,9 @@
                     <div class="min-w-0">
                         <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $req->employee->full_name }}</p>
                         <p class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $req->employee->emp_code }}</p>
+                        @if ($this->viewRoute())
+                            <a href="{{ route($this->viewRoute(), $req) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400">View form</a>
+                        @endif
                     </div>
                     <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $statusClass($req->status) }}">{{ ucfirst($req->status) }}</span>
                 </div>
@@ -87,6 +90,9 @@
                             <td class="px-4 py-3">
                                 <div class="font-medium text-gray-800 dark:text-gray-100">{{ $req->employee->full_name }}</div>
                                 <div class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $req->employee->emp_code }}</div>
+                                @if ($this->viewRoute())
+                                    <a href="{{ route($this->viewRoute(), $req) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">View form</a>
+                                @endif
                             </td>
                             @foreach ($this->details($req) as $value)
                                 <td class="px-4 py-3 text-gray-700 dark:text-gray-200 font-medium">{{ $value }}</td>

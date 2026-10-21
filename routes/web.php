@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GatePassController;
+use App\Http\Controllers\OvertimeFormController;
 use App\Http\Controllers\PatientTransportController;
 use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\PushSubscriptionController;
@@ -65,6 +66,10 @@ Route::view('head-nurse/roster', 'head-nurse.roster')
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
+Route::get('overtime/form/{overtimeForm}', [OvertimeFormController::class, 'show'])
+    ->middleware(['auth'])
+    ->name('overtime.show');
+
 // Gate pass — every employee files; HR approves; the guard checks the approved pass
 Route::middleware(['auth'])->group(function () {
     Route::view('gate-pass', 'gate-pass')->name('gate-pass.request');
@@ -106,6 +111,7 @@ Route::view('admin/dashboard', 'admin.dashboard')
 
 Route::middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,approver'])->group(function () {
     Route::view('admin/leave', 'admin.leave')->name('admin.leave');
+    Route::view('admin/overtime', 'admin.overtime')->name('admin.overtime');   // Dept Head → HR → CEO/MD
     Route::view('admin/time-corrections', 'admin.time-corrections')->name('admin.time-corrections');
     Route::view('admin/day-off-swaps', 'admin.day-off-swaps')->name('admin.day-off-swaps');
     Route::view('admin/shift-changes', 'admin.shift-changes')->name('admin.shift-changes');
@@ -132,7 +138,6 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::view('admin/biometrics', 'admin.biometrics')->name('admin.biometrics');
     Route::view('admin/sms', 'admin.sms')->name('admin.sms');
     Route::view('admin/leave/credits', 'admin.leave-credits')->name('admin.leave-credits');
-    Route::view('admin/overtime', 'admin.overtime')->name('admin.overtime');
     Route::view('admin/reports/payroll', 'admin.reports.payroll')->name('admin.reports.payroll');
     Route::view('admin/reports/overtime', 'admin.reports.overtime')->name('admin.reports.overtime');
     Route::view('admin/reports/late', 'admin.reports.late')->name('admin.reports.late');

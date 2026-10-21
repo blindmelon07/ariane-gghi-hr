@@ -4,6 +4,6 @@
     </x-slot>
 
     <div class="max-w-7xl mx-auto">
-        <livewire:admin.overtime-approvals />
+        <livewire:admin.overtime-form-approvals />
     </div>
 </x-app-layout>

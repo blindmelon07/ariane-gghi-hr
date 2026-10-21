@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class OvertimeRequest extends Model
 {
     protected $fillable = [
+        'overtime_form_id',
         'employee_id',
         'date',
+        'time_from',
+        'time_to',
         'requested_hours',
         'reason',
         'status',
@@ -32,6 +35,19 @@ class OvertimeRequest extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function form(): BelongsTo
+    {
+        return $this->belongsTo(OvertimeForm::class, 'overtime_form_id');
+    }
+
+    /** "05:00 PM – 08:00 PM", or null for requests filed before From/To existed. */
+    public function timeRangeLabel(): ?string
+    {
+        if (! $this->time_from || ! $this->time_to) return null;
+
+        return \Carbon\Carbon::parse($this->time_from)->format('h:i A') . ' – ' . \Carbon\Carbon::parse($this->time_to)->format('h:i A');
     }
 
     public function approver(): BelongsTo

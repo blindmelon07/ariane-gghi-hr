@@ -135,6 +135,7 @@ new class extends Component
                     ['label' => 'Rest Day Swaps',    'route' => 'admin.day-off-swaps',      'icon' => 'calendar-x'],
                     ['label' => 'Shift Changes',        'route' => 'admin.shift-changes',      'icon' => 'arrows-left-right'],
                     ['label' => 'Undertime Approvals',  'route' => 'admin.undertime',          'icon' => 'clock-countdown'],
+                    ['label' => 'Overtime Approvals',   'route' => 'admin.overtime',           'icon' => 'clock'],
                     ['label' => 'Trip Requests',     'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                 ],
                 'My Leave' => [
@@ -164,6 +165,7 @@ new class extends Component
                     ['label' => 'Rest Day Swaps',      'route' => 'admin.day-off-swaps',      'icon' => 'calendar-x'],
                     ['label' => 'Shift Changes',        'route' => 'admin.shift-changes',      'icon' => 'arrows-left-right'],
                     ['label' => 'Undertime Approvals',  'route' => 'admin.undertime',          'icon' => 'clock-countdown'],
+                    ['label' => 'Overtime Approvals',   'route' => 'admin.overtime',           'icon' => 'clock'],
                     ['label' => 'Trip Requests',       'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                     ['label' => 'My Gate Pass',        'route' => 'gate-pass.request',        'icon' => 'door'],
                 ],

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\User;
 use App\Services\ActivityLogService;
 use App\Services\LeaveService;
 use App\Services\SmsNotificationService;
@@ -51,10 +52,21 @@ abstract class StepApprovals extends Component
         return ['employee'];
     }
 
+    /** Route (taking the request) to the full printable form, if the request has one. */
+    public function viewRoute(): ?string
+    {
+        return null;
+    }
+
     /** Approval chain: step => ['role' => string|string[], 'label' => string]. */
     protected function steps(): array
     {
         return LeaveService::APPROVAL_STEPS;
+    }
+
+    /** Called when $user approves $request at $step (before it moves on); record per-step sign-offs here. */
+    protected function recordStepApproval(Model $request, int $step, User $user): void
+    {
     }
 
     /** Error that blocks final approval, if the request no longer makes sense. */
@@ -166,6 +178,10 @@ abstract class StepApprovals extends Component
                     return;
                 }
 
+                if (! $override) {
+                    $this->recordStepApproval($request, $request->approval_step, $user);
+                }
+
                 $request->update([
                     'status'        => 'approved',
                     'approval_step' => null,
@@ -177,6 +193,7 @@ abstract class StepApprovals extends Component
                 $message = ucfirst($this->label()) . ($override ? ' approved (Super Admin override).' : ' fully approved.');
                 $notifier->requestDecision($employee, $what, true, $this->remarks ?: null, $link, $context);
             } else {
+                $this->recordStepApproval($request, $request->approval_step, $user);
                 $request->update(['approval_step' => $nextStep]);
                 ActivityLogService::log("{$logKey}_step", "Step {$request->approval_step} approved {$what} for {$employee->full_name}", $employee);
                 $message = 'Approved — forwarded to ' . $steps[$nextStep]['label'] . '.';
