@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Employee;
 use App\Models\User;
+use App\Services\SmsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -10,6 +12,7 @@ new class extends Component
 {
     public string $name = '';
     public string $email = '';
+    public string $cell_number = '';
 
     /**
      * Mount the component.
@@ -18,6 +21,17 @@ new class extends Component
     {
         $this->name = Auth::user()->name ?? '';
         $this->email = Auth::user()->email ?? '';
+        $this->cell_number = $this->employee()?->cell_number ?? '';
+    }
+
+    /**
+     * The employee record linked to this login, if any (admins may have none).
+     */
+    public function employee(): ?Employee
+    {
+        $code = Auth::user()->employee_code;
+
+        return $code ? Employee::where('emp_code', $code)->first() : null;
     }
 
     /**
@@ -29,16 +43,30 @@ new class extends Component
 
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+            'email' => ['nullable', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+            // Stored as 09XXXXXXXXX — the format SMS notifications are sent to.
+            'cell_number' => ['nullable', 'string', function ($attr, $value, $fail) {
+                if (SmsService::normalize($value) === null) {
+                    $fail('Enter a valid Philippine mobile number, e.g. 09171234567.');
+                }
+            }],
         ]);
 
-        $user->fill($validated);
+        $user->fill([
+            'name'  => $validated['name'],
+            'email' => $validated['email'] ?: null,
+        ]);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
         $user->save();
+
+        if ($employee = $this->employee()) {
+            $this->cell_number = SmsService::normalize($this->cell_number) ?? '';
+            $employee->update(['cell_number' => $this->cell_number ?: null]);
+        }
 
         $this->dispatch('profile-updated', name: $user->name);
     }
@@ -69,7 +97,7 @@ new class extends Component
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            {{ __("Update your account's profile information and email address.") }}
+            {{ __("Update your name, email address and cellphone number.") }}
         </p>
     </header>
 
@@ -82,7 +110,7 @@ new class extends Component
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model.live="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
+            <x-text-input wire:model.live="email" id="email" name="email" type="email" class="mt-1 block w-full" autocomplete="email" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
@@ -103,6 +131,15 @@ new class extends Component
                 </div>
             @endif
         </div>
+
+        @if ($this->employee())
+            <div>
+                <x-input-label for="cell_number" :value="__('Cellphone Number')" />
+                <x-text-input wire:model.live="cell_number" id="cell_number" name="cell_number" type="tel" inputmode="numeric" placeholder="09171234567" class="mt-1 block w-full" autocomplete="tel" />
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Leave, overtime and payroll SMS alerts are sent to this number.') }}</p>
+                <x-input-error class="mt-2" :messages="$errors->get('cell_number')" />
+            </div>
+        @endif
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
