@@ -297,28 +297,7 @@ class PhilippinePayrollService
 
         $grossPay = round($basicPay - $absentDeduction + $overtimePay - $lateDeduction - $undertimeDeduction, 2);
 
-        // Load active deductions filtered by the period's cutoff schedule:
-        // semi_monthly_1 → apply 'both' and '1st' deductions
-        // semi_monthly_2 → apply 'both' and '2nd' deductions
-        // monthly        → apply all deductions
-        $applicableCutoffs = match ($period->cutoff_type) {
-            'semi_monthly_1' => ['both', '1st'],
-            'semi_monthly_2' => ['both', '2nd'],
-            'monthly'        => ['both', '1st', '2nd'],
-            'custom'         => match ($period->custom_deduction_scope) {
-                '1st'   => ['both', '1st'],
-                '2nd'   => ['both', '2nd'],
-                'all'   => ['both', '1st', '2nd'],
-                default => ['both'], // 'both' (default): a custom range has no inherent half, so only universal deductions apply unless explicitly widened
-            },
-            default => ['both', '1st', '2nd'],
-        };
-
-        $activeDeductions = OtherDeduction::with('deductionType')
-            ->where('employee_id', $employee->id)
-            ->where('is_active', true)
-            ->whereIn('cutoff_schedule', $applicableCutoffs)
-            ->get();
+        $activeDeductions = $this->applicableDeductions($employee, $period);
 
         // Group manual deductions by type for payslip breakdown.
         // All amounts come from manually entered deduction records — no auto-calculation.
@@ -326,14 +305,15 @@ class PhilippinePayrollService
         $isPhc = fn ($d) => preg_match('/^PHC|^PHIL/i',    $d->deductionType?->code ?? '');
         $isPag = fn ($d) => preg_match('/^PAG/i',           $d->deductionType?->code ?? '');
         $isTax = fn ($d) => preg_match('/^TAX|^WHT|^WTAX/i', $d->deductionType?->code ?? '');
+        $amount = fn ($d) => $d->amountThisCutoff();
 
-        $sss        = round((float) $activeDeductions->filter($isSss)->sum('amount_per_cutoff'), 2);
-        $philhealth = round((float) $activeDeductions->filter($isPhc)->sum('amount_per_cutoff'), 2);
-        $pagibig    = round((float) $activeDeductions->filter($isPag)->sum('amount_per_cutoff'), 2);
-        $tax        = round((float) $activeDeductions->filter($isTax)->sum('amount_per_cutoff'), 2);
+        $sss        = round((float) $activeDeductions->filter($isSss)->sum($amount), 2);
+        $philhealth = round((float) $activeDeductions->filter($isPhc)->sum($amount), 2);
+        $pagibig    = round((float) $activeDeductions->filter($isPag)->sum($amount), 2);
+        $tax        = round((float) $activeDeductions->filter($isTax)->sum($amount), 2);
 
         $otherDeductions       = $activeDeductions->reject(fn ($d) => $isSss($d) || $isPhc($d) || $isPag($d) || $isTax($d));
-        $otherDeductionsAmount = round((float) $otherDeductions->sum('amount_per_cutoff'), 2);
+        $otherDeductionsAmount = round((float) $otherDeductions->sum($amount), 2);
 
         $totalDeductions = round($sss + $philhealth + $pagibig + $tax + $otherDeductionsAmount, 2);
 
@@ -437,6 +417,36 @@ class PhilippinePayrollService
         }
 
         return array_unique($dates);
+    }
+
+    /**
+     * Active deductions that apply to this period, by the period's cutoff:
+     * semi_monthly_1 → 'both' and '1st'; semi_monthly_2 → 'both' and '2nd';
+     * monthly → all. Deductions whose start date is after the period are skipped.
+     *
+     * @return \Illuminate\Support\Collection<int, OtherDeduction>
+     */
+    public function applicableDeductions(Employee $employee, PayrollPeriod $period)
+    {
+        $applicableCutoffs = match ($period->cutoff_type) {
+            'semi_monthly_1' => ['both', '1st'],
+            'semi_monthly_2' => ['both', '2nd'],
+            'monthly'        => ['both', '1st', '2nd'],
+            'custom'         => match ($period->custom_deduction_scope) {
+                '1st'   => ['both', '1st'],
+                '2nd'   => ['both', '2nd'],
+                'all'   => ['both', '1st', '2nd'],
+                default => ['both'], // 'both' (default): a custom range has no inherent half, so only universal deductions apply unless explicitly widened
+            },
+            default => ['both', '1st', '2nd'],
+        };
+
+        return OtherDeduction::with('deductionType')
+            ->where('employee_id', $employee->id)
+            ->where('is_active', true)
+            ->whereIn('cutoff_schedule', $applicableCutoffs)
+            ->where(fn ($q) => $q->whereNull('starts_on')->orWhereDate('starts_on', '<=', $period->end_date))
+            ->get();
     }
 
     /**

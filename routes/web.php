@@ -4,6 +4,7 @@ use App\Http\Controllers\GatePassController;
 use App\Http\Controllers\OvertimeFormController;
 use App\Http\Controllers\PatientTransportController;
 use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\SalaryDeductionController;
 use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,17 @@ Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 Route::get('overtime/form/{overtimeForm}', [OvertimeFormController::class, 'show'])
     ->middleware(['auth'])
     ->name('overtime.show');
+
+// Salary deduction form — every employee files; HR approval creates the payroll deductions
+Route::middleware(['auth'])->group(function () {
+    Route::view('salary-deduction', 'salary-deduction')->name('salary-deduction.request');
+    Route::get('salary-deduction/{salaryDeduction}', [SalaryDeductionController::class, 'show'])->name('salary-deduction.show');
+    Route::get('salary-deduction/{salaryDeduction}/attachment', [SalaryDeductionController::class, 'attachment'])->name('salary-deduction.attachment');
+});
+
+Route::view('admin/salary-deductions', 'admin.salary-deductions')
+    ->middleware(['auth', 'role:super_admin,hr_admin'])
+    ->name('admin.salary-deductions');
 
 // Gate pass — every employee files; HR approves; the guard checks the approved pass
 Route::middleware(['auth'])->group(function () {

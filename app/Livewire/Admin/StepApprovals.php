@@ -69,6 +69,11 @@ abstract class StepApprovals extends Component
     {
     }
 
+    /** Called once the request is fully approved — apply its effects here. */
+    protected function afterFinalApproval(Model $request): void
+    {
+    }
+
     /** Error that blocks final approval, if the request no longer makes sense. */
     protected function finalApprovalError(Model $request): ?string
     {
@@ -189,6 +194,7 @@ abstract class StepApprovals extends Component
                     'approved_at'   => now(),
                     'remarks'       => $this->remarks ?: null,
                 ]);
+                $this->afterFinalApproval($request);
                 ActivityLogService::log("{$logKey}_approved", ucfirst($what) . ' approved' . ($override ? ' (Super Admin override)' : '') . " for {$employee->full_name}", $employee);
                 $message = ucfirst($this->label()) . ($override ? ' approved (Super Admin override).' : ' fully approved.');
                 $notifier->requestDecision($employee, $what, true, $this->remarks ?: null, $link, $context);

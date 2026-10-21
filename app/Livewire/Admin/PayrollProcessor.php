@@ -9,6 +9,7 @@ use App\Models\PayrollPeriod;
 use App\Models\Payslip;
 use App\Services\ActivityLogService;
 use App\Services\PayrollWorksheetImportService;
+use App\Services\SalaryDeductionService;
 use App\Services\SmsNotificationService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -226,6 +227,9 @@ class PayrollProcessor extends Component
         ]);
 
         ActivityLogService::log('payroll_finalized', "Finalized payroll: {$period->name}", $period);
+
+        // Loans and other deductions with a total: lower balances, stop the paid-off ones.
+        app(SalaryDeductionService::class)->recordPeriod($period);
 
         $sms = app(SmsNotificationService::class)->payslipNotices($period);
 

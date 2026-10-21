@@ -43,6 +43,7 @@ new class extends Component
                     ['label' => 'Payroll',           'route' => 'admin.payroll',            'icon' => 'currency-dollar'],
                     ['label' => 'Salary Setup',      'route' => 'admin.salary',             'icon' => 'banknotes'],
                     ['label' => 'Deductions',        'route' => 'admin.deductions',         'icon' => 'minus-circle'],
+                    ['label' => 'Deduction Requests', 'route' => 'admin.salary-deductions', 'icon' => 'document-check'],
                 ],
                 'Attendance' => [
                     ['label' => 'Schedules',         'route' => 'admin.schedules',          'icon' => 'clock'],
@@ -86,11 +87,13 @@ new class extends Component
                     ['label' => 'Departments',       'route' => 'admin.departments',        'icon' => 'office-building'],
                     ['label' => 'Positions',         'route' => 'admin.positions',          'icon' => 'briefcase'],
                     ['label' => 'My Gate Pass',      'route' => 'gate-pass.request',        'icon' => 'door'],
+                    ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
                 ],
                 'Payroll' => [
                     ['label' => 'Payroll',           'route' => 'admin.payroll',            'icon' => 'currency-dollar'],
                     ['label' => 'Salary Setup',      'route' => 'admin.salary',             'icon' => 'banknotes'],
                     ['label' => 'Deductions',        'route' => 'admin.deductions',         'icon' => 'minus-circle'],
+                    ['label' => 'Deduction Requests', 'route' => 'admin.salary-deductions', 'icon' => 'document-check'],
                 ],
                 'Attendance' => [
                     ['label' => 'Schedules',         'route' => 'admin.schedules',          'icon' => 'clock'],
@@ -147,6 +150,7 @@ new class extends Component
                     ['label' => 'Shift Change',      'route' => 'shift-change.request',     'icon' => 'arrows-left-right'],
                     ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                     ['label' => 'Gate Pass',         'route' => 'gate-pass.request',        'icon' => 'door'],
+                    ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
@@ -168,6 +172,7 @@ new class extends Component
                     ['label' => 'Overtime Approvals',   'route' => 'admin.overtime',           'icon' => 'clock'],
                     ['label' => 'Trip Requests',       'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                     ['label' => 'My Gate Pass',        'route' => 'gate-pass.request',        'icon' => 'door'],
+                    ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
                 ],
                 'Reports' => [
                     ['label' => 'Attendance',          'route' => 'admin.reports.attendance', 'icon' => 'chart-bar'],
@@ -178,6 +183,7 @@ new class extends Component
                 'Main' => [
                     ['label' => 'Vehicle Returns',   'route' => 'security.fleet-return',    'icon' => 'check-circle'],
                     ['label' => 'My Gate Pass',      'route' => 'gate-pass.request',        'icon' => 'door'],
+                    ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
                 ],
             ],
             'head_nurse' => [
@@ -196,6 +202,7 @@ new class extends Component
                     ['label' => 'Shift Change',      'route' => 'shift-change.request',     'icon' => 'arrows-left-right'],
                     ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                     ['label' => 'Gate Pass',         'route' => 'gate-pass.request',        'icon' => 'door'],
+                    ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
@@ -221,6 +228,7 @@ new class extends Component
                     ['label' => 'Shift Change',      'route' => 'shift-change.request',     'icon' => 'arrows-left-right'],
                     ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                     ['label' => 'Gate Pass',         'route' => 'gate-pass.request',        'icon' => 'door'],
+                    ['label' => 'Salary Deduction',  'route' => 'salary-deduction.request', 'icon' => 'minus-circle'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
