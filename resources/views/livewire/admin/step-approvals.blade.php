@@ -17,8 +17,8 @@
     @if ($this->myStep)
         <div class="mb-4 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <x-phosphor-user-bold class="w-4 h-4 text-indigo-500" />
-            You are <span class="font-semibold text-indigo-600 dark:text-indigo-400 mx-1">{{ \App\Services\LeaveService::APPROVAL_STEPS[$this->myStep]['label'] ?? 'Approver' }}</span>
-            — Step {{ $this->myStep }} of {{ count(\App\Services\LeaveService::APPROVAL_STEPS) }}
+            You are <span class="font-semibold text-indigo-600 dark:text-indigo-400 mx-1">{{ $this->approvalSteps[$this->myStep]['label'] ?? 'Approver' }}</span>
+            — Step {{ $this->myStep }} of {{ count($this->approvalSteps) }}
         </div>
     @endif
 

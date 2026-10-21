@@ -18,6 +18,7 @@
         'calendar-x'      => 'calendar-x',
         'arrows-left-right' => 'arrows-left-right',
         'clock-countdown' => 'clock-countdown',
+        'door'            => 'door-open',
         'office-building' => 'buildings',
         'briefcase'       => 'briefcase',
         'truck'           => 'truck',

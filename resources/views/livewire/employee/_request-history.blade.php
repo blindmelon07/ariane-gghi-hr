@@ -1,6 +1,7 @@
 {{--
     "My requests" list for employee request forms.
     Expects: $title, $empty, $columns (labels), $rows ([req, values]), $confirm (cancel prompt).
+    Optional: $viewRoute — route (taking the request) linked as "View Pass" once approved.
 --}}
 @php
     $statusClass = fn ($status) => match ($status) {
@@ -31,6 +32,8 @@
                 @if ($req->status === 'pending')
                     <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
                             class="mt-2 text-xs font-medium text-red-600 dark:text-red-400">Cancel</button>
+                @elseif ($req->status === 'approved' && ! empty($viewRoute))
+                    <a href="{{ route($viewRoute, $req) }}" class="mt-2 inline-block text-xs font-medium text-indigo-600 dark:text-indigo-400">View Pass</a>
                 @endif
             </div>
         @empty
@@ -68,6 +71,8 @@
                             @if ($req->status === 'pending')
                                 <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
                                         class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Cancel</button>
+                            @elseif ($req->status === 'approved' && ! empty($viewRoute))
+                                <a href="{{ route($viewRoute, $req) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">View Pass</a>
                             @endif
                         </td>
                     </tr>

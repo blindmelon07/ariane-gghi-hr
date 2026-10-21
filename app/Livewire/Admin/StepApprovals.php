@@ -51,6 +51,12 @@ abstract class StepApprovals extends Component
         return ['employee'];
     }
 
+    /** Approval chain: step => ['role' => string|string[], 'label' => string]. */
+    protected function steps(): array
+    {
+        return LeaveService::APPROVAL_STEPS;
+    }
+
     /** Error that blocks final approval, if the request no longer makes sense. */
     protected function finalApprovalError(Model $request): ?string
     {
@@ -61,9 +67,23 @@ abstract class StepApprovals extends Component
     public function updatedFilterStatus(): void { $this->resetPage(); }
 
     #[Computed]
+    public function approvalSteps(): array
+    {
+        return $this->steps();
+    }
+
+    #[Computed]
     public function myStep(): ?int
     {
-        return app(LeaveService::class)->getStepForUser(Auth::user());
+        $role = Auth::user()?->role;
+
+        foreach ($this->steps() as $step => $config) {
+            if (in_array($role, (array) $config['role'], true)) {
+                return $step;
+            }
+        }
+
+        return null;
     }
 
     /** Super admins can approve or reject at any step, without waiting for the others. */
@@ -119,8 +139,14 @@ abstract class StepApprovals extends Component
             return;
         }
 
-        $steps    = LeaveService::APPROVAL_STEPS;
-        $user     = Auth::user();
+        $user = Auth::user();
+        if ($user->employee_code && $request->employee->emp_code === $user->employee_code) {
+            $this->addError('remarks', 'You cannot approve or reject your own request.');
+            $this->dispatch('open-approval-modal');
+            return;
+        }
+
+        $steps    = $this->steps();
         $notifier = app(SmsNotificationService::class);
         $what     = $this->describe($request);
         $link     = route($this->employeeRoute());

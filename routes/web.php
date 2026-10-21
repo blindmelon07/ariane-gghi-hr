@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GatePassController;
 use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +63,16 @@ Route::view('head-nurse/roster', 'head-nurse.roster')
 // ── Shared ────────────────────────────────────────────────────────────────────
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
+
+// Gate pass — every employee files; HR approves; the guard checks the approved pass
+Route::middleware(['auth'])->group(function () {
+    Route::view('gate-pass', 'gate-pass')->name('gate-pass.request');
+    Route::get('gate-pass/{gatePass}', [GatePassController::class, 'show'])->name('gate-pass.show');
+});
+
+Route::view('admin/gate-passes', 'admin.gate-passes')
+    ->middleware(['auth', 'role:super_admin,hr_admin'])
+    ->name('admin.gate-passes');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
