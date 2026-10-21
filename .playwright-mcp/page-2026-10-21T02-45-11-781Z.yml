@@ -1,0 +1,24 @@
+- generic [ref=f6e296]:
+  - generic [ref=f6e297]:
+    - img "GGHI" [ref=f6e298]
+    - heading "GGHI" [level=2] [ref=f6e299]
+  - generic [ref=f6e302]:
+    - generic [ref=f6e303]:
+      - heading "Welcome back" [level=2] [ref=f6e304]
+      - paragraph [ref=f6e305]: Sign in with your employee credentials
+    - generic [ref=f6e306]:
+      - generic [ref=f6e307]:
+        - generic [ref=f6e308]: Employee Code or Username
+        - textbox "Employee Code or Username" [active] [ref=f6e310]:
+          - /placeholder: e.g. EMP001 or maria.santos
+      - generic [ref=f6e311]:
+        - generic [ref=f6e312]: Password
+        - generic [ref=f6e313]:
+          - button "Show password" [ref=f6e314] [cursor=pointer]
+          - textbox "Password" [ref=f6e317]:
+            - /placeholder: ••••••••
+      - generic [ref=f6e318]:
+        - checkbox "Keep me signed in" [ref=f6e319]
+        - generic [ref=f6e320]: Keep me signed in
+      - button "Sign in" [ref=f6e321] [cursor=pointer]
+    - paragraph [ref=f6e324]: Having trouble? Contact your HR administrator.

@@ -36,6 +36,7 @@ class EmployeeManager extends Component
     public string   $editEmploymentType  = 'regular';
     public ?int     $editWeekdayOff      = 6; // 1=Monday, 6=Saturday, null=none (Probationary)
     public string   $editDob            = '';
+    public string   $editRegularizationDate = '';
     public bool     $editIsActive       = true;
 
     // Account modal state
@@ -127,6 +128,7 @@ class EmployeeManager extends Component
         $this->editEmploymentType  = $emp->employment_type ?? 'regular';
         $this->editWeekdayOff      = $emp->weekday_off;
         $this->editDob        = $emp->date_of_birth?->format('Y-m-d') ?? '';
+        $this->editRegularizationDate = $emp->regularization_date?->format('Y-m-d') ?? '';
         $this->editIsActive   = $emp->is_active;
         $this->showEdit       = true;
     }
@@ -152,6 +154,7 @@ class EmployeeManager extends Component
             'editEmploymentType' => 'required|in:probationary,regular',
             'editWeekdayOff'     => 'nullable|integer|in:1,6',
             'editDob'            => 'nullable|date',
+            'editRegularizationDate' => 'nullable|date',
         ]);
 
         $emp->update([
@@ -164,6 +167,7 @@ class EmployeeManager extends Component
             'employment_type' => $this->editEmploymentType,
             'weekday_off'     => $this->editEmploymentType === 'probationary' ? null : $this->editWeekdayOff,
             'date_of_birth'   => $this->editDob ?: null,
+            'regularization_date' => $this->editEmploymentType === 'regular' ? ($this->editRegularizationDate ?: null) : null,
             'is_active'       => $this->editIsActive,
         ]);
 

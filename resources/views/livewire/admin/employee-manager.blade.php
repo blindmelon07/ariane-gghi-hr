@@ -283,6 +283,13 @@
                     </div>
                     @error('editWeekdayOff') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Regularization Date</label>
+                    <input type="date" wire:model.live="editRegularizationDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Paid leave credits (2.5 days/month) start 1 year after this date.</p>
+                    @error('editRegularizationDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
                 @endif
 
                 <div class="grid grid-cols-2 gap-4">

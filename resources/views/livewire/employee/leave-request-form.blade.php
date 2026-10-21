@@ -85,6 +85,17 @@
                         Total working days: <span class="font-bold">{{ $this->totalDays }}</span>
                     @endif
                 </div>
+
+                @if ($this->leave_type_id && $this->paidDays < $this->totalDays)
+                    <div class="rounded-lg px-4 py-3 text-sm flex items-start gap-2 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300">
+                        <x-phosphor-warning-bold class="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>
+                            <span class="font-bold">{{ $this->paidDays }}</span> day(s) paid,
+                            <span class="font-bold">{{ $this->totalDays - $this->paidDays }}</span> day(s) <span class="font-bold">without pay</span>.
+                            Only earned leave credits are paid.
+                        </span>
+                    </div>
+                @endif
             @endif
 
             {{-- Reason --}}

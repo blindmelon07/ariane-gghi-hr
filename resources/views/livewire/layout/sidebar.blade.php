@@ -251,7 +251,7 @@ new class extends Component
                 {{-- ── Single item: direct link ── --}}
                 @php $item = $items[0]; $active = request()->routeIs($item['route']); @endphp
                 <div class="relative mb-0.5" x-data="{ hover: false }" @mouseenter="hover = true" @mouseleave="hover = false">
-                    <a href="{{ route($item['route']) }}" wire:navigate @click="$store.sidebar.closeMobile()"
+                    <a href="{{ route($item['route']) }}" data-tour="nav-{{ $item['route'] }}" wire:navigate @click="$store.sidebar.closeMobile()"
                        class="flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-150 group"
                        :class="[
                            $store.sidebar.collapsed ? 'justify-center p-3' : 'px-3 py-2.5',
@@ -285,7 +285,7 @@ new class extends Component
                      @mouseenter="hover = true" @mouseleave="hover = false">
 
                     {{-- Group trigger button --}}
-                    <button @click="if (!$store.sidebar.collapsed) open = !open"
+                    <button @click="if (!$store.sidebar.collapsed) open = !open" data-tour="nav-section-{{ \Illuminate\Support\Str::slug($section) }}"
                             class="w-full flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-150 group"
                             :class="[
                                 $store.sidebar.collapsed ? 'justify-center p-3' : 'px-3 py-2.5',
@@ -314,7 +314,7 @@ new class extends Component
                          class="mt-0.5 ml-3 pl-3 border-l border-white/10 space-y-0.5">
                         @foreach ($items as $item)
                             @php $active = request()->routeIs($item['route']); @endphp
-                            <a href="{{ route($item['route']) }}" wire:navigate @click="$store.sidebar.closeMobile()"
+                            <a href="{{ route($item['route']) }}" data-tour="nav-{{ $item['route'] }}" wire:navigate @click="$store.sidebar.closeMobile()"
                                class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-all duration-150
                                       {{ $active
                                           ? 'text-blue-300 bg-blue-500/15 font-medium'

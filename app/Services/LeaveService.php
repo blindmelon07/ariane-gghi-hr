@@ -6,6 +6,7 @@ use App\Models\DayOffSwap;
 use App\Models\LeaveCredit;
 use App\Models\LeaveRequest;
 use App\Models\LeaveRequestApproval;
+use App\Models\LeaveType;
 use App\Models\User;
 use App\Notifications\LeaveRequestFiled;
 use App\Notifications\LeaveStatusUpdated;
@@ -103,6 +104,22 @@ class LeaveService
     }
 
     /**
+     * How many of $totalDays are paid: leave is never blocked for lack of
+     * credits — the part covered by the remaining balance is paid, the rest
+     * is unpaid (and shows up as absence in payroll).
+     */
+    public function computePaidDays(int $employeeId, int $leaveTypeId, int $year, float $totalDays): float
+    {
+        if (! LeaveType::whereKey($leaveTypeId)->value('is_paid')) {
+            return 0;
+        }
+
+        $remaining = max(0, $this->getRemainingCredits($employeeId, $leaveTypeId, $year));
+
+        return min($totalDays, $remaining);
+    }
+
+    /**
      * Approve a leave request at the current step.
      * Advances to the next step or fully approves when the final step is reached.
      */
@@ -190,7 +207,16 @@ class LeaveService
      */
     private function finalizeApproval(LeaveRequest $request, User $approver, ?string $remarks, string $label): void
     {
+        // Re-checked at approval: the balance may have changed since filing.
+        $paidDays = $this->computePaidDays(
+            $request->employee_id,
+            $request->leave_type_id,
+            $request->start_date->year,
+            (float) $request->total_days,
+        );
+
         $request->update([
+            'paid_days'     => $paidDays,
             'status'        => 'approved',
             'approval_step' => null,
             'approved_by'   => $approver->id,
@@ -203,9 +229,9 @@ class LeaveService
             ->where('year', $request->start_date->year)
             ->first();
 
-        if ($credit) {
+        if ($credit && $paidDays > 0) {
             $credit->update([
-                'used_credits' => $credit->used_credits + $request->total_days,
+                'used_credits' => $credit->used_credits + $paidDays,
             ]);
         }
 

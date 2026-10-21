@@ -1,0 +1,128 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - complementary [ref=f6e3]:
+      - generic [ref=f6e4]:
+        - img "GGHI" [ref=f6e6]
+        - button "Collapse" [ref=f6e7] [cursor=pointer]
+      - navigation [ref=f6e10]:
+        - generic [ref=f6e11]:
+          - button "Main" [ref=f6e12] [cursor=pointer]
+          - generic [ref=f6e19]:
+            - link "Dashboard" [ref=f6e20] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/dashboard
+            - link "Employees" [ref=f6e23] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/employees
+            - link "Departments" [ref=f6e26] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/departments
+            - link "Positions" [ref=f6e29] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/positions
+        - button "Payroll" [ref=f6e33] [cursor=pointer]
+        - button "Attendance" [ref=f6e41] [cursor=pointer]
+        - button "Leave" [ref=f6e49] [cursor=pointer]
+        - button "Fleet" [ref=f6e57] [cursor=pointer]
+        - button "Reports" [ref=f6e65] [cursor=pointer]
+        - link "SMS Center" [ref=f6e73] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/sms
+        - link "User Accounts" [ref=f6e79] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/accounts
+      - paragraph [ref=f6e85]: ADMIN001 · ● Online
+    - generic [ref=f6e86]:
+      - banner [ref=f6e87]:
+        - generic [ref=f6e88]:
+          - generic [ref=f6e89]:
+            - button "Open menu" [ref=f6e90] [cursor=pointer]
+            - heading "HR Admin Dashboard" [level=2] [ref=f6e94]
+          - generic [ref=f6e95]:
+            - button "Toggle theme" [ref=f6e96] [cursor=pointer]
+            - button [ref=f6e100] [cursor=pointer]
+            - generic [ref=f6e103]: Oct 21, 2026
+            - button "User menu" [ref=f6e107] [cursor=pointer]:
+              - generic [ref=f6e108]: HR
+              - generic [ref=f6e110]:
+                - paragraph [ref=f6e111]: HR Administrator
+                - paragraph [ref=f6e112]: hr admin
+      - main [ref=f6e115]:
+        - generic [ref=f6e117]:
+          - generic [ref=f6e118]:
+            - heading "Welcome, HR Administrator" [level=3] [ref=f6e119]
+            - paragraph [ref=f6e120]: Hr admin · Wednesday, October 21, 2026
+          - generic [ref=f6e121]:
+            - generic [ref=f6e126]:
+              - paragraph [ref=f6e127]: Employees
+              - paragraph [ref=f6e128]: "74"
+            - generic [ref=f6e133]:
+              - paragraph [ref=f6e134]: Present
+              - paragraph [ref=f6e135]: "0"
+            - generic [ref=f6e140]:
+              - paragraph [ref=f6e141]: Absent
+              - paragraph [ref=f6e142]: "74"
+            - generic [ref=f6e147]:
+              - paragraph [ref=f6e148]: Late
+              - paragraph [ref=f6e149]: "0"
+            - generic [ref=f6e154]:
+              - paragraph [ref=f6e155]: Pending Leaves
+              - paragraph [ref=f6e156]: "0"
+            - generic [ref=f6e161]:
+              - paragraph [ref=f6e162]: Pending Payroll
+              - paragraph [ref=f6e163]: "1"
+          - generic [ref=f6e164]:
+            - heading "Weekly Attendance (Last 7 Days)" [level=4] [ref=f6e166]
+            - heading "Leave Requests 2026" [level=4] [ref=f6e169]
+          - generic [ref=f6e172]:
+            - generic [ref=f6e173]:
+              - heading "Quick Actions" [level=4] [ref=f6e174]
+              - generic [ref=f6e175]:
+                - button "Sync BioTime Employees" [ref=f6e176] [cursor=pointer]
+                - link "Process Payroll" [ref=f6e180] [cursor=pointer]:
+                  - /url: http://127.0.0.1:8000/admin/payroll
+                - link "Attendance Reports" [ref=f6e183] [cursor=pointer]:
+                  - /url: http://127.0.0.1:8000/admin/reports/attendance
+            - generic [ref=f6e186]:
+              - heading "🎂 Birthdays Today" [level=4] [ref=f6e187]
+              - paragraph [ref=f6e188]: No birthdays today.
+            - generic [ref=f6e189]:
+              - heading "Recent Activity" [level=4] [ref=f6e190]
+              - generic [ref=f6e191]:
+                - generic [ref=f6e194]:
+                  - paragraph [ref=f6e195]: Imported 1051 punch(es) for 35 employee(s) from Excel.
+                  - paragraph [ref=f6e196]: HR Administrator · 1 week ago
+                - generic [ref=f6e199]:
+                  - paragraph [ref=f6e200]: Imported 1051 punch(es) for 35 employee(s) from Excel.
+                  - paragraph [ref=f6e201]: HR Administrator · 1 week ago
+                - generic [ref=f6e204]:
+                  - paragraph [ref=f6e205]: Reset password for Cedric John Bayoca (2)
+                  - paragraph [ref=f6e206]: HR Administrator · 1 week ago
+                - generic [ref=f6e209]:
+                  - paragraph [ref=f6e210]: "Generated payslips for 1 employee(s): Sample"
+                  - paragraph [ref=f6e211]: HR Administrator · 1 week ago
+                - generic [ref=f6e214]:
+                  - paragraph [ref=f6e215]: Created account for Escurel, Mae (4)
+                  - paragraph [ref=f6e216]: HR Administrator · 1 week ago
+                - generic [ref=f6e219]:
+                  - paragraph [ref=f6e220]: "Updated employee: Cedric John Bayoca (2)"
+                  - paragraph [ref=f6e221]: HR Administrator · 1 week ago
+                - generic [ref=f6e224]:
+                  - paragraph [ref=f6e225]: Assigned 14 recurring day offs to Raffy Camposano
+                  - paragraph [ref=f6e226]: HR Administrator · 4 weeks ago
+                - generic [ref=f6e229]:
+                  - paragraph [ref=f6e230]: Assigned 14 recurring day offs to Marie Joy Deniega
+                  - paragraph [ref=f6e231]: HR Administrator · 4 weeks ago
+                - generic [ref=f6e234]:
+                  - paragraph [ref=f6e235]: Assigned 14 recurring day offs to Kathlyn Mae Enciso
+                  - paragraph [ref=f6e236]: HR Administrator · 4 weeks ago
+                - generic [ref=f6e239]:
+                  - paragraph [ref=f6e240]: Assigned 14 recurring day offs to Danica Mae Ferreras
+                  - paragraph [ref=f6e241]: HR Administrator · 4 weeks ago
+      - contentinfo [ref=f6e242]: © 2026 GGHI — All rights reserved.
+  - navigation [ref=f6e243]:
+    - generic [ref=f6e244]:
+      - link "Home" [ref=f6e245] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/dashboard
+      - link "Staff" [ref=f6e251] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/employees
+      - link "Leave" [ref=f6e256] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/leave
+      - link "Payroll" [ref=f6e261] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/payroll
+      - link "Profile" [ref=f6e266] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/profile

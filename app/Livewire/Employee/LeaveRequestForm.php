@@ -97,6 +97,18 @@ class LeaveRequestForm extends Component
         return app(LeaveService::class)->computeTotalDays($this->start_date, $this->end_date, $employee?->weekday_off, $employee?->id);
     }
 
+    /** Days of this request covered by credits; the rest is unpaid. */
+    #[Computed]
+    public function paidDays(): float
+    {
+        $employee = Employee::where('emp_code', auth()->user()->employee_code)->first();
+        if (! $employee || ! $this->leave_type_id) {
+            return 0;
+        }
+
+        return app(LeaveService::class)->computePaidDays($employee->id, (int) $this->leave_type_id, now()->year, $this->totalDays);
+    }
+
     #[Computed]
     public function remainingCredits(): float
     {
@@ -121,17 +133,17 @@ class LeaveRequestForm extends Component
         if ($this->is_half_day) {
             $this->end_date = $this->start_date;
         }
-        unset($this->totalDays, $this->remainingCredits);
+        unset($this->totalDays, $this->remainingCredits, $this->paidDays);
     }
 
     public function updatedEndDate(): void
     {
-        unset($this->totalDays, $this->remainingCredits);
+        unset($this->totalDays, $this->remainingCredits, $this->paidDays);
     }
 
     public function updatedLeaveTypeId(): void
     {
-        unset($this->remainingCredits);
+        unset($this->remainingCredits, $this->paidDays);
     }
 
     public function updatedIsHalfDay(): void
@@ -139,7 +151,7 @@ class LeaveRequestForm extends Component
         if ($this->is_half_day && $this->start_date) {
             $this->end_date = $this->start_date;
         }
-        unset($this->totalDays);
+        unset($this->totalDays, $this->paidDays);
     }
 
     public function submit(): void
@@ -164,12 +176,8 @@ class LeaveRequestForm extends Component
             return;
         }
 
-        // Check credits
-        $remaining = $leaveService->getRemainingCredits($employee->id, (int) $this->leave_type_id, now()->year);
-        if ($totalDays > $remaining) {
-            $this->addError('leave_type_id', "Insufficient credits. You have {$remaining} day(s) remaining.");
-            return;
-        }
+        // No credit cap: days beyond the balance are filed unpaid. Recomputed at final approval.
+        $paidDays = $leaveService->computePaidDays($employee->id, (int) $this->leave_type_id, now()->year, $totalDays);
 
         $request = LeaveRequest::create([
             'employee_id'   => $employee->id,
@@ -177,6 +185,7 @@ class LeaveRequestForm extends Component
             'start_date'    => $this->start_date,
             'end_date'      => $this->is_half_day ? $this->start_date : $this->end_date,
             'total_days'    => $totalDays,
+            'paid_days'     => $paidDays,
             'is_half_day'   => $this->is_half_day,
             'reason'        => $this->reason,
             'status'        => 'pending',
@@ -186,7 +195,7 @@ class LeaveRequestForm extends Component
         $leaveService->notifyAdmins($request);
 
         $this->reset(['leave_type_id', 'start_date', 'end_date', 'reason', 'is_half_day']);
-        unset($this->totalDays, $this->remainingCredits);
+        unset($this->totalDays, $this->remainingCredits, $this->paidDays);
 
         $this->dispatch('leave-filed');
         session()->flash('success', 'Leave request filed successfully.');

@@ -440,7 +440,9 @@ class PhilippinePayrollService
     }
 
     /**
-     * Count approved leave days within a date range (excludes Sundays).
+     * Count approved *paid* leave days within a date range (excludes Sundays).
+     * Unpaid leave (beyond the employee's credits) is left out so it is
+     * deducted as absence. A leave's paid days are its earliest days.
      */
     protected function getApprovedLeaveDays(int $employeeId, $startDate, $endDate): float
     {
@@ -452,13 +454,26 @@ class PhilippinePayrollService
 
         $totalDays = 0;
 
-        foreach ($leaves as $leave) {
-            $from = Carbon::parse(max($leave->start_date, $startDate));
-            $to   = Carbon::parse(min($leave->end_date, $endDate));
+        $periodStart = Carbon::parse($startDate)->startOfDay();
+        $periodEnd   = Carbon::parse($endDate)->startOfDay();
 
-            for ($d = $from->copy(); $d->lte($to); $d->addDay()) {
-                if (!$d->isSunday()) {
-                    $totalDays++;
+        foreach ($leaves as $leave) {
+            $paidLeft  = (float) ($leave->paid_days ?? $leave->total_days);
+            $dayAmount = $leave->is_half_day ? 0.5 : 1;
+
+            // Walk from the leave's own start so paid days spent in an earlier
+            // cutoff are not counted again in this one.
+            for ($d = Carbon::parse($leave->start_date); $d->lte($leave->end_date) && $d->lte($periodEnd); $d->addDay()) {
+                if ($d->isSunday() || $paidLeft <= 0) {
+                    continue;
+                }
+
+                $paid      = min($dayAmount, $paidLeft);
+                $paidLeft -= $paid;
+
+                // A paid half-day leave credits the whole day, as before.
+                if ($d->gte($periodStart)) {
+                    $totalDays += $paid / $dayAmount;
                 }
             }
         }

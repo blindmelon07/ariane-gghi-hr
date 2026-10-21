@@ -226,7 +226,7 @@ class LeaveCreditManager extends Component
 
         ActivityLogService::log('leave_credits_accrued', 'Manual monthly accrual triggered for ' . now()->format('F Y') . '.');
         unset($this->employees, $this->lastAccrual, $this->thisMonthAccrued);
-        session()->flash('success', 'Monthly accrual complete — 2.5 VL + 2.5 SL added to all active employees.');
+        session()->flash('success', 'Monthly accrual complete — 2.5 VL + 2.5 SL added to employees regular for at least 1 year.');
     }
 
     public function render()

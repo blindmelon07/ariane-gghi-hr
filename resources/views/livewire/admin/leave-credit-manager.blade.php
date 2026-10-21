@@ -64,7 +64,7 @@
                     </div>
                 </div>
                 <button wire:click="accrueThisMonth"
-                        wire:confirm="This will add 2.5 VL + 2.5 SL to all active employees for {{ now()->format('F Y') }}. Continue?"
+                        wire:confirm="This will add 2.5 VL + 2.5 SL to employees regular for at least 1 year for {{ now()->format('F Y') }}. Continue?"
                         wire:loading.attr="disabled"
                         wire:target="accrueThisMonth"
                         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition

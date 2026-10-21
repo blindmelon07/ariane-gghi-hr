@@ -1,0 +1,220 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - complementary [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - img "GGHI" [ref=f4e6]
+        - button "Collapse" [ref=f4e7] [cursor=pointer]
+      - navigation [ref=f4e10]:
+        - button "Main" [ref=f4e12] [cursor=pointer]
+        - generic [ref=f4e19]:
+          - button "Payroll" [ref=f4e20] [cursor=pointer]
+          - generic [ref=f4e27]:
+            - link "Payroll" [ref=f4e28] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/payroll
+            - link "Salary Setup" [ref=f4e31] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/payroll/salary
+            - link "Deductions" [ref=f4e34] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/admin/deductions
+        - button "Attendance" [ref=f4e38] [cursor=pointer]
+        - button "Leave" [ref=f4e46] [cursor=pointer]
+        - button "Fleet" [ref=f4e54] [cursor=pointer]
+        - button "Reports" [ref=f4e62] [cursor=pointer]
+        - link "SMS Center" [ref=f4e70] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/sms
+        - link "User Accounts" [ref=f4e76] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/admin/accounts
+      - paragraph [ref=f4e82]: ADMIN001 · ● Online
+    - generic [ref=f4e83]:
+      - banner [ref=f4e84]:
+        - generic [ref=f4e85]:
+          - generic [ref=f4e86]:
+            - button "Open menu" [ref=f4e87] [cursor=pointer]
+            - heading "Payroll Management" [level=2] [ref=f4e91]
+          - generic [ref=f4e92]:
+            - button "Toggle theme" [ref=f4e93] [cursor=pointer]
+            - button [ref=f4e97] [cursor=pointer]
+            - generic [ref=f4e100]: Oct 21, 2026
+            - button "User menu" [ref=f4e104] [cursor=pointer]:
+              - generic [ref=f4e105]: HR
+              - generic [ref=f4e107]:
+                - paragraph [ref=f4e108]: HR Administrator
+                - paragraph [ref=f4e109]: hr admin
+      - main [ref=f4e112]:
+        - generic [ref=f4e114]:
+          - generic [ref=f4e115]:
+            - generic [ref=f4e116]:
+              - heading "Payroll Periods" [level=3] [ref=f4e117]
+              - paragraph [ref=f4e118]: 2 employees with salary configured
+            - generic [ref=f4e119]:
+              - combobox [ref=f4e120]:
+                - option "All Statuses" [selected]
+                - option "Draft"
+                - option "Processing"
+                - option "Processed"
+                - option "Finalized"
+              - button "New Period" [ref=f4e121] [cursor=pointer]
+          - generic [ref=f4e124]:
+            - generic [ref=f4e125]:
+              - generic [ref=f4e126]:
+                - generic [ref=f4e127]:
+                  - paragraph [ref=f4e128]: Sample
+                  - paragraph [ref=f4e129]: Sep 26 – Oct 10, 2026
+                - generic [ref=f4e130]: Processed
+              - generic [ref=f4e131]:
+                - generic [ref=f4e132]: Custom
+                - generic [ref=f4e133]: · 1 payslips
+              - generic [ref=f4e134]:
+                - button "Regenerate" [ref=f4e135] [cursor=pointer]
+                - button "Finalize" [ref=f4e136] [cursor=pointer]
+                - button "Excel" [ref=f4e137] [cursor=pointer]
+                - button "Payslips" [ref=f4e138] [cursor=pointer]
+                - button "Import Excel" [ref=f4e139] [cursor=pointer]
+            - generic [ref=f4e140]:
+              - generic [ref=f4e141]:
+                - generic [ref=f4e142]:
+                  - paragraph [ref=f4e143]: September 2026 - Monthly
+                  - paragraph [ref=f4e144]: Sep 01 – Sep 30, 2026
+                - generic [ref=f4e145]: Finalized
+              - generic [ref=f4e146]:
+                - generic [ref=f4e147]: Monthly
+                - generic [ref=f4e148]: · 1 payslips
+              - generic [ref=f4e149]:
+                - button "SMS Payslips" [ref=f4e150] [cursor=pointer]
+                - button "Excel" [ref=f4e151] [cursor=pointer]
+                - button "Payslips" [ref=f4e152] [cursor=pointer]
+            - generic [ref=f4e153]:
+              - generic [ref=f4e154]:
+                - generic [ref=f4e155]:
+                  - paragraph [ref=f4e156]: Aug 26 - Sept 10, 2026
+                  - paragraph [ref=f4e157]: Aug 26 – Sep 10, 2026
+                - generic [ref=f4e158]: Processed
+              - generic [ref=f4e159]:
+                - generic [ref=f4e160]: Custom
+                - generic [ref=f4e161]: · 2 payslips
+              - generic [ref=f4e162]:
+                - button "Regenerate" [ref=f4e163] [cursor=pointer]
+                - button "Finalize" [ref=f4e164] [cursor=pointer]
+                - button "Excel" [ref=f4e165] [cursor=pointer]
+                - button "Payslips" [ref=f4e166] [cursor=pointer]
+                - button "Import Excel" [ref=f4e167] [cursor=pointer]
+            - generic [ref=f4e168]:
+              - generic [ref=f4e169]:
+                - generic [ref=f4e170]:
+                  - paragraph [ref=f4e171]: test cut off
+                  - paragraph [ref=f4e172]: Aug 26 – Sep 10, 2026
+                - generic [ref=f4e173]: Processed
+              - generic [ref=f4e174]:
+                - generic [ref=f4e175]: Custom
+                - generic [ref=f4e176]: · 2 payslips
+              - generic [ref=f4e177]:
+                - button "Regenerate" [ref=f4e178] [cursor=pointer]
+                - button "Finalize" [ref=f4e179] [cursor=pointer]
+                - button "Excel" [ref=f4e180] [cursor=pointer]
+                - button "Payslips" [ref=f4e181] [cursor=pointer]
+                - button "Import Excel" [ref=f4e182] [cursor=pointer]
+            - generic [ref=f4e183]:
+              - generic [ref=f4e184]:
+                - generic [ref=f4e185]:
+                  - paragraph [ref=f4e186]: September 2026 - 1st Half
+                  - paragraph [ref=f4e187]: Aug 26 – Sep 10, 2026
+                - generic [ref=f4e188]: Draft
+              - generic [ref=f4e189]:
+                - generic [ref=f4e190]: Semi monthly 1
+                - generic [ref=f4e191]: · 0 payslips
+              - generic [ref=f4e192]:
+                - button "Generate" [ref=f4e193] [cursor=pointer]
+                - button "Import Excel" [ref=f4e194] [cursor=pointer]
+            - generic [ref=f4e195]:
+              - generic [ref=f4e196]:
+                - generic [ref=f4e197]:
+                  - paragraph [ref=f4e198]: customs
+                  - paragraph [ref=f4e199]: Aug 26 – Sep 10, 2026
+                - generic [ref=f4e200]: Processed
+              - generic [ref=f4e201]:
+                - generic [ref=f4e202]: Custom
+                - generic [ref=f4e203]: · 2 payslips
+              - generic [ref=f4e204]:
+                - button "Regenerate" [ref=f4e205] [cursor=pointer]
+                - button "Finalize" [ref=f4e206] [cursor=pointer]
+                - button "Excel" [ref=f4e207] [cursor=pointer]
+                - button "Payslips" [ref=f4e208] [cursor=pointer]
+                - button "Import Excel" [ref=f4e209] [cursor=pointer]
+            - generic [ref=f4e210]:
+              - generic [ref=f4e211]:
+                - generic [ref=f4e212]:
+                  - paragraph [ref=f4e213]: cedric
+                  - paragraph [ref=f4e214]: Aug 26 – Sep 10, 2026
+                - generic [ref=f4e215]: Processed
+              - generic [ref=f4e216]:
+                - generic [ref=f4e217]: Custom
+                - generic [ref=f4e218]: · 2 payslips
+              - generic [ref=f4e219]:
+                - button "Regenerate" [ref=f4e220] [cursor=pointer]
+                - button "Finalize" [ref=f4e221] [cursor=pointer]
+                - button "Excel" [ref=f4e222] [cursor=pointer]
+                - button "Payslips" [ref=f4e223] [cursor=pointer]
+                - button "Import Excel" [ref=f4e224] [cursor=pointer]
+            - generic [ref=f4e225]:
+              - generic [ref=f4e226]:
+                - generic [ref=f4e227]:
+                  - paragraph [ref=f4e228]: May 2026 - 2nd Half
+                  - paragraph [ref=f4e229]: May 11 – May 25, 2026
+                - generic [ref=f4e230]: Processed
+              - generic [ref=f4e231]:
+                - generic [ref=f4e232]: Semi monthly 2
+                - generic [ref=f4e233]: · 1 payslips
+              - generic [ref=f4e234]:
+                - button "Regenerate" [ref=f4e235] [cursor=pointer]
+                - button "Finalize" [ref=f4e236] [cursor=pointer]
+                - button "Excel" [ref=f4e237] [cursor=pointer]
+                - button "Payslips" [ref=f4e238] [cursor=pointer]
+                - button "Import Excel" [ref=f4e239] [cursor=pointer]
+            - generic [ref=f4e240]:
+              - generic [ref=f4e241]:
+                - generic [ref=f4e242]:
+                  - paragraph [ref=f4e243]: May 2026 - 2nd Half
+                  - paragraph [ref=f4e244]: May 11 – May 26, 2026
+                - generic [ref=f4e245]: Processed
+              - generic [ref=f4e246]:
+                - generic [ref=f4e247]: Semi monthly 2
+                - generic [ref=f4e248]: · 1 payslips
+              - generic [ref=f4e249]:
+                - button "Regenerate" [ref=f4e250] [cursor=pointer]
+                - button "Finalize" [ref=f4e251] [cursor=pointer]
+                - button "Excel" [ref=f4e252] [cursor=pointer]
+                - button "Payslips" [ref=f4e253] [cursor=pointer]
+                - button "Import Excel" [ref=f4e254] [cursor=pointer]
+            - generic [ref=f4e255]:
+              - generic [ref=f4e256]:
+                - generic [ref=f4e257]:
+                  - paragraph [ref=f4e258]: May 2026 - 2nd Half
+                  - paragraph [ref=f4e259]: May 11 – May 25, 2026
+                - generic [ref=f4e260]: Finalized
+              - generic [ref=f4e261]:
+                - generic [ref=f4e262]: Semi monthly 2
+                - generic [ref=f4e263]: · 1 payslips
+              - generic [ref=f4e264]:
+                - button "SMS Payslips" [ref=f4e265] [cursor=pointer]
+                - button "Excel" [ref=f4e266] [cursor=pointer]
+                - button "Payslips" [ref=f4e267] [cursor=pointer]
+          - navigation "Pagination Navigation" [ref=f4e270]:
+            - generic [ref=f4e271]:
+              - paragraph [ref=f4e273]: Showing 1 to 10 of 20 results
+              - generic [ref=f4e275]:
+                - generic "&laquo; Previous" [ref=f4e277]
+                - generic [ref=f4e281]: "1"
+                - button "Go to page 2" [ref=f4e285] [cursor=pointer]: "2"
+                - button "Next &raquo;" [ref=f4e287] [cursor=pointer]
+      - contentinfo [ref=f4e290]: © 2026 GGHI — All rights reserved.
+  - navigation [ref=f4e291]:
+    - generic [ref=f4e292]:
+      - link "Home" [ref=f4e293] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/dashboard
+      - link "Staff" [ref=f4e298] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/employees
+      - link "Leave" [ref=f4e303] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/leave
+      - link "Payroll" [ref=f4e308] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/admin/payroll
+      - link "Profile" [ref=f4e314] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/profile

@@ -23,6 +23,7 @@ class Employee extends Model
         'position_id',
         'date_of_birth',
         'hire_date',
+        'regularization_date',
         'is_active',
         'employment_type',
         'weekday_off',
@@ -50,6 +51,7 @@ class Employee extends Model
     {
         return [
             'hire_date'      => 'date',
+            'regularization_date' => 'date',
             'date_of_birth'  => 'date',
             'is_active'  => 'boolean',
             'synced_at'  => 'datetime',
@@ -127,6 +129,16 @@ class Employee extends Model
                  END {$dir}"
             )
             ->orderBy('first_name', $dir);
+    }
+
+    /**
+     * Employees who have been regular for at least one year as of $asOf —
+     * only they earn monthly paid-leave credits (HR policy).
+     */
+    public function scopeEligibleForLeaveAccrual(Builder $query, \DateTimeInterface $asOf): Builder
+    {
+        return $query->whereNotNull('regularization_date')
+            ->whereDate('regularization_date', '<=', \Illuminate\Support\Carbon::instance($asOf)->subYear());
     }
 
     protected function fullName(): Attribute

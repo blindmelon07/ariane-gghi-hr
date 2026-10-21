@@ -16,7 +16,7 @@ class AccrueMonthlyLeaveCredits extends Command
                             {--force  : Run even if already accrued for this month}
                             {--triggered-by=auto : Who triggered this (auto or manual)}';
 
-    protected $description = 'Add monthly leave credits (VL/SL) to all active employees';
+    protected $description = 'Add monthly paid-leave credits (VL/SL) to active employees regular for at least 1 year';
 
     public function handle(): int
     {
@@ -45,12 +45,16 @@ class AccrueMonthlyLeaveCredits extends Command
             return self::FAILURE;
         }
 
-        $employees = Employee::where('is_active', true)->get();
+        // Only employees regular for at least a year as of the 1st of the month earn credits.
+        $employees = Employee::where('is_active', true)
+            ->eligibleForLeaveAccrual(now()->setDate($year, $month, 1)->startOfDay())
+            ->get();
 
         if ($employees->isEmpty()) {
-            $this->warn('No active employees found.');
+            // Not logged, so the month can still be accrued once regularization dates are filled in.
+            $this->warn('No active employees have been regular for at least 1 year (check regularization dates).');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
         $this->info("Accruing {$year}-{$month} for {$employees->count()} employees...");
