@@ -43,6 +43,8 @@ Route::middleware(['auth', 'role:employee,manager,department_head,head_nurse'])-
     Route::view('leave/balance', 'leave.balance')->name('leave.balance');
     Route::view('time-correction', 'time-correction')->name('time-correction.request');
     Route::view('day-off-swap', 'day-off-swap')->name('day-off-swap.request');
+    Route::view('shift-change', 'shift-change')->name('shift-change.request');
+    Route::view('undertime', 'undertime')->name('undertime.request');
 });
 
 // Fleet — Trip ticket filing (all roles except pure approvers)
@@ -83,6 +85,8 @@ Route::middleware(['auth', 'role:super_admin,hr_admin,manager,department_head,ap
     Route::view('admin/leave', 'admin.leave')->name('admin.leave');
     Route::view('admin/time-corrections', 'admin.time-corrections')->name('admin.time-corrections');
     Route::view('admin/day-off-swaps', 'admin.day-off-swaps')->name('admin.day-off-swaps');
+    Route::view('admin/shift-changes', 'admin.shift-changes')->name('admin.shift-changes');
+    Route::view('admin/undertime', 'admin.undertime')->name('admin.undertime');
     Route::view('admin/reports/attendance', 'admin.reports.attendance')->name('admin.reports.attendance');
     Route::view('admin/reports/leave', 'admin.reports.leave')->name('admin.reports.leave');
     Route::view('admin/fleet/requests', 'admin.fleet-requests')->name('admin.fleet-requests');

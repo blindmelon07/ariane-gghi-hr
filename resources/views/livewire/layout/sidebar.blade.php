@@ -54,6 +54,8 @@ new class extends Component
                     ['label' => 'Leave Approvals',      'route' => 'admin.leave',              'icon' => 'document-check'],
                     ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
                     ['label' => 'Rest Day Swaps',       'route' => 'admin.day-off-swaps',      'icon' => 'calendar-x'],
+                    ['label' => 'Shift Changes',        'route' => 'admin.shift-changes',      'icon' => 'arrows-left-right'],
+                    ['label' => 'Undertime Approvals',  'route' => 'admin.undertime',          'icon' => 'clock-countdown'],
                     ['label' => 'Overtime Approvals',   'route' => 'admin.overtime',           'icon' => 'clock'],
                     ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
@@ -98,6 +100,8 @@ new class extends Component
                     ['label' => 'Leave Approvals',      'route' => 'admin.leave',              'icon' => 'document-check'],
                     ['label' => 'Time Corrections',     'route' => 'admin.time-corrections',   'icon' => 'clock'],
                     ['label' => 'Rest Day Swaps',       'route' => 'admin.day-off-swaps',      'icon' => 'calendar-x'],
+                    ['label' => 'Shift Changes',        'route' => 'admin.shift-changes',      'icon' => 'arrows-left-right'],
+                    ['label' => 'Undertime Approvals',  'route' => 'admin.undertime',          'icon' => 'clock-countdown'],
                     ['label' => 'Overtime Approvals',   'route' => 'admin.overtime',           'icon' => 'clock'],
                     ['label' => 'Leave Credits',        'route' => 'admin.leave-credits',      'icon' => 'gift'],
                 ],
@@ -126,6 +130,8 @@ new class extends Component
                     ['label' => 'Dashboard',         'route' => 'admin.dashboard',          'icon' => 'home'],
                     ['label' => 'Leave Approvals',   'route' => 'admin.leave',              'icon' => 'document-check'],
                     ['label' => 'Rest Day Swaps',    'route' => 'admin.day-off-swaps',      'icon' => 'calendar-x'],
+                    ['label' => 'Shift Changes',        'route' => 'admin.shift-changes',      'icon' => 'arrows-left-right'],
+                    ['label' => 'Undertime Approvals',  'route' => 'admin.undertime',          'icon' => 'clock-countdown'],
                     ['label' => 'Trip Requests',     'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                 ],
                 'My Leave' => [
@@ -134,6 +140,8 @@ new class extends Component
                     ['label' => 'Leave Balance',     'route' => 'leave.balance',            'icon' => 'gift'],
                     ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
                     ['label' => 'Swap Rest Day',     'route' => 'day-off-swap.request',     'icon' => 'calendar-x'],
+                    ['label' => 'Shift Change',      'route' => 'shift-change.request',     'icon' => 'arrows-left-right'],
+                    ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
@@ -150,6 +158,8 @@ new class extends Component
                     ['label' => 'Leave Approvals',     'route' => 'admin.leave',              'icon' => 'document-check'],
                     ['label' => 'Time Corrections',    'route' => 'admin.time-corrections',   'icon' => 'clock'],
                     ['label' => 'Rest Day Swaps',      'route' => 'admin.day-off-swaps',      'icon' => 'calendar-x'],
+                    ['label' => 'Shift Changes',        'route' => 'admin.shift-changes',      'icon' => 'arrows-left-right'],
+                    ['label' => 'Undertime Approvals',  'route' => 'admin.undertime',          'icon' => 'clock-countdown'],
                     ['label' => 'Trip Requests',       'route' => 'admin.fleet-requests',     'icon' => 'truck'],
                 ],
                 'Reports' => [
@@ -175,6 +185,8 @@ new class extends Component
                     ['label' => 'Leave Balance',     'route' => 'leave.balance',            'icon' => 'gift'],
                     ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
                     ['label' => 'Swap Rest Day',     'route' => 'day-off-swap.request',     'icon' => 'calendar-x'],
+                    ['label' => 'Shift Change',      'route' => 'shift-change.request',     'icon' => 'arrows-left-right'],
+                    ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],
@@ -197,6 +209,8 @@ new class extends Component
                 'Attendance' => [
                     ['label' => 'Time Correction',   'route' => 'time-correction.request',  'icon' => 'clock'],
                     ['label' => 'Swap Rest Day',     'route' => 'day-off-swap.request',     'icon' => 'calendar-x'],
+                    ['label' => 'Shift Change',      'route' => 'shift-change.request',     'icon' => 'arrows-left-right'],
+                    ['label' => 'Undertime',         'route' => 'undertime.request',        'icon' => 'clock-countdown'],
                 ],
                 'Fleet' => [
                     ['label' => 'Request Trip',      'route' => 'trip-ticket.request',      'icon' => 'paper-airplane'],

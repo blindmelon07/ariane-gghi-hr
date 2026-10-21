@@ -8,6 +8,7 @@ use App\Models\DayOffSwap;
 use App\Models\Employee;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
+use App\Models\ShiftChangeRequest;
 use App\Models\TimeCorrection;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
@@ -39,6 +40,7 @@ class AttendanceProcessorService
     private array $preLogs = [];
     private array $preCorrections = [];
     private array $preSchedules = [];
+    private array $preShiftChanges = [];
 
     /**
      * Warm the per-employee/date caches for a whole range up front.
@@ -57,6 +59,7 @@ class AttendanceProcessorService
         $this->preLogs     = [];
         $this->preCorrections = [];
         $this->preSchedules   = [];
+        $this->preShiftChanges = [];
 
         // Holidays are employee-independent, so warm them even when no employees were
         // passed: one query for the fixed dates in range, one for recurring entries.
@@ -104,6 +107,20 @@ class AttendanceProcessorService
 
         foreach (\App\Models\EmployeeSchedule::whereIn('employee_id', $ids)->with('schedule')->orderByDesc('effective_from')->get() as $assignment) {
             $this->preSchedules[$assignment->employee_id][] = $assignment;
+        }
+
+        $shiftChanges = ShiftChangeRequest::approved()->with('schedule')
+            ->whereIn('employee_id', $ids)
+            ->whereDate('start_date', '<=', $to)
+            ->whereDate('end_date', '>=', $from)
+            ->orderBy('approved_at')
+            ->get();
+
+        foreach ($shiftChanges as $change) {
+            $last = Carbon::parse($change->end_date)->min($windowEnd);
+            for ($d = Carbon::parse($change->start_date)->max($windowStart); $d->lte($last); $d->addDay()) {
+                $this->preShiftChanges[$this->key($change->employee_id, $d)] = $change;   // latest approval wins
+            }
         }
 
         $this->preloaded = true;
@@ -237,9 +254,17 @@ class AttendanceProcessorService
                 ->with('schedule')
                 ->first();
 
-        if ($assignment?->schedule) {
-            $schedule = $assignment->schedule;
+        // An approved shift change overrides the assigned schedule for its dates.
+        $shiftChange = $cached
+            ? ($this->preShiftChanges[$cacheKey] ?? null)
+            : ShiftChangeRequest::approved()->with('schedule')
+                ->where('employee_id', $employee->id)
+                ->whereDate('start_date', '<=', $date)
+                ->whereDate('end_date', '>=', $date)
+                ->latest('approved_at')
+                ->first();
 
+        if ($schedule = $shiftChange?->schedule ?? $assignment?->schedule) {
             $inParts  = explode(':', substr($schedule->time_in, 0, 5));
             $outParts = explode(':', substr($schedule->time_out, 0, 5));
             $scheduleIn  = Carbon::parse($date)->setTime((int) $inParts[0], (int) $inParts[1], 0);

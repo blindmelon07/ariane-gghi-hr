@@ -16,6 +16,8 @@
         'document-text'   => 'file-text',
         'finger-print'    => 'fingerprint',
         'calendar-x'      => 'calendar-x',
+        'arrows-left-right' => 'arrows-left-right',
+        'clock-countdown' => 'clock-countdown',
         'office-building' => 'buildings',
         'briefcase'       => 'briefcase',
         'truck'           => 'truck',

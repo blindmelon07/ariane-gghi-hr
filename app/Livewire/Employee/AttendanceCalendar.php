@@ -3,6 +3,7 @@
 namespace App\Livewire\Employee;
 
 use App\Models\Employee;
+use App\Models\UndertimeRequest;
 use App\Services\AttendanceProcessorService;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Computed;
@@ -49,6 +50,13 @@ class AttendanceCalendar extends Component
         $end       = $start->copy()->endOfMonth();
         $data      = [];
 
+        // Undertime the employee had approved still shows, but as excused.
+        $excusedUndertime = UndertimeRequest::approved()
+            ->where('employee_id', $employee->id)
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->pluck('date')
+            ->mapWithKeys(fn ($d) => [$d->toDateString() => true]);
+
         for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
             $dateStr = $day->toDateString();
             $result  = $processor->processDayForDisplay($employee, $dateStr);
@@ -56,6 +64,7 @@ class AttendanceCalendar extends Component
             $data[$dateStr] = array_merge($result, [
                 'day'       => $day->day,
                 'dayOfWeek' => $day->dayOfWeek,
+                'undertime_approved' => isset($excusedUndertime[$dateStr]),
             ]);
         }
 

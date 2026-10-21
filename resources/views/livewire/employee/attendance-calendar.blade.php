@@ -93,6 +93,7 @@
                             hours_worked:     '{{ $day['hours_worked'] ?? '0' }}',
                             minutes_late:     {{ (int)($day['minutes_late'] ?? 0) }},
                             minutes_undertime: {{ (int)($day['minutes_undertime'] ?? 0) }},
+                            undertime_approved: {{ ! empty($day['undertime_approved']) ? 'true' : 'false' }},
                             badge:            '{{ $cfg['badge'] }}',
                         };
                     "
@@ -210,7 +211,7 @@
                             <span class="text-sm text-gray-500 dark:text-slate-400">Undertime</span>
                             <span class="text-sm font-semibold"
                                   :class="selectedDayData.minutes_undertime > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-800 dark:text-slate-200'"
-                                  x-text="selectedDayData.minutes_undertime + ' min'"></span>
+                                  x-text="selectedDayData.minutes_undertime + ' min' + (selectedDayData.undertime_approved && selectedDayData.minutes_undertime > 0 ? ' (approved)' : '')"></span>
                         </div>
                     </div>
                 </div>
