@@ -55,7 +55,7 @@ class DayOffSwapForm extends Component
             'newDate'      => 'required|date|after_or_equal:today|different:originalDate',
             'reason'       => 'required|string|min:10|max:1000',
         ], [
-            'newDate.different' => 'The new rest day must be a different date.',
+            'newDate.different' => 'The Date of Swap Off must be different from the Scheduled Day Off.',
         ]);
 
         $emp = $this->employee;

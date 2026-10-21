@@ -14,7 +14,7 @@
         <form wire:submit="submit" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Rest day to give up <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Scheduled Day Off <span class="text-red-500">*</span></label>
                     <select wire:model.live="originalDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select a rest day…</option>
                         @foreach ($this->restDays as $value => $label)
@@ -25,7 +25,7 @@
                     @error('originalDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">New rest day <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date of Swap Off <span class="text-red-500">*</span></label>
                     <input type="date" wire:model.live="newDate" min="{{ now()->toDateString() }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">You will be off on this day instead.</p>
