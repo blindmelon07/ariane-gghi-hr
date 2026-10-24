@@ -51,10 +51,10 @@ class FleetManager extends Component
     public function vehicles()
     {
         return Vehicle::query()
-            ->when($this->search, fn ($q) => $q
+            ->when($this->search, fn ($q) => $q->where(fn ($q) => $q
                 ->where('plate_number', 'like', "%{$this->search}%")
                 ->orWhere('make', 'like', "%{$this->search}%")
-                ->orWhere('model', 'like', "%{$this->search}%"))
+                ->orWhere('model', 'like', "%{$this->search}%")))
             ->when($this->filterStatus !== 'all', fn ($q) => $q->where('status', $this->filterStatus))
             ->when($this->filterType !== 'all', fn ($q) => $q->where('vehicle_type', $this->filterType))
             ->orderBy('make')

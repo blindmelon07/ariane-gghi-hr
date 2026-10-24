@@ -43,8 +43,8 @@
     @if ($tab === 'compose')
         <div class="p-5 space-y-4 bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
             <div>
-                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Send to</label>
-                <div class="flex flex-wrap gap-2">
+                <p id="sms-audience-label" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Send to</p>
+                <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="sms-audience-label">
                     @foreach (['all' => 'All employees', 'department' => 'A department', 'employees' => 'Selected employees', 'numbers' => 'Other numbers'] as $key => $label)
                         <label class="inline-flex items-center gap-2 px-3 py-1.5 text-sm border rounded-lg cursor-pointer {{ $audience === $key ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-300' }}">
                             <input type="radio" wire:model.live="audience" value="{{ $key }}" class="text-blue-600">
@@ -57,7 +57,7 @@
 
             @if ($audience === 'department')
                 <div>
-                    <select wire:model.live="departmentId" class="w-full text-sm border-gray-300 rounded-lg sm:w-72 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <select id="departmentId" aria-label="Department" wire:model.live="departmentId" class="w-full text-sm border-gray-300 rounded-lg sm:w-72 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option value="">Choose a department…</option>
                         @foreach ($this->departments as $dept)
                             <option value="{{ $dept->id }}">{{ $dept->name }}</option>
@@ -69,7 +69,7 @@
 
             @if ($audience === 'employees')
                 <div>
-                    <input wire:model.live.debounce.300ms="employeeSearch" type="text" placeholder="Search employees…"
+                    <input aria-label="Search employees" wire:model.live.debounce.300ms="employeeSearch" type="text" placeholder="Search employees…"
                            class="w-full mb-2 text-sm border-gray-300 rounded-lg sm:w-72 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <div class="overflow-y-auto border border-gray-200 divide-y divide-gray-100 rounded-lg max-h-64 dark:border-gray-700 dark:divide-gray-700">
                         @forelse ($this->employees as $emp)
@@ -88,7 +88,7 @@
 
             @if ($audience === 'numbers')
                 <div>
-                    <textarea wire:model.live.debounce.300ms="customNumbers" rows="2" placeholder="09171234567, 09281234567"
+                    <textarea id="customNumbers" aria-label="Phone numbers" wire:model.live.debounce.300ms="customNumbers" rows="2" placeholder="09171234567, 09281234567"
                               class="w-full text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
                     <p class="mt-1 text-xs text-gray-400">Separate numbers with commas, spaces or new lines.</p>
                     @error('customNumbers') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
@@ -113,10 +113,10 @@
 
                 @if ($viaApp)
                     <div>
-                        <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="notifTitle" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                             Notification title <span class="font-normal text-gray-400">(optional — shown in bold on the pop-up)</span>
                         </label>
-                        <input type="text" wire:model.live.debounce.300ms="notifTitle" maxlength="80"
+                        <input id="notifTitle" type="text" wire:model.live.debounce.300ms="notifTitle" maxlength="80"
                                placeholder="{{ $audience === 'employees' ? 'Message from HR' : 'Announcement' }}"
                                class="w-full text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         @error('notifTitle') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
@@ -125,8 +125,8 @@
             @endif
 
             <div>
-                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
-                <textarea wire:model.live.debounce.300ms="smsMessage" rows="4" maxlength="{{ \App\Services\SmsService::MAX_LENGTH }}"
+                <label for="smsMessage" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                <textarea id="smsMessage" wire:model.live.debounce.300ms="smsMessage" rows="4" maxlength="{{ \App\Services\SmsService::MAX_LENGTH }}"
                           placeholder="GGHI HR: Good day {first_name}! …"
                           class="w-full text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
                 <div class="flex justify-between mt-1 text-xs text-gray-400">
@@ -185,7 +185,7 @@
             </div>
 
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <input wire:model.live.debounce.300ms="credentialSearch" type="text" placeholder="Search employees…"
+                <input aria-label="Search employees" wire:model.live.debounce.300ms="credentialSearch" type="text" placeholder="Search employees…"
                        class="w-full text-sm border-gray-300 rounded-lg sm:w-72 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 <button wire:click="toggleAllCredentials" class="text-sm font-medium text-blue-600 dark:text-blue-400">Select / clear all shown</button>
             </div>
@@ -235,8 +235,8 @@
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
                 <div>
-                    <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Day</label>
-                    <input type="date" wire:model="alertDate" max="{{ now('Asia/Manila')->toDateString() }}"
+                    <label for="alertDate" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Day</label>
+                    <input id="alertDate" type="date" wire:model="alertDate" max="{{ now('Asia/Manila')->toDateString() }}"
                            class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     @error('alertDate') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>
@@ -317,13 +317,13 @@
     {{-- ── History ──────────────────────────────────────────────── --}}
     @if ($tab === 'history')
         <div class="flex flex-wrap gap-2">
-            <select wire:model.live="filterType" class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <select aria-label="Filter by type" wire:model.live="filterType" class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 <option value="">All types</option>
                 @foreach (['announcement', 'custom', 'payslip', 'leave', 'overtime', 'request', 'attendance', 'credentials'] as $t)
                     <option value="{{ $t }}">{{ ucfirst($t) }}</option>
                 @endforeach
             </select>
-            <select wire:model.live="filterStatus" class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <select aria-label="Filter by status" wire:model.live="filterStatus" class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 <option value="">All statuses</option>
                 @foreach (['queued', 'failed', 'skipped', 'pending'] as $s)
                     <option value="{{ $s }}">{{ ucfirst($s) }}</option>

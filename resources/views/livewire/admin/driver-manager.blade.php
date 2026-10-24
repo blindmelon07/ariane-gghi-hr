@@ -9,7 +9,7 @@
         </div>
 
         <div class="mb-4">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search by employee name or code..."
+            <input aria-label="Search by employee name or code" type="text" wire:model.live.debounce.300ms="search" placeholder="Search by employee name or code..."
                    class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100 w-full sm:w-72">
         </div>
 
@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <button wire:click="openEdit({{ $d->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                        <button wire:click="openEdit({{ $d->id }})" class="tbl-action">Edit</button>
                     </div>
                 </div>
             @empty
@@ -106,7 +106,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <button wire:click="openEdit({{ $d->id }})"
-                                        class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">
+                                        class="tbl-action">
                                     Edit
                                 </button>
                             </td>
@@ -133,8 +133,8 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee *</label>
-                    <select wire:model.live="employee_id" {{ $editingId ? 'disabled' : '' }}
+                    <label for="employee-id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee *</label>
+                    <select id="employee-id" wire:model.live="employee_id" {{ $editingId ? 'disabled' : '' }}
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100 disabled:opacity-60">
                         <option value="">— Select employee —</option>
                         @foreach ($this->employees as $emp)
@@ -151,25 +151,25 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">License Number *</label>
-                    <input type="text" wire:model.live="license_number" placeholder="A01-23-456789"
+                    <label for="license-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">License Number *</label>
+                    <input id="license-number" type="text" wire:model.live="license_number" placeholder="A01-23-456789"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('license_number') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">License Expiry</label>
-                    <input type="date" wire:model.live="license_expiry"
+                    <label for="license-expiry" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">License Expiry</label>
+                    <input id="license-expiry" type="date" wire:model.live="license_expiry"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('license_expiry') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="medical-clearance-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Medical Clearance Date
                         <span class="text-xs text-gray-400 font-normal">(quarterly check-up)</span>
                     </label>
-                    <input type="date" wire:model.live="medical_clearance_date"
+                    <input id="medical-clearance-date" type="date" wire:model.live="medical_clearance_date"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('medical_clearance_date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>

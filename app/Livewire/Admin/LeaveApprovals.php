@@ -80,6 +80,7 @@ class LeaveApprovals extends Component
         $this->selectedRequestId = $id;
         $this->actionType        = $type;
         $this->remarks           = '';
+        $this->resetErrorBag();
         $this->dispatch('open-action-modal');
     }
 
@@ -96,6 +97,7 @@ class LeaveApprovals extends Component
         // Guard: user can only act on their designated step
         if ($request->approval_step !== $this->myStep && ! $this->canOverride) {
             $this->addError('remarks', 'This request is not at your approval step.');
+            $this->dispatch('open-action-modal');
             return;
         }
 
@@ -104,9 +106,10 @@ class LeaveApprovals extends Component
             $leaveService->overrideApprove($request, $user, $this->remarks ?: null);
             $this->dispatch('toast', message: $skipped ? 'Leave approved (Super Admin override).' : 'Leave fully approved.');
         } elseif ($this->actionType === 'approve') {
+            // Read before approve(), which advances approval_step on this same model
+            $nextStep = ($request->approval_step ?? 0) + 1;
             $leaveService->approve($request, $user, $this->remarks ?: null);
 
-            $nextStep = ($request->approval_step ?? 0) + 1;
             $message  = isset(LeaveService::APPROVAL_STEPS[$nextStep])
                 ? 'Approved — forwarded to ' . LeaveService::APPROVAL_STEPS[$nextStep]['label'] . '.'
                 : 'Leave fully approved.';
@@ -114,6 +117,7 @@ class LeaveApprovals extends Component
         } else {
             if (empty($this->remarks)) {
                 $this->addError('remarks', 'Reason is required when rejecting.');
+                $this->dispatch('open-action-modal');
                 return;
             }
             $leaveService->reject($request, $user, $this->remarks);

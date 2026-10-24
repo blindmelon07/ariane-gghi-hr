@@ -219,7 +219,7 @@ new class extends Component
             default => [
                 'Main' => [
                     ['label' => 'Dashboard',         'route' => 'dashboard',                'icon' => 'home'],
-                    ['label' => 'Attendance',        'route' => 'dashboard',                'icon' => 'calendar'],
+                    ['label' => 'Attendance',        'route' => 'dashboard',                'icon' => 'calendar', 'fragment' => 'attendance-calendar'],
                 ],
                 'Payroll' => [
                     ['label' => 'My Payslips',       'route' => 'payslips.index',           'icon' => 'currency-dollar'],
@@ -286,7 +286,7 @@ new class extends Component
              x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
              class="overflow-hidden">
             <img src="{{ asset('images/gghi logo.png') }}" alt="{{ config('app.name') }}"
-                 class="h-8 w-auto object-contain" />
+                 class="h-8 w-auto object-contain brightness-0 invert" />
         </div>
 
         <button @click="$store.sidebar.toggle()"
@@ -305,14 +305,14 @@ new class extends Component
             @php
                 $sectionIcon = $this->sectionIcon($section);
                 $isSingleItem = count($items) === 1;
-                $sectionActive = collect($items)->contains(fn($i) => request()->routeIs($i['route']));
+                $sectionActive = collect($items)->contains(fn($i) => empty($i['fragment']) && request()->routeIs($i['route']));
             @endphp
 
             @if ($isSingleItem)
                 {{-- ── Single item: direct link ── --}}
-                @php $item = $items[0]; $active = request()->routeIs($item['route']); @endphp
+                @php $item = $items[0]; $active = empty($item['fragment']) && request()->routeIs($item['route']); @endphp
                 <div class="relative mb-0.5" x-data="{ hover: false }" @mouseenter="hover = true" @mouseleave="hover = false">
-                    <a href="{{ route($item['route']) }}" data-tour="nav-{{ $item['route'] }}" wire:navigate @click="$store.sidebar.closeMobile()"
+                    <a href="{{ route($item['route']) }}{{ empty($item['fragment']) ? '' : '#'.$item['fragment'] }}" data-tour="nav-{{ $item['route'] }}" wire:navigate @click="$store.sidebar.closeMobile()"
                        class="flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-150 group"
                        :class="[
                            $store.sidebar.collapsed ? 'justify-center p-3' : 'px-3 py-2.5',
@@ -374,12 +374,12 @@ new class extends Component
                          x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                          class="mt-0.5 ml-3 pl-3 border-l border-white/10 space-y-0.5">
                         @foreach ($items as $item)
-                            @php $active = request()->routeIs($item['route']); @endphp
-                            <a href="{{ route($item['route']) }}" data-tour="nav-{{ $item['route'] }}" wire:navigate @click="$store.sidebar.closeMobile()"
+                            @php $active = empty($item['fragment']) && request()->routeIs($item['route']); @endphp
+                            <a href="{{ route($item['route']) }}{{ empty($item['fragment']) ? '' : '#'.$item['fragment'] }}" data-tour="nav-{{ $item['route'] }}" wire:navigate @click="$store.sidebar.closeMobile()"
                                class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-all duration-150
                                       {{ $active
                                           ? 'text-blue-300 bg-blue-500/15 font-medium'
-                                          : 'text-slate-500 hover:text-slate-200 hover:bg-white/5' }}">
+                                          : 'text-slate-400 hover:text-slate-200 hover:bg-white/5' }}">
                                 <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ $active ? 'bg-blue-400' : 'bg-slate-600' }}"></span>
                                 <span class="truncate">{{ $item['label'] }}</span>
                             </a>
@@ -398,7 +398,7 @@ new class extends Component
                                 {{ $section }}
                             </p>
                             @foreach ($items as $item)
-                                @php $active = request()->routeIs($item['route']); @endphp
+                                @php $active = empty($item['fragment']) && request()->routeIs($item['route']); @endphp
                                 <div class="flex items-center gap-2.5 px-4 py-2 text-sm
                                             {{ $active ? 'text-blue-300 font-medium' : 'text-slate-300' }}">
                                     <span class="w-1.5 h-1.5 rounded-full {{ $active ? 'bg-blue-400' : 'bg-slate-600' }} shrink-0"></span>

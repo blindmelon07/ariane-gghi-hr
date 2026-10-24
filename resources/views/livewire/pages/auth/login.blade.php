@@ -15,7 +15,9 @@ new #[Layout('layouts.guest')] class extends Component
         $this->validate();
         $this->form->authenticate();
         Session::regenerate();
-        $this->redirect(Auth::user()->dashboardRoute(), navigate: true);
+        // Full page load: the guest and app layouts differ, and an SPA swap leaves
+        // Alpine evaluating the login form's torn-down x-data ("show is not defined").
+        $this->redirect(Auth::user()->dashboardRoute());
     }
 }; ?>
 

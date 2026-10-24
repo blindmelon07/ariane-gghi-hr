@@ -39,20 +39,20 @@
                     @foreach ($lines as $i => $line)
                         <div wire:key="ot-line-{{ $i }}" class="grid grid-cols-2 sm:grid-cols-[1.4fr_1fr_1fr_auto_auto] gap-2 items-start rounded-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-2">
                             <div class="col-span-2 sm:col-span-1">
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Date</label>
-                                <input type="date" wire:model.live="lines.{{ $i }}.date" min="{{ now()->toDateString() }}"
+                                <label for="lines-{{ $i }}-date" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Date</label>
+                                <input id="lines-{{ $i }}-date" type="date" wire:model.live="lines.{{ $i }}.date" min="{{ now()->toDateString() }}"
                                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                                 @error("lines.$i.date") <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">From</label>
-                                <input type="time" wire:model.live="lines.{{ $i }}.from"
+                                <label for="lines-{{ $i }}-from" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">From</label>
+                                <input id="lines-{{ $i }}-from" type="time" wire:model.live="lines.{{ $i }}.from"
                                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                                 @error("lines.$i.from") <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">To</label>
-                                <input type="time" wire:model.live="lines.{{ $i }}.to"
+                                <label for="lines-{{ $i }}-to" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">To</label>
+                                <input id="lines-{{ $i }}-to" type="time" wire:model.live="lines.{{ $i }}.to"
                                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                                 @error("lines.$i.to") <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
@@ -86,8 +86,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Purpose and Accomplishment <span class="text-red-500">*</span></label>
-                <textarea wire:model.live="purpose" rows="4"
+                <label for="purpose" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Purpose and Accomplishment <span class="text-red-500">*</span></label>
+                <textarea id="purpose" wire:model.live="purpose" rows="4"
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                           placeholder="Why the overtime is needed and what will be accomplished..."></textarea>
                 @error('purpose') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror

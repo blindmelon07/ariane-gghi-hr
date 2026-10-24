@@ -10,16 +10,16 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 mb-6">
         <div class="flex flex-wrap items-end gap-3">
             <div class="w-full sm:w-auto">
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">From</label>
-                <input type="date" wire:model.live="dateFrom" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                <label for="dateFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">From</label>
+                <input id="dateFrom" type="date" wire:model.live="dateFrom" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
             </div>
             <div class="w-full sm:w-auto">
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To</label>
-                <input type="date" wire:model.live="dateTo" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                <label for="dateTo" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To</label>
+                <input id="dateTo" type="date" wire:model.live="dateTo" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
             </div>
             <div class="w-full sm:w-auto">
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                <select wire:model.live="department" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="department" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                <select id="department" wire:model.live="department" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     @foreach ($this->departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
@@ -38,7 +38,7 @@
                         </button>
                     </div>
                 @else
-                    <input type="text" wire:model.live.debounce.300ms="empSearch" placeholder="Search employee..."
+                    <input aria-label="Search employee" type="text" wire:model.live.debounce.300ms="empSearch" placeholder="Search employee..."
                            @focus="open = true" @click.outside="open = false"
                            class="w-full sm:w-48 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @if ($empSearch)

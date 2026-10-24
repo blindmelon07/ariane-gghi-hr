@@ -12,7 +12,7 @@
 
         {{-- Filter --}}
         <div class="mb-4">
-            <select wire:model.live="filterStatus"
+            <select aria-label="Filter by status" wire:model.live="filterStatus"
                     class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -100,7 +100,7 @@
 
                     @if ($ticket->status === 'pending')
                         <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                            <button wire:click="confirmCancel({{ $ticket->id }})" @click="showCancelModal = true" class="text-xs text-red-600 dark:text-red-400 font-medium">Cancel</button>
+                            <button wire:click="confirmCancel({{ $ticket->id }})" @click="showCancelModal = true" class="tbl-action tbl-action-danger">Cancel</button>
                         </div>
                     @endif
                 </div>
@@ -208,7 +208,7 @@
                                 @if ($ticket->status === 'pending')
                                     <button wire:click="confirmCancel({{ $ticket->id }})"
                                             @click="showCancelModal = true"
-                                            class="text-xs text-red-600 dark:text-red-400 hover:text-red-800 font-medium">
+                                            class="tbl-action tbl-action-danger">
                                         Cancel
                                     </button>
                                 @else

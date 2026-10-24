@@ -11,7 +11,7 @@
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Leave Credit Manager ({{ $year }})</h3>
 
             <div class="flex flex-wrap items-center gap-3">
-                <select wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400">
+                <select aria-label="Year" wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400">
                     @for ($y = now()->year + 1; $y >= now()->year - 2; $y--)
                         <option value="{{ $y }}">{{ $y }}</option>
                     @endfor
@@ -80,13 +80,13 @@
         {{-- Filters --}}
         <div class="flex flex-wrap items-end gap-4 mb-4">
             <div class="flex-1 min-w-[200px]">
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search Employee</label>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Name or code…"
+                <label for="search" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search Employee</label>
+                <input id="search" wire:model.live.debounce.300ms="search" type="text" placeholder="Name or code…"
                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                <select wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="filterDept" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                <select id="filterDept" wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     @foreach ($this->departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
@@ -104,7 +104,7 @@
                             <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ $employee->full_name }}</p>
                             <p class="text-xs text-gray-400 dark:text-gray-500">{{ $employee->emp_code }} · {{ $employee->department ?? '—' }}</p>
                         </div>
-                        <button wire:click="openEmployeeCredits({{ $employee->id }})" class="shrink-0 text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                        <button wire:click="openEmployeeCredits({{ $employee->id }})" class="shrink-0 tbl-action">Edit</button>
                     </div>
                     <div class="flex flex-wrap gap-2 mt-3">
                         @foreach ($this->leaveTypes as $type)
@@ -156,7 +156,7 @@
                                 </td>
                             @endforeach
                             <td class="px-4 py-3 text-center">
-                                <button wire:click="openEmployeeCredits({{ $employee->id }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">Edit</button>
+                                <button wire:click="openEmployeeCredits({{ $employee->id }})" class="tbl-action">Edit</button>
                             </td>
                         </tr>
                     @endforeach
@@ -187,13 +187,13 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <div>
-                            <label class="block text-[10px] text-gray-400 dark:text-gray-500 text-center">Total</label>
-                            <input wire:model.live="modalCredits.{{ $type->id }}.total" type="number" step="0.5" min="0"
+                            <label for="modalCredits-{{ $type->id }}-total" class="block text-[10px] text-gray-400 dark:text-gray-500 text-center">Total</label>
+                            <input id="modalCredits-{{ $type->id }}-total" wire:model.live="modalCredits.{{ $type->id }}.total" type="number" step="0.5" min="0"
                                 class="w-16 rounded border-gray-300 dark:border-gray-600 text-xs text-center shadow-sm" />
                         </div>
                         <div>
-                            <label class="block text-[10px] text-gray-400 dark:text-gray-500 text-center">Used</label>
-                            <input wire:model.live="modalCredits.{{ $type->id }}.used" type="number" step="0.5" min="0"
+                            <label for="modalCredits-{{ $type->id }}-used" class="block text-[10px] text-gray-400 dark:text-gray-500 text-center">Used</label>
+                            <input id="modalCredits-{{ $type->id }}-used" wire:model.live="modalCredits.{{ $type->id }}.used" type="number" step="0.5" min="0"
                                 class="w-16 rounded border-gray-300 dark:border-gray-600 text-xs text-center shadow-sm" />
                         </div>
                     </div>
@@ -220,8 +220,8 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Leave Type</label>
-                    <select wire:model.live="bulkLeaveTypeId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="bulkLeaveTypeId" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Leave Type</label>
+                    <select id="bulkLeaveTypeId" wire:model.live="bulkLeaveTypeId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select…</option>
                         @foreach ($this->leaveTypes as $type)
                             <option value="{{ $type->id }}">{{ $type->name }} ({{ $type->code }})</option>
@@ -231,8 +231,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Credits</label>
-                    <input wire:model.live="bulkCredits" type="number" step="0.5" min="0" placeholder="0" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <label for="bulkCredits" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Credits</label>
+                    <input id="bulkCredits" wire:model.live="bulkCredits" type="number" step="0.5" min="0" placeholder="0" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('bulkCredits') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 

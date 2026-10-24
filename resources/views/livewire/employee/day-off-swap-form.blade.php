@@ -14,8 +14,8 @@
         <form wire:submit="submit" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Scheduled Day Off <span class="text-red-500">*</span></label>
-                    <select wire:model.live="originalDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="originalDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Scheduled Day Off <span class="text-red-500">*</span></label>
+                    <select id="originalDate" wire:model.live="originalDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select a rest day…</option>
                         @foreach ($this->restDays as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
@@ -25,8 +25,8 @@
                     @error('originalDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date of Swap Off <span class="text-red-500">*</span></label>
-                    <input type="date" wire:model.live="newDate" min="{{ now()->toDateString() }}"
+                    <label for="newDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date of Swap Off <span class="text-red-500">*</span></label>
+                    <input id="newDate" type="date" wire:model.live="newDate" min="{{ now()->toDateString() }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">You will be off on this day instead.</p>
                     @error('newDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
@@ -34,8 +34,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
-                <textarea wire:model.live="reason" rows="3" placeholder="Explain why you need to swap (e.g. family event, covering for a co-worker)..."
+                <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
+                <textarea id="reason" wire:model.live="reason" rows="3" placeholder="Explain why you need to swap (e.g. family event, covering for a co-worker)..."
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
                 @error('reason') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
@@ -79,7 +79,7 @@
                     @endif
                     @if ($req->status === 'pending')
                         <button wire:click="cancel({{ $req->id }})" wire:confirm="Cancel this swap request?"
-                                class="mt-2 text-xs font-medium text-red-600 dark:text-red-400">Cancel</button>
+                                class="mt-2 tbl-action tbl-action-danger">Cancel</button>
                     @endif
                 </div>
             @empty
@@ -120,7 +120,7 @@
                             <td class="px-4 py-3 text-right">
                                 @if ($req->status === 'pending')
                                     <button wire:click="cancel({{ $req->id }})" wire:confirm="Cancel this swap request?"
-                                            class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Cancel</button>
+                                            class="tbl-action tbl-action-danger">Cancel</button>
                                 @endif
                             </td>
                         </tr>

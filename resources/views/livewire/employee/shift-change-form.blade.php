@@ -14,14 +14,14 @@
         <form wire:submit="submit" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Start Date <span class="text-red-500">*</span></label>
-                    <input type="date" wire:model.live="startDate" min="{{ now()->toDateString() }}"
+                    <label for="startDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Start Date <span class="text-red-500">*</span></label>
+                    <input id="startDate" type="date" wire:model.live="startDate" min="{{ now()->toDateString() }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('startDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">End Date <span class="text-red-500">*</span></label>
-                    <input type="date" wire:model.live="endDate" min="{{ $startDate ?: now()->toDateString() }}"
+                    <label for="endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">End Date <span class="text-red-500">*</span></label>
+                    <input id="endDate" type="date" wire:model.live="endDate" min="{{ $startDate ?: now()->toDateString() }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Same as the start date for a single day.</p>
                     @error('endDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
@@ -29,8 +29,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">New Shift <span class="text-red-500">*</span></label>
-                <select wire:model.live="scheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="scheduleId" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">New Shift <span class="text-red-500">*</span></label>
+                <select id="scheduleId" wire:model.live="scheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">Select a shift…</option>
                     @foreach ($this->shifts as $shift)
                         <option value="{{ $shift->id }}">{{ $shift->name }} ({{ \App\Livewire\Admin\ShiftChangeApprovals::shiftTimes($shift) }})</option>
@@ -40,8 +40,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
-                <textarea wire:model.live="reason" rows="3" placeholder="Explain why you need a different shift (e.g. covering for a co-worker, school schedule)..."
+                <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
+                <textarea id="reason" wire:model.live="reason" rows="3" placeholder="Explain why you need a different shift (e.g. covering for a co-worker, school schedule)..."
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
                 @error('reason') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>

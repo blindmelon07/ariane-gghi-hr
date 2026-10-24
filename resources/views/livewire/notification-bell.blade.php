@@ -23,7 +23,7 @@
           x-init="if ('setAppBadge' in navigator) { ({{ $this->unreadCount }} > 0 ? navigator.setAppBadge({{ $this->unreadCount }}) : navigator.clearAppBadge()).catch(() => {}) }"></span>
 
     {{-- Bell Button --}}
-    <button x-ref="bell" @click="toggle()" class="relative p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:text-gray-300 transition">
+    <button x-ref="bell" @click="toggle()" aria-label="Notifications" title="Notifications" class="relative p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:text-gray-300 transition">
         <x-phosphor-bell class="w-6 h-6" />
 
         @if ($this->unreadCount > 0)

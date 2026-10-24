@@ -10,7 +10,7 @@
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">My Leave Requests</h3>
 
             <div class="flex items-center gap-3">
-                <select wire:model.live="status" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400">
+                <select aria-label="Filter by status" wire:model.live="status" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400">
                     <option value="all">All Status</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -18,7 +18,7 @@
                     <option value="cancelled">Cancelled</option>
                 </select>
 
-                <select wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400">
+                <select aria-label="Year" wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:ring-indigo-400">
                     @for ($y = now()->year; $y >= now()->year - 2; $y--)
                         <option value="{{ $y }}">{{ $y }}</option>
                     @endfor
@@ -55,7 +55,7 @@
                         @endif
                         @if ($req->status === 'pending')
                             <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                                <button wire:click="cancel({{ $req->id }})" wire:confirm="Are you sure you want to cancel this request?" class="text-red-600 dark:text-red-400 text-xs font-medium">Cancel</button>
+                                <button wire:click="cancel({{ $req->id }})" wire:confirm="Are you sure you want to cancel this request?" class="tbl-action tbl-action-danger">Cancel</button>
                             </div>
                         @endif
                     </div>
@@ -101,7 +101,7 @@
                                     @if ($req->status === 'pending')
                                         <button wire:click="cancel({{ $req->id }})"
                                                 wire:confirm="Are you sure you want to cancel this request?"
-                                                class="text-red-600 dark:text-red-400 hover:text-red-800 text-xs font-medium">
+                                                class="tbl-action tbl-action-danger">
                                             Cancel
                                         </button>
                                     @else

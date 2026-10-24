@@ -35,11 +35,11 @@
                 @endif
                 <div class="flex gap-4">
                     @if ($canView($req))
-                        <a href="{{ route($viewRoute, $req) }}" class="mt-2 inline-block text-xs font-medium text-indigo-600 dark:text-indigo-400">{{ $viewLabel }}</a>
+                        <a href="{{ route($viewRoute, $req) }}" class="mt-2 tbl-action">{{ $viewLabel }}</a>
                     @endif
                     @if ($req->status === 'pending')
                         <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
-                                class="mt-2 text-xs font-medium text-red-600 dark:text-red-400">Cancel</button>
+                                class="mt-2 tbl-action tbl-action-danger">Cancel</button>
                     @endif
                 </div>
             </div>
@@ -76,11 +76,11 @@
                         <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-[180px] truncate">{{ $req->remarks ?? '—' }}</td>
                         <td class="px-4 py-3 text-right">
                             @if ($canView($req))
-                                <a href="{{ route($viewRoute, $req) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">{{ $viewLabel }}</a>
+                                <a href="{{ route($viewRoute, $req) }}" class="tbl-action">{{ $viewLabel }}</a>
                             @endif
                             @if ($req->status === 'pending')
                                 <button wire:click="cancel({{ $req->id }})" wire:confirm="{{ $confirm }}"
-                                        class="ml-3 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Cancel</button>
+                                        class="ml-3 tbl-action tbl-action-danger">Cancel</button>
                             @endif
                         </td>
                     </tr>

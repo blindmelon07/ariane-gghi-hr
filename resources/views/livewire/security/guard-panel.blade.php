@@ -13,7 +13,7 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400">Confirm vehicle departures and returns at the gate.</p>
                 </div>
             </div>
-            <input type="text" wire:model.live.debounce.300ms="search"
+            <input aria-label="Search employee or plate" type="text" wire:model.live.debounce.300ms="search"
                    placeholder="Search employee or plate..."
                    class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100 w-full sm:w-64">
         </div>
@@ -147,11 +147,11 @@
                 {{-- Remarks — only for return --}}
                 @if (! $isDep)
                     <div class="mb-5">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                        <label for="return-remarks" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                             Return Remarks
                             <span class="text-gray-400 font-normal">(vehicle condition, mileage, notes)</span>
                         </label>
-                        <textarea wire:model.live="return_remarks" rows="3"
+                        <textarea id="return-remarks" wire:model.live="return_remarks" rows="3"
                                   placeholder="e.g. Vehicle in good condition. Odometer: 45,230 km."
                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100 text-sm"></textarea>
                         @error('return_remarks') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror

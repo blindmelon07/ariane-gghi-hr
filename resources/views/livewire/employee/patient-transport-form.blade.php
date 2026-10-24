@@ -14,30 +14,30 @@
         <form wire:submit="submit" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date <span class="text-red-500">*</span></label>
-                    <input type="date" wire:model.live="date" min="{{ now()->toDateString() }}"
+                    <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date <span class="text-red-500">*</span></label>
+                    <input id="date" type="date" wire:model.live="date" min="{{ now()->toDateString() }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('date') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Patient's Name <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model.live="patientName"
+                    <label for="patientName" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Patient's Name <span class="text-red-500">*</span></label>
+                    <input id="patientName" type="text" wire:model.live="patientName"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('patientName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Transported To <span class="text-red-500">*</span></label>
-                <input type="text" wire:model.live="transportedTo" placeholder="e.g. Bicol Medical Center, Naga City"
+                <label for="transportedTo" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Transported To <span class="text-red-500">*</span></label>
+                <input id="transportedTo" type="text" wire:model.live="transportedTo" placeholder="e.g. Bicol Medical Center, Naga City"
                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 @error('transportedTo') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Ambulance Plate No. <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model.live="plateNumber" list="ambulance-plates" autocomplete="off"
+                    <label for="plateNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Ambulance Plate No. <span class="text-red-500">*</span></label>
+                    <input id="plateNumber" type="text" wire:model.live="plateNumber" list="ambulance-plates" autocomplete="off"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm uppercase" />
                     <datalist id="ambulance-plates">
                         @foreach ($this->ambulancePlates as $plate)
@@ -47,8 +47,8 @@
                     @error('plateNumber') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Driver <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model.live="driverName" list="driver-names" autocomplete="off"
+                    <label for="driverName" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Driver <span class="text-red-500">*</span></label>
+                    <input id="driverName" type="text" wire:model.live="driverName" list="driver-names" autocomplete="off"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <datalist id="driver-names">
                         @foreach ($this->driverNames as $name)
@@ -60,8 +60,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Names of Medical Staff <span class="text-red-500">*</span></label>
-                <textarea wire:model.live="medicalStaff" rows="3" placeholder="One name per line"
+                <label for="medicalStaff" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Names of Medical Staff <span class="text-red-500">*</span></label>
+                <textarea id="medicalStaff" wire:model.live="medicalStaff" rows="3" placeholder="One name per line"
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
                 @error('medicalStaff') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>

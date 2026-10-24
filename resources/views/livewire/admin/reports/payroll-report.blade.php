@@ -52,8 +52,8 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6 print:shadow-none">
         <div class="flex flex-wrap items-end gap-4">
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Payroll Period</label>
-                <select wire:model.live="periodId" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="periodId" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Payroll Period</label>
+                <select id="periodId" wire:model.live="periodId" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">Select Period</option>
                     @foreach ($this->periods as $period)
                         <option value="{{ $period->id }}">

@@ -18,7 +18,7 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="relative">
             <x-phosphor-magnifying-glass-bold class="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-gray-400" />
-            <input wire:model.live.debounce.300ms="search"
+            <input aria-label="Search departments" wire:model.live.debounce.300ms="search"
                    type="text"
                    placeholder="Search departments…"
                    class="pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64">
@@ -58,8 +58,8 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <button wire:click="openEdit({{ $dept->id }})" class="text-sm text-blue-600 dark:text-blue-400 font-medium">Edit</button>
-                    <button wire:click="confirmDelete({{ $dept->id }})" class="text-sm text-red-600 dark:text-red-400 font-medium">Delete</button>
+                    <button wire:click="openEdit({{ $dept->id }})" class="tbl-action">Edit</button>
+                    <button wire:click="confirmDelete({{ $dept->id }})" class="tbl-action tbl-action-danger">Delete</button>
                 </div>
             </div>
         @empty
@@ -116,13 +116,13 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <button wire:click="openEdit({{ $dept->id }})"
-                                        class="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                                        title="Edit">
+                                        class="tbl-action px-2"
+                                        title="Edit" aria-label="Edit {{ $dept->name }}">
                                     <x-phosphor-pencil-simple-bold class="w-4 h-4" />
                                 </button>
                                 <button wire:click="confirmDelete({{ $dept->id }})"
-                                        class="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                        title="Delete">
+                                        class="tbl-action tbl-action-danger px-2"
+                                        title="Delete" aria-label="Delete {{ $dept->name }}">
                                     <x-phosphor-trash-bold class="w-4 h-4" />
                                 </button>
                             </div>
@@ -155,22 +155,22 @@
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Name <span class="text-red-500">*</span></label>
-                        <input wire:model="name" type="text" placeholder="e.g. Human Resources"
+                        <label for="name" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Name <span class="text-red-500">*</span></label>
+                        <input id="name" wire:model="name" type="text" placeholder="e.g. Human Resources"
                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         @error('name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Code</label>
-                        <input wire:model="code" type="text" placeholder="e.g. HR"
+                        <label for="code" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Code</label>
+                        <input id="code" wire:model="code" type="text" placeholder="e.g. HR"
                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         @error('code') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                        <textarea wire:model="description" rows="2" placeholder="Optional description…"
+                        <label for="description" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                        <textarea id="description" wire:model="description" rows="2" placeholder="Optional description…"
                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
                         @error('description') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>

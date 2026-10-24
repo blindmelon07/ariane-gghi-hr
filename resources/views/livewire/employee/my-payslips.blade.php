@@ -1,8 +1,8 @@
 <div>
     {{-- Year Selector --}}
     <div class="mb-6 flex items-center gap-3">
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Year:</label>
-        <select wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+        <label for="year" class="text-sm font-medium text-gray-700 dark:text-gray-200">Year:</label>
+        <select id="year" wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             @for ($y = now()->year; $y >= now()->year - 3; $y--)
                 <option value="{{ $y }}">{{ $y }}</option>
             @endfor

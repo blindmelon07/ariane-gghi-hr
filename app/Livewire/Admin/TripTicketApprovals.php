@@ -69,6 +69,7 @@ class TripTicketApprovals extends Component
         $this->remarks         = '';
         $this->assignVehicleId = $ticket?->vehicle_id ?? '';
         $this->assignDriverId  = $ticket?->driver_id ?? '';
+        $this->resetErrorBag();
         $this->dispatch('open-action-modal');
     }
 
@@ -84,6 +85,14 @@ class TripTicketApprovals extends Component
 
         if (! in_array($ticket->approval_step, $this->mySteps) && ! $this->canOverride) {
             $this->addError('remarks', 'This request is not at your approval step.');
+            $this->dispatch('open-action-modal');
+            return;
+        }
+
+        // HR / super admin tickets start at the Fleet step, which they also hold
+        if ($user->employee_code && $ticket->employee?->emp_code === $user->employee_code) {
+            $this->addError('remarks', 'You cannot approve or reject your own request.');
+            $this->dispatch('open-action-modal');
             return;
         }
 
@@ -110,6 +119,7 @@ class TripTicketApprovals extends Component
         } else {
             if (empty($this->remarks)) {
                 $this->addError('remarks', 'Reason is required when rejecting.');
+                $this->dispatch('open-action-modal');
                 return;
             }
             $service->reject($ticket->fresh(), $user, $this->remarks);

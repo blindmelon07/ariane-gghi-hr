@@ -18,10 +18,10 @@
         <div class="flex flex-wrap gap-2">
             <div class="relative">
                 <x-phosphor-magnifying-glass-bold class="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-gray-400" />
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search positions…"
+                <input aria-label="Search positions" wire:model.live.debounce.300ms="search" type="text" placeholder="Search positions…"
                        class="pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-56">
             </div>
-            <select wire:model.live="filterDept" class="py-2 pl-3 pr-8 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            <select aria-label="Filter by department" wire:model.live="filterDept" class="py-2 pl-3 pr-8 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                 <option value="">All Departments</option>
                 @foreach ($this->departments as $dept)
                     <option value="{{ $dept->id }}">{{ $dept->name }}</option>
@@ -75,8 +75,8 @@
                     </button>
                 </div>
                 <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <button wire:click="openEdit({{ $pos->id }})" class="text-sm text-blue-600 dark:text-blue-400 font-medium">Edit</button>
-                    <button wire:click="confirmDelete({{ $pos->id }})" class="text-sm text-red-600 dark:text-red-400 font-medium">Delete</button>
+                    <button wire:click="openEdit({{ $pos->id }})" class="tbl-action">Edit</button>
+                    <button wire:click="confirmDelete({{ $pos->id }})" class="tbl-action tbl-action-danger">Delete</button>
                 </div>
             </div>
         @empty
@@ -127,7 +127,8 @@
                                     wire:loading.attr="disabled"
                                     wire:target="toggleApprover({{ $pos->id }})"
                                     title="{{ $pos->is_approver ? 'Click to disable approver' : 'Click to enable approver' }}"
-                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none
+                                    role="switch" aria-checked="{{ $pos->is_approver ? 'true' : 'false' }}" aria-label="{{ $pos->name }} can approve"
+                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
                                            {{ $pos->is_approver ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
                                              {{ $pos->is_approver ? 'translate-x-6' : 'translate-x-1' }}">
@@ -148,11 +149,11 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <button wire:click="openEdit({{ $pos->id }})"
-                                        class="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Edit">
+                                        class="tbl-action px-2" title="Edit" aria-label="Edit {{ $pos->name }}">
                                     <x-phosphor-pencil-simple-bold class="w-4 h-4" />
                                 </button>
                                 <button wire:click="confirmDelete({{ $pos->id }})"
-                                        class="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete">
+                                        class="tbl-action tbl-action-danger px-2" title="Delete" aria-label="Delete {{ $pos->name }}">
                                     <x-phosphor-trash-bold class="w-4 h-4" />
                                 </button>
                             </div>
@@ -185,15 +186,15 @@
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Position Name <span class="text-red-500">*</span></label>
-                        <input wire:model="name" type="text" placeholder="e.g. Software Developer"
+                        <label for="name" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Position Name <span class="text-red-500">*</span></label>
+                        <input id="name" wire:model="name" type="text" placeholder="e.g. Software Developer"
                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         @error('name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Department <span class="text-xs text-gray-400">(leave blank to apply to all)</span></label>
-                        <select wire:model="departmentId"
+                        <label for="departmentId" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Department <span class="text-xs text-gray-400">(leave blank to apply to all)</span></label>
+                        <select id="departmentId" wire:model="departmentId"
                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             <option value="">— All Departments —</option>
                             @foreach ($this->departments as $dept)

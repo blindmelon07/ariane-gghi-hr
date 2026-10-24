@@ -10,10 +10,10 @@
 
         {{-- Filters --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search plate, make, model..."
+            <input aria-label="Search plate, make, model" type="text" wire:model.live.debounce.300ms="search" placeholder="Search plate, make, model..."
                    class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
 
-            <select wire:model.live="filterStatus"
+            <select aria-label="Filter by status" wire:model.live="filterStatus"
                     class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 <option value="all">All Statuses</option>
                 <option value="available">Available</option>
@@ -21,7 +21,7 @@
                 <option value="under_maintenance">Under Maintenance</option>
             </select>
 
-            <select wire:model.live="filterType"
+            <select aria-label="Filter by type" wire:model.live="filterType"
                     class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 <option value="all">All Types</option>
                 <option value="sedan">Sedan</option>
@@ -50,8 +50,8 @@
                             <p class="font-mono font-semibold text-gray-800 dark:text-gray-100">{{ $v->plate_number }}</p>
                             <p class="text-sm text-gray-600 dark:text-gray-300">{{ $v->make }} {{ $v->model }}</p>
                         </div>
-                        <button wire:click="toggleActive({{ $v->id }})"
-                                class="shrink-0 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold
+                        <button wire:click="toggleActive({{ $v->id }})" role="switch" aria-checked="{{ $v->is_active ? 'true' : 'false' }}" title="{{ $v->is_active ? 'Active — click to deactivate' : 'Inactive — click to activate' }}"
+                                class="shrink-0 inline-flex items-center min-h-[2rem] px-2.5 rounded text-xs font-semibold
                                        {{ $v->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
                             {{ $v->is_active ? 'Active' : 'Inactive' }}
                         </button>
@@ -67,7 +67,7 @@
                         @endif
                     </div>
                     <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <button wire:click="openEdit({{ $v->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
+                        <button wire:click="openEdit({{ $v->id }})" class="tbl-action">Edit</button>
                     </div>
                 </div>
             @empty
@@ -114,15 +114,15 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
-                                <button wire:click="toggleActive({{ $v->id }})"
-                                        class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold
+                                <button wire:click="toggleActive({{ $v->id }})" role="switch" aria-checked="{{ $v->is_active ? 'true' : 'false' }}" title="{{ $v->is_active ? 'Active — click to deactivate' : 'Inactive — click to activate' }}"
+                                        class="inline-flex items-center min-h-[2rem] px-2.5 rounded text-xs font-semibold
                                                {{ $v->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
                                     {{ $v->is_active ? 'Active' : 'Inactive' }}
                                 </button>
                             </td>
                             <td class="px-4 py-3">
                                 <button wire:click="openEdit({{ $v->id }})"
-                                        class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">
+                                        class="tbl-action">
                                     Edit
                                 </button>
                             </td>
@@ -150,15 +150,15 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plate Number *</label>
-                    <input type="text" wire:model.live="plate_number" placeholder="ABC-1234"
+                    <label for="plate-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plate Number *</label>
+                    <input id="plate-number" type="text" wire:model.live="plate_number" placeholder="ABC-1234"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('plate_number') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type *</label>
-                    <select wire:model.live="vehicle_type"
+                    <label for="vehicle-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type *</label>
+                    <select id="vehicle-type" wire:model.live="vehicle_type"
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                         <option value="sedan">Sedan</option>
                         <option value="van">Van</option>
@@ -170,36 +170,36 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Make *</label>
-                    <input type="text" wire:model.live="make" placeholder="Toyota"
+                    <label for="make" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Make *</label>
+                    <input id="make" type="text" wire:model.live="make" placeholder="Toyota"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('make') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model *</label>
-                    <input type="text" wire:model.live="model" placeholder="Fortuner"
+                    <label for="model" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model *</label>
+                    <input id="model" type="text" wire:model.live="model" placeholder="Fortuner"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('model') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capacity (seats) *</label>
-                    <input type="number" wire:model.live="capacity" min="1" max="60"
+                    <label for="capacity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capacity (seats) *</label>
+                    <input id="capacity" type="number" wire:model.live="capacity" min="1" max="60"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('capacity') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
-                    <input type="number" wire:model.live="year" placeholder="2024" min="1990" max="2100"
+                    <label for="year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
+                    <input id="year" type="number" wire:model.live="year" placeholder="2024" min="1990" max="2100"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     @error('year') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status *</label>
-                    <select wire:model.live="status"
+                    <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status *</label>
+                    <select id="status" wire:model.live="status"
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                         <option value="available">Available</option>
                         <option value="in_use">In Use</option>

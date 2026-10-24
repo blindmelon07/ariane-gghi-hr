@@ -22,8 +22,8 @@
     {{-- Year filter --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6">
         <div class="flex items-center gap-3">
-            <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Year</label>
-            <select wire:model.live="filterYear" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+            <label for="filterYear" class="text-xs font-medium text-gray-500 dark:text-gray-400">Year</label>
+            <select id="filterYear" wire:model.live="filterYear" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                 @for ($y = now()->year + 1; $y >= now()->year - 2; $y--)
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endfor
@@ -58,8 +58,8 @@
                 <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $badgeClass }}">{{ $label }}</span>
                     <div class="flex items-center gap-4">
-                        <button wire:click="openEdit({{ $holiday->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">Edit</button>
-                        <button wire:click="delete({{ $holiday->id }})" wire:confirm="Remove this holiday?" class="text-sm text-red-500 dark:text-red-400 font-medium">Delete</button>
+                        <button wire:click="openEdit({{ $holiday->id }})" class="tbl-action">Edit</button>
+                        <button wire:click="delete({{ $holiday->id }})" wire:confirm="Remove this holiday?" class="tbl-action tbl-action-danger">Delete</button>
                     </div>
                 </div>
             </div>
@@ -115,10 +115,10 @@
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-3">
                                     <button wire:click="openEdit({{ $holiday->id }})"
-                                            class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Edit</button>
+                                            class="tbl-action">Edit</button>
                                     <button wire:click="delete({{ $holiday->id }})"
                                             wire:confirm="Remove this holiday?"
-                                            class="text-sm text-red-500 dark:text-red-400 hover:text-red-700 font-medium">Delete</button>
+                                            class="tbl-action tbl-action-danger">Delete</button>
                                 </div>
                             </td>
                         </tr>
@@ -147,22 +147,22 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date</label>
-                    <input type="date" wire:model.live="date"
+                    <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date</label>
+                    <input id="date" type="date" wire:model.live="date"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('date') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Holiday Name</label>
-                    <input type="text" wire:model.live="name" placeholder="e.g. Christmas Day"
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Holiday Name</label>
+                    <input id="name" type="text" wire:model.live="name" placeholder="e.g. Christmas Day"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('name') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Type</label>
-                    <select wire:model.live="type" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Type</label>
+                    <select id="type" wire:model.live="type" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="regular">Regular Holiday (paid, no work)</option>
                         <option value="special_non_working">Special Non-Working (paid, no work)</option>
                         <option value="special_working">Special Working (premium pay if worked)</option>

@@ -136,8 +136,8 @@
                 </p>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Shift</label>
-                    <select wire:model="selectedScheduleId"
+                    <label for="selectedScheduleId" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Shift</label>
+                    <select id="selectedScheduleId" wire:model="selectedScheduleId"
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                         <option value="">OFF (no shift)</option>
                         @foreach ($this->shiftTemplates as $sched)

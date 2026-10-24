@@ -14,14 +14,14 @@
         <form wire:submit="submit" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date <span class="text-red-500">*</span></label>
-                    <input type="date" wire:model.live="date" min="{{ now()->subDays(\App\Livewire\Employee\UndertimeForm::FILE_BACK_DAYS)->toDateString() }}"
+                    <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date <span class="text-red-500">*</span></label>
+                    <input id="date" type="date" wire:model.live="date" min="{{ now()->subDays(\App\Livewire\Employee\UndertimeForm::FILE_BACK_DAYS)->toDateString() }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('date') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Time Out <span class="text-red-500">*</span></label>
-                    <input type="time" wire:model.live="timeOut"
+                    <label for="timeOut" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Time Out <span class="text-red-500">*</span></label>
+                    <input id="timeOut" type="time" wire:model.live="timeOut"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">The time you will leave.</p>
                     @error('timeOut') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
@@ -29,8 +29,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
-                <textarea wire:model.live="reason" rows="3" placeholder="Explain why you need to leave early (e.g. medical appointment, family emergency)..."
+                <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
+                <textarea id="reason" wire:model.live="reason" rows="3" placeholder="Explain why you need to leave early (e.g. medical appointment, family emergency)..."
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
                 @error('reason') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>

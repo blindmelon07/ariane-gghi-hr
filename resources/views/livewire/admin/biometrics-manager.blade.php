@@ -111,14 +111,14 @@
             <div class="space-y-3 mb-5">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">From</label>
-                        <input type="date" wire:model.live="fromDate"
+                        <label for="fromDate" class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">From</label>
+                        <input id="fromDate" type="date" wire:model.live="fromDate"
                                class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
                         @error('fromDate') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">To</label>
-                        <input type="date" wire:model.live="toDate"
+                        <label for="toDate" class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">To</label>
+                        <input id="toDate" type="date" wire:model.live="toDate"
                                class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
                         @error('toDate') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -172,15 +172,15 @@
         <form wire:submit="importAttendance" class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Cutoff Start Date</label>
-                    <input type="date" wire:model="importPeriodStart"
+                    <label for="importPeriodStart" class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Cutoff Start Date</label>
+                    <input id="importPeriodStart" type="date" wire:model="importPeriodStart"
                            class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
                     <p class="text-[11px] text-slate-400 mt-1">First day shown in the sheet — its month/year is used to resolve every day-of-month column.</p>
                     @error('importPeriodStart') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Excel File</label>
-                    <input type="file" wire:model="importFile" accept=".xlsx,.xls"
+                    <label for="importFile" class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Excel File</label>
+                    <input id="importFile" type="file" wire:model="importFile" accept=".xlsx,.xls"
                            class="w-full text-sm text-gray-700 dark:text-gray-200" />
                     <div wire:loading wire:target="importFile" class="text-xs text-gray-400 dark:text-slate-500 mt-1">Uploading…</div>
                     @error('importFile') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -361,7 +361,7 @@
                         <span>Synced {{ $emp->synced_at?->format('M d, Y H:i') ?? '—' }}</span>
                     </div>
                     <button wire:click="openAccountModal({{ $emp->id }})"
-                        class="mt-2 w-full text-xs font-medium px-3 py-1.5 rounded-lg transition-colors text-center {{ $emp->user ? 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300' : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}">
+                        class="mt-2 w-full {{ $emp->user ? 'tbl-action' : 'tbl-action tbl-action-primary' }}">
                         {{ $emp->user ? 'Manage Account' : 'Assign Account' }}
                     </button>
                 </div>
@@ -411,7 +411,7 @@
                             </td>
                             <td class="px-6 py-3 text-right">
                                 <button wire:click="openAccountModal({{ $emp->id }})"
-                                    class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors {{ $emp->user ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700' : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}">
+                                    class="{{ $emp->user ? 'tbl-action' : 'tbl-action tbl-action-primary' }}">
                                     {{ $emp->user ? 'Manage Account' : 'Assign Account' }}
                                 </button>
                             </td>
@@ -448,8 +448,8 @@
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Role</label>
-                        <select wire:model.live="accountRole"
+                        <label for="accountRole" class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Role</label>
+                        <select id="accountRole" wire:model.live="accountRole"
                             class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                             <option value="employee">Employee</option>
                             <option value="manager">Manager</option>
@@ -459,10 +459,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">
+                        <label for="accountPassword" class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">
                             Password {{ $hasExistingAccount ? '(leave blank to keep current)' : '' }}
                         </label>
-                        <input type="password" wire:model.live="accountPassword"
+                        <input id="accountPassword" type="password" wire:model.live="accountPassword"
                             placeholder="{{ $hasExistingAccount ? 'Enter new password to change' : 'Set a password' }}"
                             class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
                         @error('accountPassword') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror

@@ -13,7 +13,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $this->employeeCount }} employees with salary configured</p>
         </div>
         <div class="flex items-center gap-3">
-            <select wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+            <select aria-label="Filter by status" wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                 <option value="all">All Statuses</option>
                 <option value="draft">Draft</option>
                 <option value="processing">Processing</option>
@@ -39,8 +39,8 @@
             <form wire:submit="createPeriod" class="space-y-4">
                 {{-- Period Name --}}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Period Name</label>
-                    <input type="text" wire:model.live="periodName"
+                    <label for="periodName" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Period Name</label>
+                    <input id="periodName" type="text" wire:model.live="periodName"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"
                            placeholder="e.g. June 2026 - 1st Half" />
                     @error('periodName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
@@ -119,14 +119,14 @@
                     </p>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Start Date</label>
-                            <input type="date" wire:model.live="startDate"
+                            <label for="startDate" class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Start Date</label>
+                            <input id="startDate" type="date" wire:model.live="startDate"
                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
                             @error('startDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">End Date</label>
-                            <input type="date" wire:model.live="endDate"
+                            <label for="endDate" class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">End Date</label>
+                            <input id="endDate" type="date" wire:model.live="endDate"
                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
                             @error('endDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
@@ -215,8 +215,8 @@
 
             <form wire:submit="importExcel" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Excel File</label>
-                    <input type="file" wire:model="importFile" accept=".xlsx,.xls"
+                    <label for="importFile" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Excel File</label>
+                    <input id="importFile" type="file" wire:model="importFile" accept=".xlsx,.xls"
                            class="w-full text-sm text-gray-700 dark:text-gray-200" />
                     <div wire:loading wire:target="importFile" class="text-xs text-gray-400 dark:text-gray-500 mt-1">Uploading…</div>
                     @error('importFile') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
@@ -267,7 +267,7 @@
             </p>
 
             <div class="flex items-center gap-2 mb-2">
-                <input x-model="search" type="text" placeholder="Search name or code…"
+                <input aria-label="Search name or code" x-model="search" type="text" placeholder="Search name or code…"
                        class="flex-1 min-w-0 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 <button type="button" x-on:click="selectVisible()" class="shrink-0 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">Select all</button>
                 <button type="button" x-on:click="clearVisible()" class="shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700">Clear</button>
@@ -331,25 +331,8 @@
                     <span>{{ str_replace('_', ' ', ucfirst($period->cutoff_type)) }}</span>
                     <span>· {{ $period->payslips()->count() }} payslips</span>
                 </div>
-                <div class="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    @if ($period->status === 'draft' || $period->status === 'processed')
-                        <button wire:click="openGenerate({{ $period->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
-                            {{ $period->status === 'draft' ? 'Generate' : 'Regenerate' }}
-                        </button>
-                    @endif
-                    @if ($period->status === 'processed')
-                        <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone. Employees will be texted that their payslip is ready." class="text-sm text-green-600 dark:text-green-400 font-medium">Finalize</button>
-                    @endif
-                    @if ($period->status === 'finalized')
-                        <button wire:click="sendPayslipSms({{ $period->id }})" wire:confirm="Text a payslip notice to every employee in this period who hasn't been notified yet?" class="text-sm text-blue-600 dark:text-blue-400 font-medium">SMS Payslips</button>
-                    @endif
-                    @if (in_array($period->status, ['processed', 'finalized']))
-                        <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 font-medium">Excel</button>
-                        <button wire:click="viewPayslips({{ $period->id }})" class="text-sm text-purple-600 dark:text-purple-400 font-medium">Payslips</button>
-                    @endif
-                    @if ($period->status !== 'finalized')
-                        <button wire:click="openImport({{ $period->id }})" class="text-sm text-teal-600 dark:text-teal-400 font-medium">Import Excel</button>
-                    @endif
+                <div class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    @include('livewire.admin._payroll-actions', ['period' => $period])
                 </div>
             </div>
         @empty
@@ -386,27 +369,10 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $period->payslips()->count() }}</td>
-                        <td class="px-6 py-4 text-right space-x-2">
-                            @if ($period->status === 'draft' || $period->status === 'processed')
-                                <button wire:click="openGenerate({{ $period->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">
-                                    {{ $period->status === 'draft' ? 'Generate' : 'Regenerate' }}
-                                </button>
-                            @endif
-                            @if ($period->status === 'processed')
-                                <button wire:click="finalize({{ $period->id }})" wire:confirm="Finalize this payroll? This cannot be undone. Employees will be texted that their payslip is ready." class="text-sm text-green-600 dark:text-green-400 hover:text-green-800 font-medium">Finalize</button>
-                            @endif
-                            @if ($period->status === 'finalized')
-                                <button wire:click="sendPayslipSms({{ $period->id }})" wire:confirm="Text a payslip notice to every employee in this period who hasn't been notified yet?" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 font-medium">SMS Payslips</button>
-                            @endif
-                            @if (in_array($period->status, ['processed', 'finalized']))
-                                <button wire:click="exportExcel({{ $period->id }})" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 font-medium">Excel</button>
-                            @endif
-                            @if (in_array($period->status, ['processed', 'finalized']))
-                                <button wire:click="viewPayslips({{ $period->id }})" class="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 font-medium">Payslips</button>
-                            @endif
-                            @if ($period->status !== 'finalized')
-                                <button wire:click="openImport({{ $period->id }})" class="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-800 font-medium">Import Excel</button>
-                            @endif
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-2">
+                                @include('livewire.admin._payroll-actions', ['period' => $period])
+                            </div>
                         </td>
                     </tr>
                 @empty

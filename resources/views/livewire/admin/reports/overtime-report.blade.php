@@ -36,16 +36,16 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 mb-6">
         <div class="flex flex-wrap items-end gap-3">
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Year</label>
-                <select wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+                <label for="year" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Year</label>
+                <select id="year" wire:model.live="year" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
                     @for ($y = now()->year; $y >= now()->year - 3; $y--)
                         <option value="{{ $y }}">{{ $y }}</option>
                     @endfor
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Month</label>
-                <select wire:model.live="month" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+                <label for="month" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Month</label>
+                <select id="month" wire:model.live="month" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
                     <option value="">All Months</option>
                     @foreach (range(1, 12) as $m)
                         <option value="{{ $m }}">{{ date('F', mktime(0,0,0,$m,1)) }}</option>
@@ -53,8 +53,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                <select wire:model.live="department" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+                <label for="department" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                <select id="department" wire:model.live="department" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
                     <option value="">All Departments</option>
                     @foreach ($this->departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
@@ -62,8 +62,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
-                <select wire:model.live="status" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+                <label for="status" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
+                <select id="status" wire:model.live="status" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
                     <option value="">All</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>

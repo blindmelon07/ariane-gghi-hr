@@ -35,13 +35,7 @@ class GuardPanel extends Component
         return TripTicket::with(['employee', 'vehicle', 'driver.employee'])
             ->where('status', 'approved')
             ->whereNull('departed_at')
-            ->when($this->search, fn ($q) => $q
-                ->whereHas('employee', fn ($eq) => $eq
-                    ->where('first_name', 'like', "%{$this->search}%")
-                    ->orWhere('last_name',  'like', "%{$this->search}%")
-                    ->orWhere('emp_code',   'like', "%{$this->search}%"))
-                ->orWhereHas('vehicle', fn ($vq) => $vq
-                    ->where('plate_number', 'like', "%{$this->search}%")))
+            ->when($this->search, fn ($q) => $this->applySearch($q))
             ->orderBy('departure_datetime')
             ->get();
     }
@@ -53,15 +47,21 @@ class GuardPanel extends Component
         return TripTicket::with(['employee', 'vehicle', 'driver.employee'])
             ->where('status', 'approved')
             ->whereNotNull('departed_at')
-            ->when($this->search, fn ($q) => $q
-                ->whereHas('employee', fn ($eq) => $eq
-                    ->where('first_name', 'like', "%{$this->search}%")
-                    ->orWhere('last_name',  'like', "%{$this->search}%")
-                    ->orWhere('emp_code',   'like', "%{$this->search}%"))
-                ->orWhereHas('vehicle', fn ($vq) => $vq
-                    ->where('plate_number', 'like', "%{$this->search}%")))
+            ->when($this->search, fn ($q) => $this->applySearch($q))
             ->orderBy('departed_at')
             ->get();
+    }
+
+    // Grouped so the OR can't escape the status / departed_at filters
+    private function applySearch($query)
+    {
+        return $query->where(fn ($q) => $q
+            ->whereHas('employee', fn ($eq) => $eq
+                ->where('first_name', 'like', "%{$this->search}%")
+                ->orWhere('last_name',  'like', "%{$this->search}%")
+                ->orWhere('emp_code',   'like', "%{$this->search}%"))
+            ->orWhereHas('vehicle', fn ($vq) => $vq
+                ->where('plate_number', 'like', "%{$this->search}%")));
     }
 
     #[Computed]

@@ -41,9 +41,9 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="p-4 border-b border-gray-100 dark:border-gray-700">
             <div class="flex flex-col sm:flex-row gap-3">
-                <input wire:model.live.debounce.300ms="searchSched" type="text" placeholder="Search schedule…"
+                <input aria-label="Search schedule" wire:model.live.debounce.300ms="searchSched" type="text" placeholder="Search schedule…"
                     class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-                <select wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm w-48">
+                <select aria-label="Filter by department" wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm w-48">
                     <option value="">All Departments</option>
                     @foreach ($this->scheduleDepartments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
@@ -64,8 +64,8 @@
                         <p class="text-gray-800 dark:text-gray-100 font-medium truncate">{{ $sched->name }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $sched->department }}</p>
                     </div>
-                    <button wire:click="toggleScheduleActive({{ $sched->id }})"
-                        class="shrink-0 inline-block px-2 py-0.5 text-xs rounded-full cursor-pointer transition
+                    <button wire:click="toggleScheduleActive({{ $sched->id }})" role="switch" aria-checked="{{ $sched->is_active ? 'true' : 'false' }}" title="{{ $sched->is_active ? 'Active — click to deactivate' : 'Inactive — click to activate' }}"
+                        class="shrink-0 inline-flex items-center min-h-[2rem] px-2.5 text-xs rounded-full cursor-pointer transition
                         {{ $sched->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' }}">
                         {{ $sched->is_active ? 'Active' : 'Inactive' }}
                     </button>
@@ -88,8 +88,8 @@
                     @endif
                 </div>
                 <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <button wire:click="openEditSchedule({{ $sched->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
-                    <button wire:click="deleteSchedule({{ $sched->id }})" wire:confirm="Delete this schedule?" class="text-red-500 dark:text-red-400 text-xs font-medium">Delete</button>
+                    <button wire:click="openEditSchedule({{ $sched->id }})" class="tbl-action">Edit</button>
+                    <button wire:click="deleteSchedule({{ $sched->id }})" wire:confirm="Delete this schedule?" class="tbl-action tbl-action-danger">Delete</button>
                 </div>
             </div>
             @empty
@@ -145,16 +145,16 @@
                             @endif
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <button wire:click="toggleScheduleActive({{ $sched->id }})"
-                                class="inline-block px-2 py-0.5 text-xs rounded-full cursor-pointer transition
+                            <button wire:click="toggleScheduleActive({{ $sched->id }})" role="switch" aria-checked="{{ $sched->is_active ? 'true' : 'false' }}" title="{{ $sched->is_active ? 'Active — click to deactivate' : 'Inactive — click to activate' }}"
+                                class="inline-flex items-center min-h-[2rem] px-2.5 text-xs rounded-full cursor-pointer transition
                                 {{ $sched->is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800/30' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800/30' }}">
                                 {{ $sched->is_active ? 'Active' : 'Inactive' }}
                             </button>
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="flex justify-center gap-1">
-                                <button wire:click="openEditSchedule({{ $sched->id }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">Edit</button>
-                                <button wire:click="deleteSchedule({{ $sched->id }})" wire:confirm="Delete this schedule?" class="text-red-500 dark:text-red-400 hover:text-red-700 dark:text-red-300 text-xs font-medium ml-2">Delete</button>
+                                <button wire:click="openEditSchedule({{ $sched->id }})" class="tbl-action">Edit</button>
+                                <button wire:click="deleteSchedule({{ $sched->id }})" wire:confirm="Delete this schedule?" class="ml-2 tbl-action tbl-action-danger">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -178,9 +178,9 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="p-4 border-b border-gray-100 dark:border-gray-700">
             <div class="flex flex-col sm:flex-row gap-3">
-                <input wire:model.live.debounce.300ms="assignSearch" type="text" placeholder="Search employee…"
+                <input aria-label="Search employee" wire:model.live.debounce.300ms="assignSearch" type="text" placeholder="Search employee…"
                     class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-                <select wire:model.live="assignFilterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm w-48">
+                <select aria-label="Filter by department" wire:model.live="assignFilterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm w-48">
                     <option value="">All Departments</option>
                     @foreach ($this->departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
@@ -213,8 +213,8 @@
                     {{ $assign->effective_from->format('M d, Y') }} – {{ $assign->effective_to ? $assign->effective_to->format('M d, Y') : 'ongoing' }}
                 </p>
                 <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <button wire:click="openEditAssign({{ $assign->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
-                    <button wire:click="deleteAssign({{ $assign->id }})" wire:confirm="Remove this assignment?" class="text-red-500 dark:text-red-400 text-xs font-medium">Remove</button>
+                    <button wire:click="openEditAssign({{ $assign->id }})" class="tbl-action">Edit</button>
+                    <button wire:click="deleteAssign({{ $assign->id }})" wire:confirm="Remove this assignment?" class="tbl-action tbl-action-danger">Remove</button>
                 </div>
             </div>
             @empty
@@ -258,8 +258,8 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="flex justify-center gap-1">
-                                <button wire:click="openEditAssign({{ $assign->id }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">Edit</button>
-                                <button wire:click="deleteAssign({{ $assign->id }})" wire:confirm="Remove this assignment?" class="text-red-500 dark:text-red-400 hover:text-red-700 dark:text-red-300 text-xs font-medium ml-2">Remove</button>
+                                <button wire:click="openEditAssign({{ $assign->id }})" class="tbl-action">Edit</button>
+                                <button wire:click="deleteAssign({{ $assign->id }})" wire:confirm="Remove this assignment?" class="ml-2 tbl-action tbl-action-danger">Remove</button>
                             </div>
                         </td>
                     </tr>
@@ -287,13 +287,13 @@
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule Name</label>
-                        <input wire:model.live="schedName" type="text" placeholder="e.g. Nursing Day 12h" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="schedName" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule Name</label>
+                        <input id="schedName" wire:model.live="schedName" type="text" placeholder="e.g. Nursing Day 12h" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('schedName') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                        <input wire:model.live="schedDept" type="text" list="dept-list" placeholder="e.g. Nursing" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="schedDept" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                        <input id="schedDept" wire:model.live="schedDept" type="text" list="dept-list" placeholder="e.g. Nursing" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         <datalist id="dept-list">
                             @foreach ($this->scheduleDepartments as $d)
                                 <option value="{{ $d }}">
@@ -305,25 +305,25 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time In</label>
-                        <input wire:model.live="schedTimeIn" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="schedTimeIn" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time In</label>
+                        <input id="schedTimeIn" wire:model.live="schedTimeIn" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('schedTimeIn') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time Out</label>
-                        <input wire:model.live="schedTimeOut" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="schedTimeOut" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time Out</label>
+                        <input id="schedTimeOut" wire:model.live="schedTimeOut" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('schedTimeOut') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Break Start <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model.live="schedBreakStart" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="schedBreakStart" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Break Start <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
+                        <input id="schedBreakStart" wire:model.live="schedBreakStart" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Break End <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model.live="schedBreakEnd" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="schedBreakEnd" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Break End <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
+                        <input id="schedBreakEnd" wire:model.live="schedBreakEnd" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                 </div>
 
@@ -331,12 +331,12 @@
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Split Shift (2nd period, optional)</p>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time In 2</label>
-                            <input wire:model.live="schedTimeIn2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <label for="schedTimeIn2" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time In 2</label>
+                            <input id="schedTimeIn2" wire:model.live="schedTimeIn2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time Out 2</label>
-                            <input wire:model.live="schedTimeOut2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <label for="schedTimeOut2" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time Out 2</label>
+                            <input id="schedTimeOut2" wire:model.live="schedTimeOut2" type="time" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         </div>
                     </div>
                 </div>
@@ -349,8 +349,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                    <input wire:model.live="schedDescription" type="text" placeholder="e.g. 12:00-13:00 Lunch Break" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <label for="schedDescription" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
+                    <input id="schedDescription" wire:model.live="schedDescription" type="text" placeholder="e.g. 12:00-13:00 Lunch Break" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
             </div>
 
@@ -380,7 +380,7 @@
                     @if (!$editAssignId)
                         {{-- Quick "whole department" pick, for assigning a group like all of Nursing at once --}}
                         <div class="flex gap-2 mb-2">
-                            <select wire:model.live="assignEmpDeptFilter" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                            <select id="assignEmpDeptFilter" aria-label="Pick employees by department" wire:model.live="assignEmpDeptFilter" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                                 <option value="">Filter / pick by department…</option>
                                 @foreach ($this->departments as $dept)
                                     <option value="{{ $dept }}">{{ $dept }}</option>
@@ -394,7 +394,7 @@
                         </div>
                     @endif
 
-                    <input wire:model.live.debounce.300ms="assignEmpSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
+                    <input aria-label="Search employee" wire:model.live.debounce.300ms="assignEmpSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" {{ $editAssignId ? 'disabled' : '' }} />
                     @if (!$editAssignId)
                     <div x-show="open && $wire.assignEmpSearch.length >= 2" class="relative">
@@ -430,8 +430,8 @@
 
                 {{-- Schedule picker --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
-                    <select wire:model.live="assignScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="assignScheduleId" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
+                    <select id="assignScheduleId" wire:model.live="assignScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select schedule…</option>
                         @foreach ($this->allSchedules->groupBy('department') as $dept => $scheds)
                             <optgroup label="{{ $dept }}">
@@ -447,13 +447,13 @@
                 {{-- Date range --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective From</label>
-                        <input wire:model.live="assignFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="assignFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective From</label>
+                        <input id="assignFrom" wire:model.live="assignFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('assignFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective To <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model.live="assignTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="assignTo" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective To <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
+                        <input id="assignTo" wire:model.live="assignTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                 </div>
             </div>
@@ -477,8 +477,8 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                    <select wire:model.live="bulkDept" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="bulkDept" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                    <select id="bulkDept" wire:model.live="bulkDept" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select department…</option>
                         @foreach ($this->departments as $dept)
                             <option value="{{ $dept }}">{{ $dept }}</option>
@@ -488,8 +488,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
-                    <select wire:model.live="bulkScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="bulkScheduleId" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Schedule</label>
+                    <select id="bulkScheduleId" wire:model.live="bulkScheduleId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select schedule…</option>
                         @foreach ($this->deptSchedules as $s)
                             <option value="{{ $s->id }}">{{ $s->name }} ({{ $s->formatted_time }})</option>
@@ -500,13 +500,13 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective From</label>
-                        <input wire:model.live="bulkFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="bulkFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective From</label>
+                        <input id="bulkFrom" wire:model.live="bulkFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('bulkFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective To <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
-                        <input wire:model.live="bulkTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="bulkTo" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective To <span class="text-gray-400 dark:text-gray-500">(optional)</span></label>
+                        <input id="bulkTo" wire:model.live="bulkTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                 </div>
             </div>

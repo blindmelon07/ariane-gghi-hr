@@ -17,15 +17,15 @@
 
     {{-- Filters --}}
     <div class="grid grid-cols-1 gap-2 mb-4 sm:flex sm:flex-wrap sm:gap-3">
-        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search name or code..."
+        <input aria-label="Search name or code" type="text" wire:model.live.debounce.300ms="search" placeholder="Search name or code..."
                class="w-full sm:w-64 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-        <select wire:model.live="filterDept" class="w-full sm:w-auto rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+        <select aria-label="Filter by department" wire:model.live="filterDept" class="w-full sm:w-auto rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="">All Departments</option>
             @foreach ($this->departments as $dept)
                 <option value="{{ $dept->id }}">{{ $dept->name }}</option>
             @endforeach
         </select>
-        <select wire:model.live="filterStatus" class="w-full sm:w-auto rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+        <select aria-label="Filter by status" wire:model.live="filterStatus" class="w-full sm:w-auto rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
@@ -159,10 +159,10 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <button wire:click="openAccountModal({{ $emp->id }})" class="text-sm font-medium {{ $emp->user ? 'text-gray-600 dark:text-gray-300 hover:text-gray-800' : 'text-green-600 dark:text-green-400 hover:text-green-800' }}">
+                                    <button wire:click="openAccountModal({{ $emp->id }})" class="{{ $emp->user ? 'tbl-action' : 'tbl-action tbl-action-primary' }}">
                                         {{ $emp->user ? 'Account' : 'Create Account' }}
                                     </button>
-                                    <button wire:click="openEdit({{ $emp->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Edit</button>
+                                    <button wire:click="openEdit({{ $emp->id }})" class="tbl-action">Edit</button>
                                 </div>
                             </td>
                         </tr>
@@ -185,38 +185,38 @@
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Edit Employee</h3>
             <form wire:submit="saveEmployee" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    <label for="editEmpCode" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         Employee Code
                         <span class="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">must match the biometric device's enrolled ID</span>
                     </label>
-                    <input type="text" wire:model.live="editEmpCode" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm font-mono" />
+                    <input id="editEmpCode" type="text" wire:model.live="editEmpCode" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm font-mono" />
                     @error('editEmpCode') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">First Name</label>
-                        <input type="text" wire:model.live="editFirstName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="editFirstName" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">First Name</label>
+                        <input id="editFirstName" type="text" wire:model.live="editFirstName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('editFirstName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Last Name</label>
-                        <input type="text" wire:model.live="editLastName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="editLastName" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Last Name</label>
+                        <input id="editLastName" type="text" wire:model.live="editLastName" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('editLastName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    <label for="editCellNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         Cell Number
                         <span class="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">for SMS notifications</span>
                     </label>
-                    <input type="text" wire:model.live="editCellNumber" placeholder="e.g. 09171234567"
+                    <input id="editCellNumber" type="text" wire:model.live="editCellNumber" placeholder="e.g. 09171234567"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('editCellNumber') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Department</label>
-                        <select wire:model.live="editDepartmentId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                        <label for="editDepartmentId" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Department</label>
+                        <select id="editDepartmentId" wire:model.live="editDepartmentId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                             <option value="">— No Department —</option>
                             @foreach ($this->departments as $dept)
                                 <option value="{{ $dept->id }}">{{ $dept->name }}</option>
@@ -224,8 +224,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Position</label>
-                        <select wire:model.live="editPositionId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                        <label for="editPositionId" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Position</label>
+                        <select id="editPositionId" wire:model.live="editPositionId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                             <option value="">— No Position —</option>
                             @foreach ($this->positions as $pos)
                                 <option value="{{ $pos->id }}">{{ $pos->name }}</option>
@@ -285,8 +285,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Regularization Date</label>
-                    <input type="date" wire:model.live="editRegularizationDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <label for="editRegularizationDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Regularization Date</label>
+                    <input id="editRegularizationDate" type="date" wire:model.live="editRegularizationDate" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Paid leave credits (2.5 days/month) start 1 year after this date.</p>
                     @error('editRegularizationDate') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -294,8 +294,8 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date of Birth</label>
-                        <input type="date" wire:model.live="editDob" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="editDob" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date of Birth</label>
+                        <input id="editDob" type="date" wire:model.live="editDob" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     </div>
                     <div class="flex items-end pb-1">
                         <label class="flex items-center gap-2 cursor-pointer">
@@ -333,7 +333,7 @@
                     <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
                         <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Login Username</p>
                         <div class="flex gap-2">
-                            <input wire:model="accountNewUsername" type="text"
+                            <input aria-label="Username" wire:model="accountNewUsername" type="text"
                                 placeholder="e.g. maria.santos (blank to remove)"
                                 class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
                             <button wire:click="changeUsername"
@@ -350,7 +350,7 @@
                     <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
                         <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Change Password</p>
                         <div class="flex gap-2">
-                            <input wire:model.live="accountPassword" type="password"
+                            <input aria-label="New password" wire:model.live="accountPassword" type="password"
                                 placeholder="New password (min 6 chars)"
                                 class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
                             <button wire:click="resetPassword"
@@ -365,7 +365,7 @@
                     <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
                         <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Role</p>
                         <div class="flex gap-2">
-                            <select wire:model.live="accountRole" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm">
+                            <select aria-label="Role" wire:model.live="accountRole" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm">
                                 <option value="employee">Employee</option>
                                 <option value="hr_admin">HR Admin</option>
                                 <option value="manager">Manager</option>
@@ -392,14 +392,14 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Password</label>
-                        <input wire:model.live="accountPassword" type="text" placeholder="Set initial password (min 6 chars)" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="accountPassword" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Password</label>
+                        <input id="accountPassword" wire:model.live="accountPassword" type="text" placeholder="Set initial password (min 6 chars)" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('accountPassword') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
-                        <select wire:model.live="accountRole" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                        <label for="accountRole" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Role</label>
+                        <select id="accountRole" wire:model.live="accountRole" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                             <option value="employee">Employee</option>
                             <option value="hr_admin">HR Admin</option>
                             <option value="manager">Manager</option>

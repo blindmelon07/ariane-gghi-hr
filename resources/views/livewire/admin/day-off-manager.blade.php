@@ -31,13 +31,13 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6">
         <div class="flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-[200px]">
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search</label>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Name or code…"
+                <label for="search" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search</label>
+                <input id="search" wire:model.live.debounce.300ms="search" type="text" placeholder="Name or code…"
                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                <select wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="filterDept" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                <select id="filterDept" wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     @foreach ($this->departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
@@ -45,8 +45,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
-                <select wire:model.live="filterType" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="filterType" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
+                <select id="filterType" wire:model.live="filterType" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     <option value="rest_day">Rest Day</option>
                     <option value="holiday">Holiday</option>
@@ -55,8 +55,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Month</label>
-                <input wire:model.live="filterMonth" type="month" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                <label for="filterMonth" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Month</label>
+                <input id="filterMonth" wire:model.live="filterMonth" type="month" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
             </div>
         </div>
     </div>
@@ -93,8 +93,8 @@
                 @endif
             </div>
             <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <button wire:click="openEdit({{ $off->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
-                <button wire:click="delete({{ $off->id }})" wire:confirm="Remove this day off?" class="text-red-600 dark:text-red-400 text-xs font-medium">Delete</button>
+                <button wire:click="openEdit({{ $off->id }})" class="tbl-action">Edit</button>
+                <button wire:click="delete({{ $off->id }})" wire:confirm="Remove this day off?" class="tbl-action tbl-action-danger">Delete</button>
             </div>
         </div>
         @empty
@@ -148,8 +148,8 @@
                         <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">{{ $off->description ?? '—' }}</td>
                         <td class="px-4 py-2.5 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <button wire:click="openEdit({{ $off->id }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">Edit</button>
-                                <button wire:click="delete({{ $off->id }})" wire:confirm="Remove this day off?" class="text-red-600 dark:text-red-400 hover:text-red-800 text-xs font-medium">Delete</button>
+                                <button wire:click="openEdit({{ $off->id }})" class="tbl-action">Edit</button>
+                                <button wire:click="delete({{ $off->id }})" wire:confirm="Remove this day off?" class="tbl-action tbl-action-danger">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -178,10 +178,10 @@
             <div class="space-y-4">
                 {{-- Employee search --}}
                 <div x-data="{ open: false }" @click.outside="open = false">
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    <label for="empSearch" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                         {{ $editId ? 'Employee' : 'Employees' }}
                     </label>
-                    <input wire:model.live.debounce.300ms="empSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
+                    <input id="empSearch" wire:model.live.debounce.300ms="empSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" {{ $editId ? 'disabled' : '' }} />
 
                     @if (!$editId)
@@ -238,8 +238,8 @@
                 @if ($mode === 'single' || $editId)
                 {{-- Single date --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Date</label>
-                    <input wire:model.live="date" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <label for="date" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Date</label>
+                    <input id="date" wire:model.live="date" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('date') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 
@@ -279,15 +279,15 @@
 
                 {{-- Validity date range --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Validity Period</label>
+                    <label for="dateFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Validity Period</label>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <input wire:model.live="dateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input id="dateFrom" wire:model.live="dateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">From</p>
                             @error('dateFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <input wire:model.live="dateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input aria-label="To date" wire:model.live="dateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">To</p>
                             @error('dateTo') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
@@ -307,8 +307,8 @@
 
                 {{-- Type --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
-                    <select wire:model.live="type" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="type" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
+                    <select id="type" wire:model.live="type" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="rest_day">Rest Day</option>
                         <option value="holiday">Holiday</option>
                         <option value="special">Special</option>
@@ -318,8 +318,8 @@
 
                 {{-- Description --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description (optional)</label>
-                    <input wire:model.live="description" type="text" placeholder="e.g. Weekly rest day, New Year's Day"
+                    <label for="description" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description (optional)</label>
+                    <input id="description" wire:model.live="description" type="text" placeholder="e.g. Weekly rest day, New Year's Day"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
             </div>
@@ -344,8 +344,8 @@
             <div class="space-y-4">
                 {{-- Department --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                    <select wire:model.live="bulkDept" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="bulkDept" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                    <select id="bulkDept" wire:model.live="bulkDept" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select department…</option>
                         @foreach ($this->departments as $dept)
                             <option value="{{ $dept }}">{{ $dept }}</option>
@@ -372,15 +372,15 @@
 
                 {{-- Date Range --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Validity Period</label>
+                    <label for="bulkDateFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Validity Period</label>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <input wire:model.live="bulkDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input id="bulkDateFrom" wire:model.live="bulkDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">From</p>
                             @error('bulkDateFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <input wire:model.live="bulkDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                            <input aria-label="To date" wire:model.live="bulkDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">To</p>
                             @error('bulkDateTo') <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ $message }}</p> @enderror
                         </div>
@@ -399,8 +399,8 @@
 
                 {{-- Type --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
-                    <select wire:model.live="bulkType" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="bulkType" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
+                    <select id="bulkType" wire:model.live="bulkType" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="rest_day">Rest Day</option>
                         <option value="holiday">Holiday</option>
                         <option value="special">Special</option>
@@ -410,8 +410,8 @@
 
                 {{-- Description --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description (optional)</label>
-                    <input wire:model.live="bulkDescription" type="text" placeholder="e.g. Weekly rest day"
+                    <label for="bulkDescription" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description (optional)</label>
+                    <input id="bulkDescription" wire:model.live="bulkDescription" type="text" placeholder="e.g. Weekly rest day"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
             </div>
@@ -452,13 +452,13 @@
 
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">From</label>
-                    <input wire:model.live="genDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <label for="genDateFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">From</label>
+                    <input id="genDateFrom" wire:model.live="genDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('genDateFrom') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To</label>
-                    <input wire:model.live="genDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <label for="genDateTo" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">To</label>
+                    <input id="genDateTo" wire:model.live="genDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('genDateTo') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>

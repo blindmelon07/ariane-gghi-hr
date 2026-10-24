@@ -25,8 +25,8 @@
             <livewire:employee.leave-balance-card />
         </div>
 
-        {{-- Attendance Calendar --}}
-        <div>
+        {{-- Attendance Calendar (sidebar "Attendance" links here) --}}
+        <div id="attendance-calendar" class="scroll-mt-20">
             <livewire:employee.attendance-calendar />
         </div>
     </div>

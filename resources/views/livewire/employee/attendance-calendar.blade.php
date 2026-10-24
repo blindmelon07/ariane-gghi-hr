@@ -12,13 +12,13 @@
                 <p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Attendance Calendar</p>
             </div>
             <div class="flex items-center gap-2">
-                <button wire:click="previousMonth"
+                <button wire:click="previousMonth" aria-label="Previous month" title="Previous month"
                         class="p-2 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400
                                hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-700 dark:hover:text-slate-200
                                transition-colors">
                     <x-phosphor-caret-left-bold class="w-4 h-4" />
                 </button>
-                <button wire:click="nextMonth"
+                <button wire:click="nextMonth" aria-label="Next month" title="Next month"
                         class="p-2 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400
                                hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-700 dark:hover:text-slate-200
                                transition-colors">

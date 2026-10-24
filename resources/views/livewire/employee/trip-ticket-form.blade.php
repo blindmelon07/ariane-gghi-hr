@@ -27,10 +27,10 @@
 
             {{-- Destination From --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="destination-from" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Destination — From <span class="text-red-500">*</span>
                 </label>
-                <input type="text" wire:model.live="destination_from"
+                <input id="destination-from" type="text" wire:model.live="destination_from"
                        placeholder="e.g. GGHI Main Campus"
                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 @error('destination_from') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -38,10 +38,10 @@
 
             {{-- Destination To --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="destination-to" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Destination — To <span class="text-red-500">*</span>
                 </label>
-                <input type="text" wire:model.live="destination_to"
+                <input id="destination-to" type="text" wire:model.live="destination_to"
                        placeholder="e.g. DOH Regional Office"
                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 @error('destination_to') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -49,30 +49,30 @@
 
             {{-- Date and Time of Departure --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="departure-datetime" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Date and Time of Departure <span class="text-red-500">*</span>
                 </label>
-                <input type="datetime-local" wire:model.live="departure_datetime"
+                <input id="departure-datetime" type="datetime-local" wire:model.live="departure_datetime"
                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 @error('departure_datetime') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             {{-- Date and Time of Return --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="return-datetime" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Date and Time of Return
                 </label>
-                <input type="datetime-local" wire:model.live="return_datetime"
+                <input id="return-datetime" type="datetime-local" wire:model.live="return_datetime"
                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 @error('return_datetime') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             {{-- Vehicle to be used --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="vehicle-id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Vehicle to be Used
                 </label>
-                <select wire:model.live="vehicle_id"
+                <select id="vehicle-id" wire:model.live="vehicle_id"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     <option value="">— No preference / To be assigned —</option>
                     @foreach ($this->availableVehicles as $v)
@@ -84,10 +84,10 @@
 
             {{-- Driver --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="driver-id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Requested Driver
                 </label>
-                <select wire:model.live="driver_id"
+                <select id="driver-id" wire:model.live="driver_id"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                     <option value="">— No preference / To be assigned —</option>
                     @foreach ($this->availableDrivers as $d)
@@ -99,10 +99,10 @@
 
             {{-- Passengers (full width) --}}
             <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="passengers" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Passengers
                 </label>
-                <textarea wire:model.live="passengers" rows="3"
+                <textarea id="passengers" wire:model.live="passengers" rows="3"
                           placeholder="List passenger names, one per line or comma-separated..."
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100"></textarea>
                 @error('passengers') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -110,10 +110,10 @@
 
             {{-- Purpose (full width) --}}
             <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="purpose" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Purpose <span class="text-red-500">*</span>
                 </label>
-                <textarea wire:model.live="purpose" rows="3"
+                <textarea id="purpose" wire:model.live="purpose" rows="3"
                           placeholder="Briefly describe the purpose of this trip..."
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100"></textarea>
                 @error('purpose') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror

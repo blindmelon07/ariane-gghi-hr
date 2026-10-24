@@ -11,6 +11,14 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
+    // Status badges build their colour at runtime (bg-{{ $c }}-100 …), which the
+    // content scan can't see — without this, missing shades render unreadable.
+    safelist: [
+        { pattern: /^(bg|text)-(gray|yellow|blue|green|red|orange|purple)-(100|800)$/ },
+        { pattern: /^bg-(gray|yellow|blue|green|red|orange|purple)-900\/30$/, variants: ['dark'] },
+        { pattern: /^text-(gray|yellow|blue|green|red|orange|purple)-300$/, variants: ['dark'] },
+    ],
+
     theme: {
         extend: {
             fontFamily: {

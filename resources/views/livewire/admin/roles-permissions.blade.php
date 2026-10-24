@@ -123,7 +123,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div class="w-full max-w-md p-6 mx-4 bg-white rounded-2xl shadow-xl dark:bg-gray-800">
                 <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Create New Role</h3>
-                <input wire:model="newRoleName"
+                <input aria-label="New role name" wire:model="newRoleName"
                        type="text"
                        placeholder="e.g. department_head"
                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -149,7 +149,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div class="w-full max-w-md p-6 mx-4 bg-white rounded-2xl shadow-xl dark:bg-gray-800">
                 <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Create New Permission</h3>
-                <input wire:model="newPermissionName"
+                <input aria-label="New permission name" wire:model="newPermissionName"
                        type="text"
                        placeholder="e.g. view payroll"
                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">

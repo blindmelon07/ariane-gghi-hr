@@ -31,20 +31,20 @@
         <form wire:submit="submit" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date <span class="text-red-500">*</span></label>
-                    <input type="date" wire:model.live="date" min="{{ now()->toDateString() }}"
+                    <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date <span class="text-red-500">*</span></label>
+                    <input id="date" type="date" wire:model.live="date" min="{{ now()->toDateString() }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('date') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Time Out <span class="text-red-500">*</span></label>
-                    <input type="time" wire:model.live="timeOut"
+                    <label for="timeOut" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Time Out <span class="text-red-500">*</span></label>
+                    <input id="timeOut" type="time" wire:model.live="timeOut"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('timeOut') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Time of Arrival <span class="text-red-500">*</span></label>
-                    <input type="time" wire:model.live="timeOfArrival"
+                    <label for="timeOfArrival" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Time of Arrival <span class="text-red-500">*</span></label>
+                    <input id="timeOfArrival" type="time" wire:model.live="timeOfArrival"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">When you expect to be back.</p>
                     @error('timeOfArrival') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
@@ -52,15 +52,15 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Destination <span class="text-red-500">*</span></label>
-                <input type="text" wire:model.live="destination" placeholder="e.g. BDO Sorsogon City branch"
+                <label for="destination" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Destination <span class="text-red-500">*</span></label>
+                <input id="destination" type="text" wire:model.live="destination" placeholder="e.g. BDO Sorsogon City branch"
                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 @error('destination') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason/s <span class="text-red-500">*</span></label>
-                <textarea wire:model.live="reason" rows="3" placeholder="Why you need to go out (e.g. bank errand for the office, personal emergency)..."
+                <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason/s <span class="text-red-500">*</span></label>
+                <textarea id="reason" wire:model.live="reason" rows="3" placeholder="Why you need to go out (e.g. bank errand for the office, personal emergency)..."
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
                 @error('reason') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>

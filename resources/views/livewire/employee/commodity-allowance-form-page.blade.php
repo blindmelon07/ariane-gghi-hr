@@ -31,45 +31,45 @@
         <form wire:submit="save" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="{{ $label }}">Last Name <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="lastName" class="{{ $input }}" />
+                    <label for="lastName" class="{{ $label }}">Last Name <span class="text-red-500">*</span></label>
+                    <input id="lastName" type="text" wire:model="lastName" class="{{ $input }}" />
                     @error('lastName') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="{{ $label }}">First Name <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="firstName" class="{{ $input }}" />
+                    <label for="firstName" class="{{ $label }}">First Name <span class="text-red-500">*</span></label>
+                    <input id="firstName" type="text" wire:model="firstName" class="{{ $input }}" />
                     @error('firstName') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="{{ $label }}">Middle Name</label>
-                    <input type="text" wire:model="middleName" class="{{ $input }}" />
+                    <label for="middleName" class="{{ $label }}">Middle Name</label>
+                    <input id="middleName" type="text" wire:model="middleName" class="{{ $input }}" />
                     @error('middleName') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="{{ $label }}">Position <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="position" class="{{ $input }}" />
+                    <label for="position" class="{{ $label }}">Position <span class="text-red-500">*</span></label>
+                    <input id="position" type="text" wire:model="position" class="{{ $input }}" />
                     @error('position') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="{{ $label }}">Religion</label>
-                    <input type="text" wire:model="religion" class="{{ $input }}" />
+                    <label for="religion" class="{{ $label }}">Religion</label>
+                    <input id="religion" type="text" wire:model="religion" class="{{ $input }}" />
                     @error('religion') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <div>
-                <label class="{{ $label }}">Address <span class="text-red-500">*</span></label>
-                <input type="text" wire:model="address" class="{{ $input }}" />
+                <label for="address" class="{{ $label }}">Address <span class="text-red-500">*</span></label>
+                <input id="address" type="text" wire:model="address" class="{{ $input }}" />
                 @error('address') <p class="{{ $err }}">{{ $message }}</p> @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="{{ $label }}">Birthdate <span class="text-red-500">*</span></label>
-                    <input type="date" wire:model="birthdate" max="{{ now()->toDateString() }}" class="{{ $input }}" />
+                    <label for="birthdate" class="{{ $label }}">Birthdate <span class="text-red-500">*</span></label>
+                    <input id="birthdate" type="date" wire:model="birthdate" max="{{ now()->toDateString() }}" class="{{ $input }}" />
                     @error('birthdate') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <div>
@@ -88,13 +88,13 @@
             @if ($civilStatus === 'married')
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="{{ $label }}">Name of Spouse <span class="text-red-500">*</span></label>
-                        <input type="text" wire:model="spouseName" class="{{ $input }}" />
+                        <label for="spouseName" class="{{ $label }}">Name of Spouse <span class="text-red-500">*</span></label>
+                        <input id="spouseName" type="text" wire:model="spouseName" class="{{ $input }}" />
                         @error('spouseName') <p class="{{ $err }}">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="{{ $label }}">Birthdate of Spouse <span class="text-red-500">*</span></label>
-                        <input type="date" wire:model="spouseBirthdate" max="{{ now()->toDateString() }}" class="{{ $input }}" />
+                        <label for="spouseBirthdate" class="{{ $label }}">Birthdate of Spouse <span class="text-red-500">*</span></label>
+                        <input id="spouseBirthdate" type="date" wire:model="spouseBirthdate" max="{{ now()->toDateString() }}" class="{{ $input }}" />
                         @error('spouseBirthdate') <p class="{{ $err }}">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -114,8 +114,8 @@
                 </div>
                 @if (in_array($gsacMembership, ['regular', 'associate'], true))
                     <div>
-                        <label class="{{ $label }}">Passbook Number <span class="text-red-500">*</span></label>
-                        <input type="text" wire:model="passbookNumber" class="{{ $input }}" />
+                        <label for="passbookNumber" class="{{ $label }}">Passbook Number <span class="text-red-500">*</span></label>
+                        <input id="passbookNumber" type="text" wire:model="passbookNumber" class="{{ $input }}" />
                         @error('passbookNumber') <p class="{{ $err }}">{{ $message }}</p> @enderror
                     </div>
                 @endif
@@ -123,8 +123,8 @@
 
             <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-3">
                 <div>
-                    <label class="{{ $label }}">Name and Signature <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="signatureName" placeholder="Type your full name" class="{{ $input }}" />
+                    <label for="signatureName" class="{{ $label }}">Name and Signature <span class="text-red-500">*</span></label>
+                    <input id="signatureName" type="text" wire:model="signatureName" placeholder="Type your full name" class="{{ $input }}" />
                     @error('signatureName') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">

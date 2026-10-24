@@ -13,8 +13,8 @@
 
         <form wire:submit="submit" class="space-y-5">
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date to Correct <span class="text-red-500">*</span></label>
-                <input type="date" wire:model.live="date" max="{{ now()->toDateString() }}"
+                <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Date to Correct <span class="text-red-500">*</span></label>
+                <input id="date" type="date" wire:model.live="date" max="{{ now()->toDateString() }}"
                        class="w-full sm:w-60 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 @error('date') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
@@ -22,31 +22,31 @@
             {{-- Time Grid --}}
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">AM Time In</label>
-                    <input type="time" wire:model.live="amTimeIn"
+                    <label for="amTimeIn" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">AM Time In</label>
+                    <input id="amTimeIn" type="time" wire:model.live="amTimeIn"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('amTimeIn') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">AM Time Out</label>
-                    <input type="time" wire:model.live="amTimeOut"
+                    <label for="amTimeOut" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">AM Time Out</label>
+                    <input id="amTimeOut" type="time" wire:model.live="amTimeOut"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">PM Time In</label>
-                    <input type="time" wire:model.live="pmTimeIn"
+                    <label for="pmTimeIn" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">PM Time In</label>
+                    <input id="pmTimeIn" type="time" wire:model.live="pmTimeIn"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">PM Time Out</label>
-                    <input type="time" wire:model.live="pmTimeOut"
+                    <label for="pmTimeOut" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">PM Time Out</label>
+                    <input id="pmTimeOut" type="time" wire:model.live="pmTimeOut"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
-                <textarea wire:model.live="reason" rows="3" placeholder="Explain why the correction is needed (e.g. forgot to tap, device error)..."
+                <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Reason <span class="text-red-500">*</span></label>
+                <textarea id="reason" wire:model.live="reason" rows="3" placeholder="Explain why the correction is needed (e.g. forgot to tap, device error)..."
                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
                 @error('reason') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>

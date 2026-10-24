@@ -1,8 +1,8 @@
 <div x-data="{ showModal: false }" @open-coe-modal.window="showModal = true" @close-coe-modal.window="showModal = false">
     <div class="flex flex-wrap gap-3 mb-6">
-        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
+        <input aria-label="Search employee" type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
                class="w-full sm:w-64 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-        <select wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+        <select aria-label="Filter by status" wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="open">To do (pending + ready for pickup)</option>
             <option value="pending">Pending</option>
             <option value="released">Ready for pickup</option>
@@ -44,12 +44,12 @@
                     @endif
                 </div>
                 <div class="flex gap-3 shrink-0 text-xs font-medium">
-                    <a href="{{ route('coe.show', $req) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">View</a>
+                    <a href="{{ route('coe.show', $req) }}" class="tbl-action">View</a>
                     @if ($req->status === 'pending')
-                        <button wire:click="openAction({{ $req->id }}, 'release')" class="text-green-600 dark:text-green-400 hover:text-green-800">Release</button>
-                        <button wire:click="openAction({{ $req->id }}, 'reject')" class="text-red-600 dark:text-red-400 hover:text-red-800">Decline</button>
+                        <button wire:click="openAction({{ $req->id }}, 'release')" class="tbl-action tbl-action-success">Release</button>
+                        <button wire:click="openAction({{ $req->id }}, 'reject')" class="tbl-action tbl-action-danger">Decline</button>
                     @elseif ($req->status === 'released')
-                        <button wire:click="openAction({{ $req->id }}, 'receive')" class="text-green-600 dark:text-green-400 hover:text-green-800">Mark Received</button>
+                        <button wire:click="openAction({{ $req->id }}, 'receive')" class="tbl-action tbl-action-success">Mark Received</button>
                     @endif
                 </div>
             </div>
@@ -70,24 +70,24 @@
 
                 @if ($action === 'receive')
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">COE Received By</label>
-                        <input type="text" wire:model="receivedBy" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="receivedBy" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">COE Received By</label>
+                        <input id="receivedBy" type="text" wire:model="receivedBy" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('receivedBy') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 @endif
 
                 @if ($action !== 'reject')
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ $action === 'receive' ? 'Receive Date' : 'Release Date' }}</label>
-                        <input type="date" wire:model="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ $action === 'receive' ? 'Receive Date' : 'Release Date' }}</label>
+                        <input id="date" type="date" wire:model="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                         @error('date') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 @endif
 
                 @if ($action !== 'receive')
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Remarks {{ $action === 'reject' ? '(required)' : '(optional)' }}</label>
-                        <textarea wire:model="remarks" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
+                        <label for="remarks" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Remarks {{ $action === 'reject' ? '(required)' : '(optional)' }}</label>
+                        <textarea id="remarks" wire:model="remarks" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"></textarea>
                         @error('remarks') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 @endif

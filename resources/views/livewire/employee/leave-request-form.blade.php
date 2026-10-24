@@ -48,7 +48,8 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Deducts 0.5 day from your credit</p>
                 </div>
                 <button type="button" wire:click="$toggle('is_half_day')"
-                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none
+                        role="switch" aria-checked="{{ $is_half_day ? 'true' : 'false' }}" aria-label="Half day"
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
                                {{ $is_half_day ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600' }}">
                     <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
                                  {{ $is_half_day ? 'translate-x-6' : 'translate-x-1' }}"></span>

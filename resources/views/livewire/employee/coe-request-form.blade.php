@@ -32,42 +32,42 @@
         <form wire:submit="submit" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="{{ $label }}">Department <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="department" class="{{ $input }}" />
+                    <label for="department" class="{{ $label }}">Department <span class="text-red-500">*</span></label>
+                    <input id="department" type="text" wire:model="department" class="{{ $input }}" />
                     @error('department') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="{{ $label }}">Designation <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model="designation" class="{{ $input }}" />
+                    <label for="designation" class="{{ $label }}">Designation <span class="text-red-500">*</span></label>
+                    <input id="designation" type="text" wire:model="designation" class="{{ $input }}" />
                     @error('designation') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="{{ $label }}">Date Hired</label>
-                    <input type="date" wire:model="dateHired" max="{{ now()->toDateString() }}" class="{{ $input }}" />
+                    <label for="dateHired" class="{{ $label }}">Date Hired</label>
+                    <input id="dateHired" type="date" wire:model="dateHired" max="{{ now()->toDateString() }}" class="{{ $input }}" />
                     @error('dateHired') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="{{ $label }}">Date Separated <span class="text-xs font-normal text-gray-400">(if applicable)</span></label>
-                    <input type="date" wire:model="dateSeparated" class="{{ $input }}" />
+                    <label for="dateSeparated" class="{{ $label }}">Date Separated <span class="text-xs font-normal text-gray-400">(if applicable)</span></label>
+                    <input id="dateSeparated" type="date" wire:model="dateSeparated" class="{{ $input }}" />
                     @error('dateSeparated') <p class="{{ $err }}">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <div>
-                <label class="{{ $label }}">Reason for COE Request <span class="text-red-500">*</span></label>
-                <textarea wire:model="reason" rows="2" placeholder="e.g. Bank loan application, visa application, new employment..." class="{{ $input }}"></textarea>
+                <label for="reason" class="{{ $label }}">Reason for COE Request <span class="text-red-500">*</span></label>
+                <textarea id="reason" wire:model="reason" rows="2" placeholder="e.g. Bank loan application, visa application, new employment..." class="{{ $input }}"></textarea>
                 @error('reason') <p class="{{ $err }}">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="{{ $label }}">Additional Requested Details to be Indicated in the COE</label>
-                <textarea wire:model="additionalDetails" rows="2" placeholder="e.g. Include monthly salary, include employment status..." class="{{ $input }}"></textarea>
+                <label for="additionalDetails" class="{{ $label }}">Additional Requested Details to be Indicated in the COE</label>
+                <textarea id="additionalDetails" wire:model="additionalDetails" rows="2" placeholder="e.g. Include monthly salary, include employment status..." class="{{ $input }}"></textarea>
                 @error('additionalDetails') <p class="{{ $err }}">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="{{ $label }}">Signature of Employee <span class="text-red-500">*</span></label>
-                <input type="text" wire:model="signatureName" placeholder="Type your full name" class="{{ $input }}" />
+                <label for="signatureName" class="{{ $label }}">Signature of Employee <span class="text-red-500">*</span></label>
+                <input id="signatureName" type="text" wire:model="signatureName" placeholder="Type your full name" class="{{ $input }}" />
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Your typed name serves as your signature, dated today.</p>
                 @error('signatureName') <p class="{{ $err }}">{{ $message }}</p> @enderror
             </div>

@@ -5,7 +5,7 @@
 
     {{-- Search --}}
     <div class="mb-6">
-        <input type="text" wire:model.live.debounce.300ms="search"
+        <input aria-label="Search by name or employee code" type="text" wire:model.live.debounce.300ms="search"
                placeholder="Search by name or employee code..."
                class="w-full max-w-md rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm" />
     </div>
@@ -21,7 +21,7 @@
                         <p class="text-xs text-gray-400 dark:text-gray-500">{{ $employee->department }} · {{ $employee->position }}</p>
                     </div>
                     @if ($editingId !== $employee->id)
-                        <button wire:click="edit({{ $employee->id }})" class="shrink-0 text-sm text-indigo-600 dark:text-indigo-400 font-medium">Edit</button>
+                        <button wire:click="edit({{ $employee->id }})" class="shrink-0 tbl-action">Edit</button>
                     @endif
                 </div>
 
@@ -32,20 +32,20 @@
                             <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Salary Rates</p>
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2">
-                                    <label class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">Basic Salary</label>
-                                    <input type="number" step="0.01" wire:model="basicSalary"
+                                    <label for="basicSalary" class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">Basic Salary</label>
+                                    <input id="basicSalary" type="number" step="0.01" wire:model="basicSalary"
                                            class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                     <button wire:click="autoComputeRates" title="Auto-compute daily & hourly"
                                             class="shrink-0 px-2 py-1 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-xs font-bold hover:bg-indigo-200">↻</button>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <label class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">Daily Rate</label>
-                                    <input type="number" step="0.01" wire:model="dailyRate"
+                                    <label for="dailyRate" class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">Daily Rate</label>
+                                    <input id="dailyRate" type="number" step="0.01" wire:model="dailyRate"
                                            class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <label class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">Hourly Rate</label>
-                                    <input type="number" step="0.01" wire:model="hourlyRate"
+                                    <label for="hourlyRate" class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">Hourly Rate</label>
+                                    <input id="hourlyRate" type="number" step="0.01" wire:model="hourlyRate"
                                            class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                 </div>
                             </div>
@@ -62,8 +62,8 @@
                                     'otherAllowance'     => 'Other Allowance',
                                 ] as $field => $label)
                                 <div class="flex items-center gap-2">
-                                    <label class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">{{ $label }}</label>
-                                    <input type="number" step="0.01" wire:model="{{ $field }}"
+                                    <label for="{{ $field }}" class="w-24 text-xs text-gray-600 dark:text-gray-400 shrink-0">{{ $label }}</label>
+                                    <input id="{{ $field }}" type="number" step="0.01" wire:model="{{ $field }}"
                                            class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                 </div>
                                 @endforeach
@@ -124,20 +124,20 @@
                                     <div class="space-y-2">
                                         <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Salary Rates</p>
                                         <div class="flex items-center gap-2">
-                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">Basic Salary</label>
-                                            <input type="number" step="0.01" wire:model="basicSalary"
+                                            <label for="basicSalary-2" class="w-28 text-xs text-gray-600 dark:text-gray-400">Basic Salary</label>
+                                            <input id="basicSalary-2" type="number" step="0.01" wire:model="basicSalary"
                                                    class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                             <button wire:click="autoComputeRates" title="Auto-compute daily & hourly"
                                                     class="px-2 py-1 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-xs font-bold hover:bg-indigo-200">↻ Auto</button>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">Daily Rate</label>
-                                            <input type="number" step="0.01" wire:model="dailyRate"
+                                            <label for="dailyRate-2" class="w-28 text-xs text-gray-600 dark:text-gray-400">Daily Rate</label>
+                                            <input id="dailyRate-2" type="number" step="0.01" wire:model="dailyRate"
                                                    class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">Hourly Rate <span class="text-amber-500">(deductions)</span></label>
-                                            <input type="number" step="0.01" wire:model="hourlyRate"
+                                            <label for="hourlyRate-2" class="w-28 text-xs text-gray-600 dark:text-gray-400">Hourly Rate <span class="text-amber-500">(deductions)</span></label>
+                                            <input id="hourlyRate-2" type="number" step="0.01" wire:model="hourlyRate"
                                                    class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                         </div>
                                     </div>
@@ -153,8 +153,8 @@
                                             'otherAllowance'     => 'Other Allowance',
                                         ] as $field => $label)
                                         <div class="flex items-center gap-2">
-                                            <label class="w-28 text-xs text-gray-600 dark:text-gray-400">{{ $label }}</label>
-                                            <input type="number" step="0.01" wire:model="{{ $field }}"
+                                            <label for="{{ $field }}-2" class="w-28 text-xs text-gray-600 dark:text-gray-400">{{ $label }}</label>
+                                            <input id="{{ $field }}-2" type="number" step="0.01" wire:model="{{ $field }}"
                                                    class="w-32 rounded-lg border-gray-300 dark:border-gray-600 text-sm text-right" placeholder="0.00" />
                                         </div>
                                         @endforeach
@@ -186,7 +186,7 @@
                                 {{ $employee->salaryDetail ? '₱ ' . number_format($employee->salaryDetail->hourly_rate, 2) : '—' }}
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <button wire:click="edit({{ $employee->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Edit</button>
+                                <button wire:click="edit({{ $employee->id }})" class="tbl-action">Edit</button>
                             </td>
                         </tr>
                     @endif

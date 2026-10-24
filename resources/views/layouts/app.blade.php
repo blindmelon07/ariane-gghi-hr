@@ -236,7 +236,7 @@
 
             {{-- Main panel: sm:ml-64 is the CSS default (expanded); Alpine style binding overrides on toggle --}}
             <div
-                class="app-main flex-1 flex flex-col min-h-screen"
+                class="app-main flex-1 min-w-0 flex flex-col min-h-screen"
                 :class="{ 'sidebar-collapsed-main': $store.sidebar.collapsed }"
             >
                 {{-- ── Top header bar ── --}}
@@ -314,6 +314,7 @@
         @include('layouts._mobile-nav')
         @include('layouts._pwa-install')
         @include('layouts._confirm-dialog')
+        @include('layouts._toast')
         @auth
             @include('layouts._push-notifications')
         @endauth

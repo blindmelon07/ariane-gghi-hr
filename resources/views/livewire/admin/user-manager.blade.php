@@ -27,7 +27,7 @@
 
     {{-- Search --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6">
-        <input type="text" wire:model.live.debounce.300ms="search"
+        <input aria-label="Search by name or employee code" type="text" wire:model.live.debounce.300ms="search"
                placeholder="Search by name or employee code..."
                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
     </div>
@@ -73,15 +73,15 @@
                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $bg }}">{{ $label }}</span>
                     <div class="flex items-center gap-3">
                         @if ($this->canManage($user))
-<button wire:click="openEdit({{ $user->id }})" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">Edit</button>
+<button wire:click="openEdit({{ $user->id }})" class="tbl-action">Edit</button>
                         <button wire:click="toggleActive({{ $user->id }})"
-                                class="text-sm font-medium {{ $user->is_active ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400' }}">
+                                class="tbl-action">
                             {{ $user->is_active ? 'Deactivate' : 'Activate' }}
                         </button>
                         @if ($user->id !== auth()->id())
                             <button wire:click="delete({{ $user->id }})"
                                     wire:confirm="Delete account {{ $user->name }}? This cannot be undone."
-                                    class="text-sm text-red-500 dark:text-red-400 font-medium">Delete</button>
+                                    class="tbl-action tbl-action-danger">Delete</button>
                         @endif
 @else
 <span class="text-xs text-gray-400 dark:text-gray-500">Super admin only</span>
@@ -156,15 +156,15 @@
                                 <div class="flex items-center justify-end gap-3">
                                     @if ($this->canManage($user))
 <button wire:click="openEdit({{ $user->id }})"
-                                            class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Edit</button>
+                                            class="tbl-action">Edit</button>
                                     <button wire:click="toggleActive({{ $user->id }})"
-                                            class="text-sm font-medium {{ $user->is_active ? 'text-yellow-600 dark:text-yellow-400 hover:text-yellow-800' : 'text-green-600 dark:text-green-400 hover:text-green-800' }}">
+                                            class="tbl-action">
                                         {{ $user->is_active ? 'Deactivate' : 'Activate' }}
                                     </button>
                                     @if ($user->id !== auth()->id())
                                         <button wire:click="delete({{ $user->id }})"
                                                 wire:confirm="Delete account {{ $user->name }}? This cannot be undone."
-                                                class="text-sm text-red-500 dark:text-red-400 hover:text-red-700 font-medium">Delete</button>
+                                                class="tbl-action tbl-action-danger">Delete</button>
                                     @endif
 @else
 <span class="text-xs text-gray-400 dark:text-gray-500">Super admin only</span>
@@ -208,7 +208,7 @@
                                 <button type="button" wire:click="clearEmployee" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">Change</button>
                             </div>
                         @else
-                            <input type="text" wire:model.live.debounce.300ms="employeeSearch" placeholder="Search employees without an account…"
+                            <input aria-label="Search employees without an account" type="text" wire:model.live.debounce.300ms="employeeSearch" placeholder="Search employees without an account…"
                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
                             <div class="mt-2 max-h-48 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-600 divide-y divide-gray-100 dark:divide-gray-700">
                                 @forelse ($this->availableEmployees as $emp)
@@ -227,22 +227,22 @@
                 @endunless
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Full Name</label>
-                    <input type="text" wire:model.live="name" placeholder="e.g. Juan dela Cruz"
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Full Name</label>
+                    <input id="name" type="text" wire:model.live="name" placeholder="e.g. Juan dela Cruz"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Employee Code</label>
-                    <input type="text" wire:model.live="employeeCode" placeholder="e.g. EMP001"
+                    <label for="employeeCode" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Employee Code</label>
+                    <input id="employeeCode" type="text" wire:model.live="employeeCode" placeholder="e.g. EMP001"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
                     @error('employeeCode') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Role</label>
-                    <select wire:model.live="role" @disabled($this->roleLocked)
+                    <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Role</label>
+                    <select id="role" wire:model.live="role" @disabled($this->roleLocked)
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
                         @foreach ($this->roleOptions as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
@@ -257,10 +257,10 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         Password {{ $editId ? '(leave blank to keep current)' : '' }}
                     </label>
-                    <input type="password" wire:model.live="password"
+                    <input id="password" type="password" wire:model.live="password"
                            placeholder="{{ $editId ? 'Enter new password to change' : 'Min. 6 characters' }}"
                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm" />
                     @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror

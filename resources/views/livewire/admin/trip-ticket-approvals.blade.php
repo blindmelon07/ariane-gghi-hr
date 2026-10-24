@@ -13,10 +13,10 @@
 
         {{-- Filters --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
+            <input aria-label="Search employee" type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
                    class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
 
-            <select wire:model.live="filterStatus"
+            <select aria-label="Filter by status" wire:model.live="filterStatus"
                     class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 <option value="pending">Pending (my step)</option>
                 <option value="approved">Approved</option>
@@ -24,7 +24,7 @@
                 <option value="all">All</option>
             </select>
 
-            <select wire:model.live="filterDept"
+            <select aria-label="Filter by department" wire:model.live="filterDept"
                     class="rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                 <option value="">All Departments</option>
                 @foreach (\App\Models\TripTicket::distinct()->pluck('department')->filter()->sort() as $dept)
@@ -115,10 +115,10 @@
                     <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                         @if ($ticket->status === 'pending' && (in_array($ticket->approval_step, $mySteps) || $this->canOverride))
                             <div class="flex gap-4">
-                                <button wire:click="openAction({{ $ticket->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">
+                                <button wire:click="openAction({{ $ticket->id }}, 'approve')" class="tbl-action tbl-action-success">
                                     {{ $ticket->approval_step === 3 ? 'Schedule' : (in_array($ticket->approval_step, $mySteps) ? 'Approve' : 'Approve (override)') }}
                                 </button>
-                                <button wire:click="openAction({{ $ticket->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">
+                                <button wire:click="openAction({{ $ticket->id }}, 'reject')" class="tbl-action tbl-action-danger">
                                     {{ $ticket->approval_step === 3 ? 'Deny' : 'Reject' }}
                                 </button>
                             </div>
@@ -240,11 +240,11 @@
                                 @if ($ticket->status === 'pending' && (in_array($ticket->approval_step, $mySteps) || $this->canOverride))
                                     <div class="flex gap-2">
                                         <button wire:click="openAction({{ $ticket->id }}, 'approve')"
-                                                class="text-green-600 dark:text-green-400 hover:text-green-800 text-xs font-medium">
+                                                class="tbl-action tbl-action-success">
                                             {{ $ticket->approval_step === 3 ? 'Schedule' : (in_array($ticket->approval_step, $mySteps) ? 'Approve' : 'Approve (override)') }}
                                         </button>
                                         <button wire:click="openAction({{ $ticket->id }}, 'reject')"
-                                                class="text-red-600 dark:text-red-400 hover:text-red-800 text-xs font-medium">
+                                                class="tbl-action tbl-action-danger">
                                             {{ $ticket->approval_step === 3 ? 'Deny' : 'Reject' }}
                                         </button>
                                     </div>
@@ -313,8 +313,8 @@
                     <div class="grid grid-cols-1 gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <p class="text-xs font-medium text-gray-600 dark:text-gray-300">Assign Vehicle & Driver (optional)</p>
                         <div>
-                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Vehicle</label>
-                            <select wire:model.live="assignVehicleId"
+                            <label for="assignVehicleId" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Vehicle</label>
+                            <select id="assignVehicleId" wire:model.live="assignVehicleId"
                                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                                 <option value="">— Keep current / None —</option>
                                 @foreach (\App\Models\Vehicle::where('is_active', true)->orderBy('make')->get() as $v)
@@ -323,8 +323,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Driver</label>
-                            <select wire:model.live="assignDriverId"
+                            <label for="assignDriverId" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Driver</label>
+                            <select id="assignDriverId" wire:model.live="assignDriverId"
                                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100">
                                 <option value="">— Keep current / None —</option>
                                 @foreach (\App\Models\Driver::where('is_active', true)->with('employee')->get() as $d)
@@ -342,10 +342,10 @@
                 @endif
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    <label for="remarks" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         Remarks {{ $actionType === 'reject' ? '(required)' : '(optional)' }}
                     </label>
-                    <textarea wire:model.live="remarks" rows="3"
+                    <textarea id="remarks" wire:model.live="remarks" rows="3"
                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-100 text-sm"
                               placeholder="Add remarks..."></textarea>
                     @error('remarks') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror

@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Payslip;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -15,7 +16,7 @@ class PayrollReportExport implements FromCollection, WithHeadings, WithMapping, 
         protected int $periodId,
     ) {}
 
-    public function collection()
+    public function collection(): Collection
     {
         return Payslip::with('employee')
             ->where('payroll_period_id', $this->periodId)

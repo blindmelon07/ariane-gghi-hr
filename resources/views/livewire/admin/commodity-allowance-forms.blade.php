@@ -9,9 +9,9 @@
     </div>
 
     <div class="flex flex-wrap gap-3 mb-4">
-        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
+        <input aria-label="Search employee" type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
                class="w-full sm:w-64 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-        <select wire:model.live="filter" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+        <select aria-label="Filter employees" wire:model.live="filter" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="all">All regular employees</option>
             <option value="submitted">Submitted</option>
             <option value="missing">Not yet submitted</option>
@@ -42,7 +42,7 @@
                                 <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ $form->passbook_number ?? '—' }}</td>
                                 <td class="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">{{ $form->submitted_at->timezone('Asia/Manila')->format('M d, Y') }}</td>
                                 <td class="px-4 py-3 text-right">
-                                    <a href="{{ route('commodity-form.show', $form) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">View</a>
+                                    <a href="{{ route('commodity-form.show', $form) }}" class="tbl-action">View</a>
                                 </td>
                             @else
                                 <td colspan="5" class="px-4 py-3">

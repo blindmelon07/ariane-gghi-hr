@@ -36,8 +36,8 @@
                     <div wire:key="sd-line-{{ $i }}" class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Particulars</label>
-                                <select wire:model.live="lines.{{ $i }}.particular" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                                <label for="lines-{{ $i }}-particular" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Particulars</label>
+                                <select id="lines-{{ $i }}-particular" wire:model.live="lines.{{ $i }}.particular" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                                     <option value="">Select…</option>
                                     @foreach (SalaryDeductionRequest::PARTICULARS as $key => [$label])
                                         <option value="{{ $key }}">{{ $label }}</option>
@@ -47,8 +47,8 @@
                             </div>
                             @if (SalaryDeductionForm::needsDescription($line['particular']))
                                 <div>
-                                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Please specify</label>
-                                    <input type="text" wire:model.live="lines.{{ $i }}.description" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                                    <label for="lines-{{ $i }}-description" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Please specify</label>
+                                    <input id="lines-{{ $i }}-description" type="text" wire:model.live="lines.{{ $i }}.description" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                                     @error("lines.$i.description") <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                                 </div>
                             @endif
@@ -56,30 +56,30 @@
 
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
                             <div>
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Amount per cut-off (₱)</label>
-                                <input type="number" step="0.01" min="1" wire:model.live="lines.{{ $i }}.amount" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                                <label for="lines-{{ $i }}-amount" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Amount per cut-off (₱)</label>
+                                <input id="lines-{{ $i }}-amount" type="number" step="0.01" min="1" wire:model.live="lines.{{ $i }}.amount" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                                 @error("lines.$i.amount") <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Total to be paid (₱)</label>
+                                <label for="lines-{{ $i }}-total" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Total to be paid (₱)</label>
                                 @if ($loan)
-                                    <input type="number" step="0.01" min="1" wire:model.live="lines.{{ $i }}.total" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                                    <input id="lines-{{ $i }}-total" type="number" step="0.01" min="1" wire:model.live="lines.{{ $i }}.total" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                                     @error("lines.$i.total") <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                                 @else
                                     <p class="py-2 text-xs text-gray-400 dark:text-gray-500">Continuous — until stopped by a new form</p>
                                 @endif
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Cut-off</label>
-                                <select wire:model.live="lines.{{ $i }}.cutoff" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                                <label for="lines-{{ $i }}-cutoff" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Cut-off</label>
+                                <select id="lines-{{ $i }}-cutoff" wire:model.live="lines.{{ $i }}.cutoff" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                                     @foreach (SalaryDeductionLine::CUTOFF_LABELS as $value => $label)
                                         <option value="{{ $value }}">{{ $label }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Start date</label>
-                                <input type="date" wire:model.live="lines.{{ $i }}.starts_on" min="{{ now()->toDateString() }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                                <label for="lines-{{ $i }}-starts-on" class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Start date</label>
+                                <input id="lines-{{ $i }}-starts-on" type="date" wire:model.live="lines.{{ $i }}.starts_on" min="{{ now()->toDateString() }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                                 @error("lines.$i.starts_on") <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                         </div>
@@ -99,10 +99,10 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                <label for="attachment" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Amortization table @if ($this->needsAttachment)<span class="text-red-500">*</span>@endif
                 </label>
-                <input type="file" wire:model="attachment" accept=".pdf,.jpg,.jpeg,.png"
+                <input id="attachment" type="file" wire:model="attachment" accept=".pdf,.jpg,.jpeg,.png"
                        class="block w-full text-sm text-gray-600 dark:text-gray-300 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-indigo-700" />
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">For loan deductions, please attach the amortization table issued by the bank/agency (PDF or photo, up to 5 MB).</p>
                 <div wire:loading wire:target="attachment" class="text-xs text-gray-500 mt-1">Uploading…</div>

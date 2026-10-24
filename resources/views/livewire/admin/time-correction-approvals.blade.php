@@ -3,9 +3,9 @@
 
     {{-- Filters --}}
     <div class="flex flex-wrap gap-3 mb-6">
-        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
+        <input aria-label="Search employee" type="text" wire:model.live.debounce.300ms="search" placeholder="Search employee..."
                class="w-full sm:w-64 rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
-        <select wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+        <select aria-label="Filter by status" wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
@@ -52,8 +52,8 @@
                 <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                     @if ($req->status === 'pending' && ($req->approval_step === $this->myStep || $this->canOverride))
                         <div class="flex gap-4">
-                            <button wire:click="openAction({{ $req->id }}, 'approve')" class="text-green-600 dark:text-green-400 text-xs font-medium">{{ $req->approval_step === $this->myStep ? 'Approve' : 'Approve (override)' }}</button>
-                            <button wire:click="openAction({{ $req->id }}, 'reject')" class="text-red-600 dark:text-red-400 text-xs font-medium">Reject</button>
+                            <button wire:click="openAction({{ $req->id }}, 'approve')" class="tbl-action tbl-action-success">{{ $req->approval_step === $this->myStep ? 'Approve' : 'Approve (override)' }}</button>
+                            <button wire:click="openAction({{ $req->id }}, 'reject')" class="tbl-action tbl-action-danger">Reject</button>
                         </div>
                     @elseif ($req->status === 'pending')
                         <span class="text-xs text-gray-400 dark:text-gray-500">Not your step</span>
@@ -109,9 +109,9 @@
                                 @if ($req->status === 'pending' && ($req->approval_step === $this->myStep || $this->canOverride))
                                     <div class="flex gap-2">
                                         <button wire:click="openAction({{ $req->id }}, 'approve')"
-                                                class="text-green-600 dark:text-green-400 hover:text-green-800 text-xs font-medium">{{ $req->approval_step === $this->myStep ? 'Approve' : 'Approve (override)' }}</button>
+                                                class="tbl-action tbl-action-success">{{ $req->approval_step === $this->myStep ? 'Approve' : 'Approve (override)' }}</button>
                                         <button wire:click="openAction({{ $req->id }}, 'reject')"
-                                                class="text-red-600 dark:text-red-400 hover:text-red-800 text-xs font-medium">Reject</button>
+                                                class="tbl-action tbl-action-danger">Reject</button>
                                     </div>
                                 @elseif ($req->status === 'pending')
                                     <span class="text-xs text-gray-400 dark:text-gray-500">Not your step</span>
@@ -147,10 +147,10 @@
                 @endif
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    <label for="remarks" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         Remarks {{ $actionType === 'reject' ? '(required)' : '(optional)' }}
                     </label>
-                    <textarea wire:model.live="remarks" rows="3"
+                    <textarea id="remarks" wire:model.live="remarks" rows="3"
                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm"
                               placeholder="Add remarks..."></textarea>
                     @error('remarks') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror

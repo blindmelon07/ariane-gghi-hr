@@ -64,6 +64,7 @@ class TimeCorrectionApprovals extends Component
         $this->selectedId = $id;
         $this->actionType = $type;
         $this->remarks    = '';
+        $this->resetErrorBag();
         $this->dispatch('open-tc-modal');
     }
 
@@ -74,6 +75,7 @@ class TimeCorrectionApprovals extends Component
 
         if ($tc->approval_step !== $this->myStep && ! $this->canOverride) {
             $this->addError('remarks', 'This request is not at your approval step.');
+            $this->dispatch('open-tc-modal');
             return;
         }
 
@@ -109,6 +111,7 @@ class TimeCorrectionApprovals extends Component
         } else {
             if (empty($this->remarks)) {
                 $this->addError('remarks', 'Reason is required when rejecting.');
+                $this->dispatch('open-tc-modal');
                 return;
             }
 

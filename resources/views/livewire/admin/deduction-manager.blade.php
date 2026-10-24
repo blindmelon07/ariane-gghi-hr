@@ -21,13 +21,13 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6">
         <div class="flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-[200px]">
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search</label>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Name, code, or description…"
+                <label for="search" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Search</label>
+                <input id="search" wire:model.live.debounce.300ms="search" type="text" placeholder="Name, code, or description…"
                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
-                <select wire:model.live="filterType" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="filterType" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</label>
+                <select id="filterType" wire:model.live="filterType" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All Types</option>
                     @foreach ($this->deductionTypes as $type)
                         <option value="{{ $type->id }}">{{ $type->name }}</option>
@@ -35,8 +35,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
-                <select wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="filterDept" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Department</label>
+                <select id="filterDept" wire:model.live="filterDept" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     @foreach ($this->departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
@@ -44,8 +44,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
-                <select wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                <label for="filterStatus" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
+                <select id="filterStatus" wire:model.live="filterStatus" class="rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                     <option value="">All</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -115,11 +115,11 @@
                         </td>
                         <td class="px-4 py-2.5 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <button wire:click="openEdit({{ $d->id }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-xs font-medium">Edit</button>
-                                <button wire:click="toggleActive({{ $d->id }})" class="text-xs font-medium {{ $d->is_active ? 'text-red-600 dark:text-red-400 hover:text-red-800' : 'text-green-600 dark:text-green-400 hover:text-green-800' }}">
+                                <button wire:click="openEdit({{ $d->id }})" class="tbl-action">Edit</button>
+                                <button wire:click="toggleActive({{ $d->id }})" class="tbl-action">
                                     {{ $d->is_active ? 'Deactivate' : 'Activate' }}
                                 </button>
-                                <button wire:click="delete({{ $d->id }})" wire:confirm="Delete this deduction?" class="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800">Delete</button>
+                                <button wire:click="delete({{ $d->id }})" wire:confirm="Delete this deduction?" class="tbl-action tbl-action-danger">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -191,11 +191,11 @@
             </div>
 
             <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <button wire:click="openEdit({{ $d->id }})" class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Edit</button>
-                <button wire:click="toggleActive({{ $d->id }})" class="text-xs font-medium {{ $d->is_active ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
+                <button wire:click="openEdit({{ $d->id }})" class="tbl-action">Edit</button>
+                <button wire:click="toggleActive({{ $d->id }})" class="tbl-action">
                     {{ $d->is_active ? 'Deactivate' : 'Activate' }}
                 </button>
-                <button wire:click="delete({{ $d->id }})" wire:confirm="Delete this deduction?" class="text-xs font-medium text-red-600 dark:text-red-400">Delete</button>
+                <button wire:click="delete({{ $d->id }})" wire:confirm="Delete this deduction?" class="tbl-action tbl-action-danger">Delete</button>
             </div>
         </div>
         @empty
@@ -220,8 +220,8 @@
             <div class="space-y-4">
                 {{-- Employee search --}}
                 <div x-data="{ open: false }" @click.outside="open = false">
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Employee</label>
-                    <input wire:model.live.debounce.300ms="empSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
+                    <label for="empSearch" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Employee</label>
+                    <input id="empSearch" wire:model.live.debounce.300ms="empSearch" @focus="open = true" @input="open = true" type="text" placeholder="Search employee…"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" {{ $editDeductionId ? 'disabled' : '' }} />
                     @if (!$editDeductionId)
                     <div x-show="open && $wire.empSearch.length >= 2" class="relative">
@@ -243,8 +243,8 @@
 
                 {{-- Deduction Type --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Deduction Type</label>
-                    <select wire:model.live="deductionTypeId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="deductionTypeId" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Deduction Type</label>
+                    <select id="deductionTypeId" wire:model.live="deductionTypeId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="">Select type…</option>
                         @php $lastCat = ''; @endphp
                         @foreach ($this->deductionTypes as $type)
@@ -262,16 +262,16 @@
 
                 {{-- Description --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description / Notes</label>
-                    <input wire:model.live="description" type="text" placeholder="Auto-filled from type, or custom note"
+                    <label for="description" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description / Notes</label>
+                    <input id="description" wire:model.live="description" type="text" placeholder="Auto-filled from type, or custom note"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('description') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Amount per cutoff --}}
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Amount per Cutoff</label>
-                    <input wire:model.live="amountPerCutoff" type="number" step="0.01" min="0" placeholder="0.00"
+                    <label for="amountPerCutoff" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Amount per Cutoff</label>
+                    <input id="amountPerCutoff" wire:model.live="amountPerCutoff" type="number" step="0.01" min="0" placeholder="0.00"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('amountPerCutoff') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -302,8 +302,8 @@
                 {{-- Remaining balance (loans only) --}}
                 @if ($selectedTypeCategory === 'loan')
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Remaining Balance</label>
-                    <input wire:model.live="remainingBalance" type="number" step="0.01" min="0" placeholder="0.00"
+                    <label for="remainingBalance" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Remaining Balance</label>
+                    <input id="remainingBalance" wire:model.live="remainingBalance" type="number" step="0.01" min="0" placeholder="0.00"
                         class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">Total loan amount still owed.</p>
                     @error('remainingBalance') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
@@ -353,8 +353,8 @@
                                 <span class="text-xs text-gray-400 dark:text-gray-500 ml-2">{{ $t->code }}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button wire:click="openEditType({{ $t->id }})" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium">Edit</button>
-                                <button wire:click="toggleTypeActive({{ $t->id }})" class="text-xs font-medium {{ $t->is_active ? 'text-red-500 dark:text-red-400 hover:text-red-700 dark:text-red-300' : 'text-green-600 dark:text-green-400 hover:text-green-800' }}">
+                                <button wire:click="openEditType({{ $t->id }})" class="tbl-action">Edit</button>
+                                <button wire:click="toggleTypeActive({{ $t->id }})" class="tbl-action">
                                     {{ $t->is_active ? 'Disable' : 'Enable' }}
                                 </button>
                             </div>
@@ -380,18 +380,18 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Code</label>
-                    <input wire:model.live="typeCode" type="text" placeholder="e.g. SSS_LOAN" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm uppercase" maxlength="30" />
+                    <label for="typeCode" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Code</label>
+                    <input id="typeCode" wire:model.live="typeCode" type="text" placeholder="e.g. SSS_LOAN" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm uppercase" maxlength="30" />
                     @error('typeCode') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
-                    <input wire:model.live="typeName" type="text" placeholder="e.g. SSS Salary Loan" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                    <label for="typeName" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
+                    <input id="typeName" wire:model.live="typeName" type="text" placeholder="e.g. SSS Salary Loan" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
                     @error('typeName') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Category</label>
-                    <select wire:model.live="typeCategory" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
+                    <label for="typeCategory" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Category</label>
+                    <select id="typeCategory" wire:model.live="typeCategory" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm">
                         <option value="government">Government</option>
                         <option value="loan">Loan</option>
                         <option value="benefit">Benefit</option>
