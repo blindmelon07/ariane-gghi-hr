@@ -55,11 +55,14 @@
 
 <script>
     (() => {
-        const root   = document.getElementById('gghi-confirm');
-        const msgEl  = root.querySelector('.msg');
-        const titleEl = root.querySelector('.title');
-        const okBtn  = root.querySelector('.ok');
-        const cancel = root.querySelector('.cancel');
+        // wire:navigate re-runs this script on every page swap and replaces the
+        // dialog markup, so document listeners are bound once and the dialog is
+        // looked up fresh each time. Otherwise a stale listener from an earlier
+        // page would swallow the click and "open" a detached dialog (frozen button).
+        if (window.__gghiConfirmInit) return;
+        window.__gghiConfirmInit = true;
+
+        const dialog = () => document.getElementById('gghi-confirm');
         let resolver = null;
 
         // Destructive wording gets a red button and a matching label.
@@ -72,28 +75,36 @@
         ];
 
         function ask(message) {
-            const kind = KINDS.find(([re]) => re.test(message));
-            titleEl.textContent = kind ? kind[2] : 'Please confirm';
-            okBtn.textContent   = kind ? kind[1] : 'Confirm';
+            const root  = dialog();
+            const okBtn = root.querySelector('.ok');
+            const kind  = KINDS.find(([re]) => re.test(message));
+            root.querySelector('.title').textContent = kind ? kind[2] : 'Please confirm';
+            okBtn.textContent = kind ? kind[1] : 'Confirm';
             root.classList.toggle('danger', !!(kind && kind[3]));
-            msgEl.textContent   = message;
+            root.querySelector('.msg').textContent = message;
             root.classList.add('open');
             setTimeout(() => okBtn.focus(), 0);
             return new Promise(resolve => { resolver = resolve; });
         }
 
         function close(result) {
-            root.classList.remove('open');
+            dialog()?.classList.remove('open');
             if (resolver) { resolver(result); resolver = null; }
         }
 
-        okBtn.addEventListener('click', () => close(true));
-        cancel.addEventListener('click', () => close(false));
-        root.addEventListener('click', e => { if (e.target === root) close(false); });
+        // Dialog buttons and backdrop, delegated so they survive markup swaps.
+        document.addEventListener('click', e => {
+            const root = dialog();
+            if (!root || !root.contains(e.target)) return;
+            if (e.target.closest('.ok')) close(true);
+            else if (e.target.closest('.cancel') || e.target === root) close(false);
+        });
         document.addEventListener('keydown', e => {
-            if (!root.classList.contains('open')) return;
+            if (!dialog()?.classList.contains('open')) return;
             if (e.key === 'Escape') { e.preventDefault(); close(false); }
         });
+        // A navigation while the dialog is open leaves the old promise hanging.
+        document.addEventListener('livewire:navigated', () => close(false));
 
         document.addEventListener('click', (e) => {
             const el = e.target.closest && e.target.closest('[wire\\:confirm]');
