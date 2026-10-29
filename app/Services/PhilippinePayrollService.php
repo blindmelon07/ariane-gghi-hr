@@ -173,6 +173,13 @@ class PhilippinePayrollService
         $hasWeekdayOff  = $employee->weekday_off !== null;
         $isNurse        = $this->isNurse($employee);
 
+        // Monthly-rate staff (nurses keep their own rates): salary per hour is
+        // derived from the monthly rate (monthly × 12 ÷ 365 ÷ 8, as on the HR
+        // payslip) rather than the stored hourly_rate, which is entered by hand.
+        if (! $isNurse && $salary->rate_type === 'monthly' && $basicSalary > 0) {
+            $hourlyRate = round($basicSalary * 12 / 365 / 8, 2);
+        }
+
         // Preload day-off dates for this employee in the period
         $dayOffDates = DayOff::where('employee_id', $employee->id)
             ->whereDate('date', '>=', $period->start_date)
