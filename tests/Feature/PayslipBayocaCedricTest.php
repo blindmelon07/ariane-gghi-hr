@@ -27,12 +27,12 @@ use Spatie\Permission\Models\Role;
  *   Sat Jun 27   holiday  (no punches)
  *
  * Expected:
- *   working_days  = 4  (6 - 1 day-off - 1 holiday)
+ *   working_days  = 5  (6 - 1 holiday; the day-off is a paid rest day)
  *   days_present  = 4
  *   days_absent   = 0  → no absent deduction
- *   basic_pay     = 4 × 538.19 = 2,152.76
+ *   basic_pay     = 5 × 538.19 = 2,690.95
  *   hazard_pay    = 600.00
- *   net_pay       = 2,152.76 + 600.00 = 2,752.76  (no deductions in test DB)
+ *   net_pay       = 2,690.95 + 600.00 = 3,290.95  (no deductions in test DB)
  */
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -142,8 +142,8 @@ describe('Bayoca Cedric sample payslip', function () {
 
     // ── Working days count ────────────────────────────────────────────────────
 
-    it('counts 4 working days (6 days minus 1 day-off and 1 holiday)', function () {
-        expect($this->payslip['working_days'])->toBe(4);
+    it('counts 5 paid days (6 days minus 1 holiday; the day-off is paid)', function () {
+        expect($this->payslip['working_days'])->toBe(5);
     });
 
     // ── Attendance ────────────────────────────────────────────────────────────
@@ -162,12 +162,12 @@ describe('Bayoca Cedric sample payslip', function () {
 
     // ── Pay ───────────────────────────────────────────────────────────────────
 
-    it('basic pay = 4 days × ₱538.19 daily rate = ₱2,152.76', function () {
-        expect((float) $this->payslip['basic_pay'])->toBe(2152.76);
+    it('basic pay = 5 days × ₱538.19 daily rate = ₱2,690.95', function () {
+        expect((float) $this->payslip['basic_pay'])->toBe(2690.95);
     });
 
     it('gross pay equals basic pay when no OT and no late', function () {
-        expect((float) $this->payslip['gross_pay'])->toBe(2152.76);
+        expect((float) $this->payslip['gross_pay'])->toBe(2690.95);
     });
 
     it('hazard pay = ₱600.00', function () {
@@ -182,8 +182,8 @@ describe('Bayoca Cedric sample payslip', function () {
         expect((float) $this->payslip['total_deductions'])->toBe(0.0);
     });
 
-    it('net pay = gross pay + allowances = ₱2,152.76 + ₱600.00 = ₱2,752.76', function () {
-        expect((float) $this->payslip['net_pay'])->toBe(2752.76);
+    it('net pay = gross pay + allowances = ₱2,690.95 + ₱600.00 = ₱3,290.95', function () {
+        expect((float) $this->payslip['net_pay'])->toBe(3290.95);
     });
 
     // ── Day-off integration: Thursday attendance shows Day-off ────────────────

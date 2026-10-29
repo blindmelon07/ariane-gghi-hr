@@ -166,8 +166,9 @@ class PhilippinePayrollService
         // probationary = Mon–Sat (exclude Sundays only)
         // regular      = Mon–Sat minus their weekly rest day (weekday_off);
         //                Mon–Fri when no weekday_off is set
-        // Also exclude individual day-offs and company holidays — those are paid
-        // non-working days that should not cause an absent deduction.
+        // Also exclude individual day-offs and company holidays so they never cause
+        // an absent deduction. Rest days (weekday_off / day-off records) are still
+        // paid: the daily rate is monthly ÷ 26 (Mon–Sat), so only Sundays are unpaid.
         $isProbationary = ($employee->employment_type ?? 'regular') === 'probationary';
         $hasWeekdayOff  = $employee->weekday_off !== null;
         $isNurse        = $this->isNurse($employee);
@@ -193,7 +194,8 @@ class PhilippinePayrollService
         // basic-pay / absent-deduction formulas as everyone else.
         $requiredHours = $isNurse ? $this->getNurseRequiredHours($employee, $period) : null;
 
-        $workingDays = 0;
+        $workingDays  = 0;
+        $paidRestDays = 0;
         if ($isNurse) {
             $workingDays = round($requiredHours / 8, 2);
         } else {
@@ -203,16 +205,16 @@ class PhilippinePayrollService
                 if ($d->isSunday() && ! $isSwappedWorkday) {
                     continue;
                 }
-                if (! $isProbationary && $hasWeekdayOff && $d->dayOfWeek === (int) $employee->weekday_off && ! $isSwappedWorkday) {
-                    continue;
-                }
-                if (! $isProbationary && ! $hasWeekdayOff && $d->isSaturday() && ! $isSwappedWorkday) {
-                    continue;
-                }
-                if (in_array($d->toDateString(), $dayOffDates, true)) {
-                    continue;
-                }
                 if (in_array($d->toDateString(), $holidayDates, true)) {
+                    continue;
+                }
+
+                $isRestDay = (! $isProbationary && $hasWeekdayOff && $d->dayOfWeek === (int) $employee->weekday_off && ! $isSwappedWorkday)
+                    || (! $isProbationary && ! $hasWeekdayOff && $d->isSaturday() && ! $isSwappedWorkday)
+                    || in_array($d->toDateString(), $dayOffDates, true);
+
+                if ($isRestDay) {
+                    $paidRestDays++;
                     continue;
                 }
                 $workingDays++;
@@ -264,9 +266,10 @@ class PhilippinePayrollService
             $renderedHours         += $day['hours_worked'];
         }
 
-        // Basic pay = FULL period pay (working days × daily rate)
+        // Basic pay = FULL period pay ((working days + paid rest days) × daily rate)
         // Absent deduction = absent days × 8 hrs × hourly rate (hours-based, matches HR payslip)
-        $basicPay = round($workingDays * $dailyRate, 2);
+        $paidDays = $workingDays + $paidRestDays;
+        $basicPay = round($paidDays * $dailyRate, 2);
 
         if ($isNurse) {
             // Nurses' shifts vary in length, so "absence" is measured in total hours
@@ -321,7 +324,7 @@ class PhilippinePayrollService
         $netPay = round($grossPay + $totalAllowances - $totalDeductions, 2);
 
         return [
-            'working_days'         => $workingDays,
+            'working_days'         => $paidDays,
             'days_present'         => $daysPresent,
             'days_absent'          => $daysAbsent,
             'absent_deduction'     => $absentDeduction,

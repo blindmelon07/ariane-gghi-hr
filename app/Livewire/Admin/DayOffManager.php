@@ -6,13 +6,16 @@ use App\Models\DayOff;
 use App\Models\DayOffSwap;
 use App\Models\Employee;
 use App\Services\ActivityLogService;
+use App\Services\DayOffScheduleImportService;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class DayOffManager extends Component
 {
+    use WithFileUploads;
     use WithPagination;
 
     // Filters
@@ -48,6 +51,13 @@ class DayOffManager extends Component
     public bool   $showGenerateModal = false;
     public string $genDateFrom       = '';
     public string $genDateTo         = '';
+
+    // Excel import of the "Schedule Day Off" weekly grid
+    public bool   $showImportModal   = false;
+    public mixed  $importFile        = null;
+    public array  $importEntries     = [];   // parsed rows, reviewed before applying
+    public string $importDateFrom    = '';
+    public string $importDateTo      = '';
 
     public function mount(): void
     {
@@ -460,6 +470,63 @@ class DayOffManager extends Component
         $this->showGenerateModal = false;
         unset($this->dayOffs);
         session()->flash('success', "{$count} standard day off(s) generated for all active employees.");
+    }
+
+    // ── Excel Import (weekly schedule grid) ───────────
+
+    public function openImport(): void
+    {
+        $this->reset(['importFile', 'importEntries', 'importDateFrom', 'importDateTo']);
+        $this->resetErrorBag();
+        $this->showImportModal = true;
+    }
+
+    public function readImportFile(DayOffScheduleImportService $importer): void
+    {
+        $this->validate([
+            'importFile' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $result = $importer->parse($this->importFile->getRealPath());
+
+        if (empty($result['entries'])) {
+            $this->addError('importFile', 'No schedule found. The sheet needs a header row with weekday names (Monday, Tuesday, …) and employee names under them.');
+            return;
+        }
+
+        $this->importEntries  = $result['entries'];
+        $this->importDateFrom = $result['effective_date'] ?? now()->toDateString();
+        $this->importDateTo   = Carbon::parse($this->importDateFrom)->endOfYear()->toDateString();
+    }
+
+    public function applyImport(DayOffScheduleImportService $importer): void
+    {
+        $this->validate([
+            'importDateFrom' => 'required|date',
+            'importDateTo'   => 'required|date|after_or_equal:importDateFrom',
+        ]);
+
+        $result = $importer->apply($this->importEntries, $this->importDateFrom, $this->importDateTo, auth()->id());
+
+        if ($result['employees'] === 0) {
+            $this->addError('importDateFrom', 'No matched employees to import.');
+            return;
+        }
+
+        ActivityLogService::log('day_off_schedule_imported', "Imported day-off schedule effective {$this->importDateFrom} for {$result['employees']} employee(s): {$result['created']} day off(s) created, {$result['removed']} replaced.");
+
+        $skipped = collect($this->importEntries)->whereNotNull('problem')->count();
+
+        $this->showImportModal = false;
+        $this->reset(['importFile', 'importEntries']);
+        unset($this->dayOffs);
+
+        $message = "Schedule imported for {$result['employees']} employee(s): {$result['created']} day off(s) created";
+        $message .= $result['removed'] ? ", {$result['removed']} old rest day(s) replaced." : '.';
+        if ($skipped) {
+            $message .= " {$skipped} name(s) were skipped (see the warnings in the preview).";
+        }
+        session()->flash('success', $message);
     }
 
     public function render()

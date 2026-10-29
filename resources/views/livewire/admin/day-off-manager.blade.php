@@ -12,6 +12,10 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">Assign rest days, holidays, and special day offs to employees.</p>
         </div>
         <div class="flex flex-wrap gap-2">
+            <button wire:click="openImport" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                <x-phosphor-microsoft-excel-logo-bold class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                Import Excel
+            </button>
             <button wire:click="openGenerate" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 transition">
                 <x-phosphor-arrows-clockwise-bold class="w-4 h-4" />
                 Auto-generate
@@ -422,6 +426,121 @@
                     Generate Day Offs
                 </button>
             </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- Import Excel (Schedule Day Off grid) Modal --}}
+    @if ($showImportModal)
+    @php
+        $dayNames     = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        $importRows   = collect($importEntries);
+        $importOk     = $importRows->whereNull('problem');
+        $importIssues = $importRows->whereNotNull('problem');
+    @endphp
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" x-data @click.self="$wire.set('showImportModal', false)">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full {{ $importEntries ? 'max-w-3xl' : 'max-w-lg' }} mx-4 p-6 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">Import Day-Off Schedule</h3>
+
+            @if (! $importEntries)
+                {{-- Step 1: upload --}}
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    Upload the <strong>Schedule Day Off</strong> sheet: weekdays across the top, employee names under the day they are off.
+                    You'll review the matches before anything is saved.
+                </p>
+
+                <a href="{{ asset('samples/schedule-day-off-sample.xlsx') }}" download
+                   class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                    <x-phosphor-download-simple-bold class="w-4 h-4" />
+                    Download sample sheet
+                </a>
+
+                <div>
+                    <label for="importFile" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Excel file (.xlsx, .xls, .csv)</label>
+                    <input id="importFile" type="file" wire:model="importFile" accept=".xlsx,.xls,.csv"
+                        class="block w-full text-sm text-gray-600 dark:text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-950/40 dark:file:text-indigo-300 hover:file:bg-indigo-100" />
+                    <p wire:loading wire:target="importFile" class="text-xs text-gray-400 dark:text-gray-500 mt-1">Uploading…</p>
+                    @error('importFile') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button wire:click="$set('showImportModal', false)" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancel</button>
+                    <button wire:click="readImportFile" wire:loading.attr="disabled" wire:target="importFile,readImportFile"
+                        class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-500 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition disabled:opacity-50">
+                        <span wire:loading.remove wire:target="readImportFile">Read File</span>
+                        <span wire:loading wire:target="readImportFile">Reading…</span>
+                    </button>
+                </div>
+            @else
+                {{-- Step 2: review + apply --}}
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <span class="font-medium text-emerald-600 dark:text-emerald-400">{{ $importOk->count() }} matched</span>
+                    @if ($importIssues->isNotEmpty())
+                        · <span class="font-medium text-red-600 dark:text-red-400">{{ $importIssues->count() }} will be skipped</span>
+                    @endif
+                    — each matched employee's weekly rest day is set to the day shown, and rest days are created for the period below.
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                        <label for="importDateFrom" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Effective from</label>
+                        <input id="importDateFrom" wire:model.live="importDateFrom" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        @error('importDateFrom') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="importDateTo" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Create rest days until</label>
+                        <input id="importDateTo" wire:model.live="importDateTo" type="date" class="w-full rounded-lg border-gray-300 dark:border-gray-600 text-sm" />
+                        @error('importDateTo') <p class="text-xs text-red-500 dark:text-red-400 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 dark:bg-gray-700/40 text-gray-500 dark:text-gray-400 uppercase text-xs">
+                            <tr>
+                                <th class="px-3 py-2">Name in sheet</th>
+                                <th class="px-3 py-2">Section</th>
+                                <th class="px-3 py-2">Day off</th>
+                                <th class="px-3 py-2">Matched employee</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            @foreach ($importIssues->concat($importOk) as $row)
+                            <tr class="{{ $row['problem'] ? 'bg-red-50/60 dark:bg-red-950/20' : '' }}">
+                                <td class="px-3 py-2 font-medium">{{ $row['name'] }}</td>
+                                <td class="px-3 py-2 text-gray-500 dark:text-gray-400">{{ $row['section'] ?: '—' }}</td>
+                                <td class="px-3 py-2">{{ $dayNames[$row['weekday']] }}</td>
+                                <td class="px-3 py-2">
+                                    @if ($row['employee_id'])
+                                        {{ $row['employee_name'] }}
+                                        <span class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $row['emp_code'] }}</span>
+                                    @endif
+                                    @if ($row['problem'])
+                                        <span class="block text-xs font-medium text-red-600 dark:text-red-400">{{ $row['problem'] }} — skipped</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                @if ($importIssues->isNotEmpty())
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        To include skipped names, fix the spelling in the sheet (or the employee record) and import again.
+                    </p>
+                @endif
+
+                <div class="flex justify-between gap-3 mt-6">
+                    <button wire:click="openImport" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">Choose another file</button>
+                    <button wire:click="applyImport" wire:loading.attr="disabled" wire:target="applyImport" @disabled($importOk->isEmpty())
+                        wire:confirm="Apply this schedule to {{ $importOk->count() }} employee(s)? Their weekly rest day will change and rest days will be regenerated for the selected period."
+                        class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 dark:bg-emerald-500 rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 transition disabled:opacity-50">
+                        <span wire:loading.remove wire:target="applyImport">Apply Schedule</span>
+                        <span wire:loading wire:target="applyImport">Applying…</span>
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
     @endif
