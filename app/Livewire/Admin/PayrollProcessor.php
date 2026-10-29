@@ -27,6 +27,7 @@ class PayrollProcessor extends Component
     // Create period form
     public bool   $showCreate             = false;
     public string $cutoffType             = 'custom';
+    public string $payrollGroup           = 'business';
     public string $customDeductionScope   = 'both';
     public string $startDate              = '';
     public string $endDate                = '';
@@ -88,7 +89,19 @@ class PayrollProcessor extends Component
             default          => 'Monthly',
         };
 
-        return [$start->toDateString(), $end->toDateString(), $end->format('F Y') . ' - ' . $label];
+        $group = $this->payrollGroup === 'nursing' ? 'Nursing' : 'Business';
+
+        return [$start->toDateString(), $end->toDateString(), $end->format('F Y') . ' - ' . $label . ' (' . $group . ')'];
+    }
+
+    public function setPayrollGroup(string $group): void
+    {
+        $this->payrollGroup = $group;
+
+        // Re-label the auto-filled name; custom periods keep whatever was typed.
+        if ($this->cutoffType !== 'custom') {
+            [, , $this->periodName] = $this->cutoffFor($this->cutoffType);
+        }
     }
 
     public function setCutoffType(string $type): void
@@ -127,6 +140,7 @@ class PayrollProcessor extends Component
         $this->validate([
             'periodName'           => 'required|string|max:255',
             'cutoffType'           => 'required|in:semi_monthly_1,semi_monthly_2,monthly,custom',
+            'payrollGroup'         => 'required|in:business,nursing',
             'customDeductionScope' => 'required|in:both,1st,2nd,all',
             'startDate'            => 'required|date',
             'endDate'              => 'required|date|after_or_equal:startDate',
@@ -135,6 +149,7 @@ class PayrollProcessor extends Component
         PayrollPeriod::create([
             'name'                   => $this->periodName,
             'cutoff_type'            => $this->cutoffType,
+            'payroll_group'          => $this->payrollGroup,
             'custom_deduction_scope' => $this->cutoffType === 'custom' ? $this->customDeductionScope : 'both',
             'start_date'             => $this->startDate,
             'end_date'               => $this->endDate,
@@ -205,7 +220,8 @@ class PayrollProcessor extends Component
     #[Computed]
     public function eligibleEmployees()
     {
-        return Employee::where('is_active', true)
+        return PayrollPeriod::limitEmployeesToGroup(Employee::query(), $this->generatePeriod?->payroll_group)
+            ->where('is_active', true)
             ->whereHas('salaryDetail')
             ->orderBy('last_name')
             ->orderBy('first_name')
@@ -348,7 +364,7 @@ class PayrollProcessor extends Component
             return collect();
         }
 
-        $employees = Employee::with('salaryDetail')
+        $employees = PayrollPeriod::limitEmployeesToGroup(Employee::with('salaryDetail'), $this->viewPeriod?->payroll_group)
             ->where('is_active', true)
             ->orderBy('last_name')
             ->get();

@@ -31,7 +31,8 @@ class GeneratePayslipsJob implements ShouldQueue
     {
         $period = PayrollPeriod::findOrFail($this->payrollPeriodId);
 
-        $employees = Employee::where('is_active', true)
+        $employees = PayrollPeriod::limitEmployeesToGroup(Employee::query(), $period->payroll_group)
+            ->where('is_active', true)
             ->whereHas('salaryDetail')
             ->when($this->employeeIds !== null, fn ($q) => $q->whereIn('id', $this->employeeIds))
             ->get();

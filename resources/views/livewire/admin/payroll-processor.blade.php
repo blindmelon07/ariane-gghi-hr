@@ -46,6 +46,39 @@
                     @error('periodName') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                {{-- Payroll Group --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Payroll For</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" wire:click="setPayrollGroup('business')"
+                                class="flex flex-col items-center gap-0.5 py-3 px-2 rounded-xl border-2 transition-colors
+                                       {{ $payrollGroup === 'business'
+                                           ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $payrollGroup === 'business' ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300' }}">
+                                Business
+                            </span>
+                            <span class="text-[11px] {{ $payrollGroup === 'business' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500' }}">
+                                All non-nursing staff
+                            </span>
+                        </button>
+
+                        <button type="button" wire:click="setPayrollGroup('nursing')"
+                                class="flex flex-col items-center gap-0.5 py-3 px-2 rounded-xl border-2 transition-colors
+                                       {{ $payrollGroup === 'nursing'
+                                           ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30'
+                                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                            <span class="text-sm font-bold {{ $payrollGroup === 'nursing' ? 'text-pink-700 dark:text-pink-300' : 'text-gray-700 dark:text-gray-300' }}">
+                                Nursing
+                            </span>
+                            <span class="text-[11px] {{ $payrollGroup === 'nursing' ? 'text-pink-500 dark:text-pink-400' : 'text-gray-400 dark:text-gray-500' }}">
+                                88 / 104 hrs quota
+                            </span>
+                        </button>
+                    </div>
+                    @error('payrollGroup') <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
                 {{-- Cutoff Type --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Cutoff Type</label>
@@ -328,6 +361,7 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    @include('livewire.admin._payroll-group-badge', ['period' => $period])
                     <span>{{ str_replace('_', ' ', ucfirst($period->cutoff_type)) }}</span>
                     <span>· {{ $period->payslips()->count() }} payslips</span>
                 </div>
@@ -346,6 +380,7 @@
             <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Period</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Group</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cutoff</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Dates</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
@@ -357,6 +392,7 @@
                 @forelse ($this->periods as $period)
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $period->name }}</td>
+                        <td class="px-6 py-4">@include('livewire.admin._payroll-group-badge', ['period' => $period])</td>
                         <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ str_replace('_', ' ', ucfirst($period->cutoff_type)) }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $period->start_date->format('M d') }} – {{ $period->end_date->format('M d, Y') }}</td>
                         <td class="px-6 py-4">
@@ -377,7 +413,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No payroll periods found.</td>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">No payroll periods found.</td>
                     </tr>
                 @endforelse
             </tbody>

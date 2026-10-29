@@ -144,3 +144,55 @@ describe('GeneratePayslipsJob', function () {
             ->and($period->fresh()->status)->toBe('processed');
     });
 });
+
+// ── Business / Nursing payroll groups ─────────────────────────────────────────
+
+describe('payroll groups', function () {
+    it('saves the chosen group and labels the auto-filled name', function () {
+        Livewire::actingAs(payHr())->test(PayrollProcessor::class)
+            ->call('setCutoffType', 'semi_monthly_2')
+            ->call('setPayrollGroup', 'nursing')
+            ->assertSet('periodName', fn ($name) => str_ends_with($name, '(Nursing)'))
+            ->call('createPeriod')
+            ->assertHasNoErrors();
+
+        expect(PayrollPeriod::latest('id')->first()->payroll_group)->toBe('nursing');
+    });
+
+    it('only offers nursing staff for a nursing period', function () {
+        $nurse = payEmp(['department' => 'NURSING']);
+        $clerk = payEmp(['department' => 'IT']);
+        $period = payPeriod();
+        $period->update(['payroll_group' => 'nursing']);
+
+        Livewire::actingAs(payHr())->test(PayrollProcessor::class)
+            ->call('openGenerate', $period->id)
+            ->assertSet('selectedEmployeeIds', [(string) $nurse->id])
+            ->assertDontSee($clerk->full_name);
+    });
+
+    it('only generates non-nursing staff for a business period', function () {
+        $nurse = payEmp(['department' => 'Nursing']);
+        $clerk = payEmp(['department' => 'IT']);
+        $noDept = payEmp(['department' => null]);
+        $period = payPeriod();
+        $period->update(['payroll_group' => 'business']);
+
+        (new GeneratePayslipsJob($period->id))->handle(app(PhilippinePayrollService::class));
+
+        expect(Payslip::where('payroll_period_id', $period->id)->pluck('employee_id')->sort()->values()->all())
+            ->toBe(collect([$clerk->id, $noDept->id])->sort()->values()->all());
+    });
+
+    it('keeps everyone in periods created before the split', function () {
+        payEmp(['department' => 'Nursing']);
+        payEmp(['department' => 'IT']);
+        $period = payPeriod();
+
+        expect($period->fresh()->payroll_group)->toBe('all');
+
+        Livewire::actingAs(payHr())->test(PayrollProcessor::class)
+            ->call('openGenerate', $period->id)
+            ->assertSee('2 of 2 selected');
+    });
+});
