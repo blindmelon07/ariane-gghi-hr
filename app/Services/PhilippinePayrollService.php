@@ -374,8 +374,9 @@ class PhilippinePayrollService
 
     /**
      * Required duty hours per cutoff for Nursing staff, keyed by employment type.
-     * The higher figure applies only to the 2nd-half cutoff of a 31-day month
-     * (the extra day 31 adds one more 8-hour shift to the quota).
+     * The higher figure applies to the cutoff that contains a 31st — with the
+     * hospital's 26th–10th / 11th–25th cutoffs that is the 1st cutoff — since
+     * the extra day adds one more 8-hour shift to the quota.
      */
     protected const NURSE_REQUIRED_HOURS = [
         'regular'      => ['base' => 88, 'month_31' => 96],
@@ -400,16 +401,18 @@ class PhilippinePayrollService
         $type = ($employee->employment_type ?? 'regular') === 'probationary' ? 'probationary' : 'regular';
         $rule = self::NURSE_REQUIRED_HOURS[$type];
 
-        $monthHas31Days = Carbon::parse($period->start_date)->daysInMonth === 31;
+        // Whichever cutoff the 31st falls in absorbs the extra day.
+        $hasDay31 = false;
+        for ($d = Carbon::parse($period->start_date); $d->lte($period->end_date); $d->addDay()) {
+            if ($d->day === 31) {
+                $hasDay31 = true;
+                break;
+            }
+        }
 
-        return match ($period->cutoff_type) {
-            // Only the 2nd-half cutoff absorbs the extra day of a 31-day month.
-            'semi_monthly_2' => $monthHas31Days ? $rule['month_31'] : $rule['base'],
-            // Monthly cutoffs cover both halves.
-            'monthly'        => $rule['base'] * 2 + ($monthHas31Days ? 8 : 0),
-            // 1st-half and custom periods use the base figure.
-            default          => $rule['base'],
-        };
+        return $period->cutoff_type === 'monthly'
+            ? $rule['base'] * 2 + ($hasDay31 ? 8 : 0) // monthly cutoffs cover both halves
+            : ($hasDay31 ? $rule['month_31'] : $rule['base']);
     }
 
     /**

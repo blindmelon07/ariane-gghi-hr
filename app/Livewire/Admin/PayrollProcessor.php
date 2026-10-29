@@ -51,21 +51,44 @@ class PayrollProcessor extends Component
 
     public function prefillDates(): void
     {
-        $now = now();
-
         $this->customDeductionScope = 'both';
 
-        if ($now->day <= 15) {
-            $this->cutoffType = 'semi_monthly_1';
-            $this->startDate  = $now->copy()->startOfMonth()->toDateString();
-            $this->endDate    = $now->copy()->startOfMonth()->addDays(14)->toDateString();
-        } else {
-            $this->cutoffType = 'semi_monthly_2';
-            $this->startDate  = $now->copy()->startOfMonth()->addDays(15)->toDateString();
-            $this->endDate    = $now->copy()->endOfMonth()->toDateString();
+        // Pre-select the cutoff that ended most recently: from the 10th to the
+        // 24th that is the 1st cutoff (26th–10th), otherwise the 2nd (11th–25th).
+        $day = now()->day;
+        $this->cutoffType = $day >= 10 && $day <= 24 ? 'semi_monthly_1' : 'semi_monthly_2';
+
+        [$this->startDate, $this->endDate, $this->periodName] = $this->cutoffFor($this->cutoffType);
+    }
+
+    /**
+     * Hospital cutoffs: 1st = 26th of the previous month – 10th, 2nd = 11th – 25th,
+     * monthly = 26th of the previous month – 25th. Returns the latest one of the
+     * given type that has already ended (payroll is run after the cutoff closes).
+     *
+     * @return array{0: string, 1: string, 2: string} start date, end date, period name
+     */
+    private function cutoffFor(string $type): array
+    {
+        $today  = now()->startOfDay();
+        $endDay = $type === 'semi_monthly_1' ? 10 : 25;
+
+        $end = $today->copy()->day($endDay);
+        if ($end->gt($today)) {
+            $end = $today->copy()->subMonthNoOverflow()->day($endDay);
         }
 
-        $this->periodName = $now->format('F Y') . ' - ' . ($this->cutoffType === 'semi_monthly_1' ? '1st Half' : '2nd Half');
+        $start = $type === 'semi_monthly_2'
+            ? $end->copy()->day(11)
+            : $end->copy()->subMonthNoOverflow()->day(26);
+
+        $label = match ($type) {
+            'semi_monthly_1' => '1st Half',
+            'semi_monthly_2' => '2nd Half',
+            default          => 'Monthly',
+        };
+
+        return [$start->toDateString(), $end->toDateString(), $end->format('F Y') . ' - ' . $label];
     }
 
     public function setCutoffType(string $type): void
@@ -85,26 +108,9 @@ class PayrollProcessor extends Component
             return;
         }
 
-        $now = now();
-
-        match ($this->cutoffType) {
-            'semi_monthly_1' => [
-                $this->startDate  = $now->copy()->startOfMonth()->toDateString(),
-                $this->endDate    = $now->copy()->startOfMonth()->addDays(14)->toDateString(),
-                $this->periodName = $now->format('F Y') . ' - 1st Half',
-            ],
-            'semi_monthly_2' => [
-                $this->startDate  = $now->copy()->startOfMonth()->addDays(15)->toDateString(),
-                $this->endDate    = $now->copy()->endOfMonth()->toDateString(),
-                $this->periodName = $now->format('F Y') . ' - 2nd Half',
-            ],
-            'monthly' => [
-                $this->startDate  = $now->copy()->startOfMonth()->toDateString(),
-                $this->endDate    = $now->copy()->endOfMonth()->toDateString(),
-                $this->periodName = $now->format('F Y') . ' - Monthly',
-            ],
-            default => null,
-        };
+        if (in_array($this->cutoffType, ['semi_monthly_1', 'semi_monthly_2', 'monthly'], true)) {
+            [$this->startDate, $this->endDate, $this->periodName] = $this->cutoffFor($this->cutoffType);
+        }
     }
 
     #[Computed]
