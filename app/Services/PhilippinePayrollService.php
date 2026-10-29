@@ -154,10 +154,12 @@ class PhilippinePayrollService
         $hourlyRate  = (float) $salary->hourly_rate;
         $basicSalary = (float) $salary->basic_salary;
 
-        // Allowances (semi-monthly amounts)
-        $hazardPay         = round((float) ($salary->hazard_pay ?? 0), 2);
+        // Allowances (semi-monthly amounts). Hazard pay and the laundry/medical
+        // allowance are paid once a month, on the 2nd cutoff only.
+        $isSecondCutoff    = in_array('2nd', $this->applicableCutoffs($period), true);
+        $hazardPay         = $isSecondCutoff ? round((float) ($salary->hazard_pay ?? 0), 2) : 0.0;
         $riceAllowance     = round((float) ($salary->rice_allowance ?? 0), 2);
-        $medicalAllowance  = round((float) ($salary->medical_allowance ?? 0), 2);
+        $medicalAllowance  = $isSecondCutoff ? round((float) ($salary->medical_allowance ?? 0), 2) : 0.0;
         $commodityAllowance = round((float) ($salary->commodity_allowance ?? 0), 2);
         $otherAllowanceAmt = round((float) ($salary->other_allowance ?? 0), 2);
         $totalAllowances   = round($hazardPay + $riceAllowance + $medicalAllowance + $commodityAllowance + $otherAllowanceAmt, 2);
@@ -449,7 +451,22 @@ class PhilippinePayrollService
      */
     public function applicableDeductions(Employee $employee, PayrollPeriod $period)
     {
-        $applicableCutoffs = match ($period->cutoff_type) {
+        return OtherDeduction::with('deductionType')
+            ->where('employee_id', $employee->id)
+            ->where('is_active', true)
+            ->whereIn('cutoff_schedule', $this->applicableCutoffs($period))
+            ->where(fn ($q) => $q->whereNull('starts_on')->orWhereDate('starts_on', '<=', $period->end_date))
+            ->get();
+    }
+
+    /**
+     * Which cutoff schedules ('both', '1st', '2nd') a period covers.
+     *
+     * @return array<int, string>
+     */
+    protected function applicableCutoffs(PayrollPeriod $period): array
+    {
+        return match ($period->cutoff_type) {
             'semi_monthly_1' => ['both', '1st'],
             'semi_monthly_2' => ['both', '2nd'],
             'monthly'        => ['both', '1st', '2nd'],
@@ -461,13 +478,6 @@ class PhilippinePayrollService
             },
             default => ['both', '1st', '2nd'],
         };
-
-        return OtherDeduction::with('deductionType')
-            ->where('employee_id', $employee->id)
-            ->where('is_active', true)
-            ->whereIn('cutoff_schedule', $applicableCutoffs)
-            ->where(fn ($q) => $q->whereNull('starts_on')->orWhereDate('starts_on', '<=', $period->end_date))
-            ->get();
     }
 
     /**

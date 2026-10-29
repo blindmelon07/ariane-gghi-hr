@@ -76,6 +76,7 @@ function bayocaPeriod(): PayrollPeriod
     return PayrollPeriod::create([
         'name'        => 'June 22–27 2026 (Test)',
         'cutoff_type' => 'custom',
+        'custom_deduction_scope' => 'all', // covers the 2nd cutoff, so hazard pay applies
         'start_date'  => '2026-06-22',
         'end_date'    => '2026-06-27',
         'status'      => 'draft',

@@ -35,9 +35,11 @@ function monthlyRateEmployee(): Employee
         'employee_id'  => $emp->id,
         'rate_type'    => 'monthly',
         'basic_salary' => 16658.00,
-        'daily_rate'   => 640.69,
-        'hourly_rate'  => 80.09,
-        'is_active'    => true,
+        'daily_rate'        => 640.69,
+        'hourly_rate'       => 80.09,
+        'hazard_pay'        => 600.00,
+        'medical_allowance' => 550.00,
+        'is_active'         => true,
     ]);
 
     return $emp;
@@ -89,5 +91,20 @@ describe('monthly-rate payslip', function () {
     it('nets the late deduction out of the regular shift', function () {
         expect((float) $this->payslip['days_absent'])->toBe(0.0)
             ->and((float) $this->payslip['gross_pay'])->toBe(8289.98);
+    });
+
+    it('adds hazard pay and the laundry/medical allowance on the 2nd cutoff', function () {
+        expect((float) $this->payslip['hazard_pay'])->toBe(600.0)
+            ->and((float) $this->payslip['medical_allowance'])->toBe(550.0)
+            ->and((float) $this->payslip['net_pay'])->toBe(9439.98); // HR payslip gross
+    });
+
+    it('leaves hazard pay and the laundry/medical allowance off the 1st cutoff', function () {
+        $this->period->update(['cutoff_type' => 'semi_monthly_1']);
+        $payslip = app(PhilippinePayrollService::class)->computePayslip($this->emp, $this->period);
+
+        expect((float) $payslip['hazard_pay'])->toBe(0.0)
+            ->and((float) $payslip['medical_allowance'])->toBe(0.0)
+            ->and((float) $payslip['total_allowances'])->toBe(0.0);
     });
 });
