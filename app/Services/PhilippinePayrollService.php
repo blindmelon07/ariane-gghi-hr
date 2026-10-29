@@ -271,6 +271,17 @@ class PhilippinePayrollService
         $paidDays = $workingDays + $paidRestDays;
         $basicPay = round($paidDays * $dailyRate, 2);
 
+        // Monthly-rate staff get a fixed half of the monthly rate per semi-monthly
+        // cutoff (the whole rate on a monthly cutoff), however many days the cutoff
+        // spans — matches the HR payslip's "Regular Shift". Nurses keep the quota.
+        if (! $isNurse && $salary->rate_type === 'monthly' && $basicSalary > 0) {
+            $basicPay = match ($period->cutoff_type) {
+                'semi_monthly_1', 'semi_monthly_2' => round($basicSalary / 2, 2),
+                'monthly'                          => round($basicSalary, 2),
+                default                            => $basicPay,
+            };
+        }
+
         if ($isNurse) {
             // Nurses' shifts vary in length, so "absence" is measured in total hours
             // short of the cutoff's required-hours quota (approved leave credited at
